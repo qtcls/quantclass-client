@@ -1,0 +1,11 @@
+packages:
+  - "."
+
+onlyBuiltDependencies:
+  - '@biomejs/biome'
+  - '@heroui/shared-utils'
+  - '@swc/core'
+  - better-sqlite3
+  - electron
+  - esbuild
+  - lefthook
