@@ -1,0 +1,135 @@
+{
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "vue"
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.defaultFormatter": "biomejs.biome",
+  "[javascript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[less]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[scss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "editor.formatOnSave": true,
+  "cSpell.words": [
+    "AGEM",
+    "appdmg",
+    "backtest",
+    "banben",
+    "Bento",
+    "Beryah",
+    "checkpython",
+    "chrischen",
+    "clientrun",
+    "cmdk",
+    "codeframe",
+    "Codesandbox",
+    "configpath",
+    "cssinjs",
+    "cursorignore",
+    "cursorrules",
+    "dflt",
+    "downlaod",
+    "elikong",
+    "Frameless",
+    "fulldata",
+    "guanli",
+    "headimgurl",
+    "heroui",
+    "HKCU",
+    "HKLM",
+    "hookform",
+    "icns",
+    "ifempty",
+    "inpath",
+    "INSTDIR",
+    "intraday",
+    "ironbox",
+    "jiantianjianghui",
+    "kanban",
+    "lefthook",
+    "lightningcss",
+    "littig",
+    "lucide",
+    "macroend",
+    "mainwindow",
+    "msgtype",
+    "nodebuffer",
+    "notnull",
+    "offcanvas",
+    "outpath",
+    "overscan",
+    "Poweroff",
+    "pycore",
+    "PYTHONIOENCODING",
+    "PYTHONPATH",
+    "PYTHONUNBUFFERED",
+    "qtcls",
+    "quantclass",
+    "quantclassdata",
+    "relocator",
+    "runpy",
+    "selectables",
+    "shadcn",
+    "Shadui",
+    "sidermenu",
+    "sonner",
+    "spolight",
+    "startspeaking",
+    "stopspeaking",
+    "taskkill",
+    "teny",
+    "ULFO",
+    "Uncompress",
+    "Unconfigured",
+    "userdata",
+    "virtualenv",
+    "vstack",
+    "wicg",
+    "wiston",
+    "worklflow",
+    "Wutao",
+    "xxhh",
+    "Yancy",
+    "yxxx"
+  ],
+  "[mdx]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+}
