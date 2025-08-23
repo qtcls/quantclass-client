@@ -2,7 +2,7 @@
 	"name": "quantclass",
 	"productName": "QuantclassClient",
 	"version": "3.4.0",
-	"description": "量化小讲堂客户端",
+	"description": "Stock related service tool for Quantclass, including stock data download, stock data analysis, stock data visualization, etc.",
 	"main": "./out/main/index.js",
 	"exports": "./out/main/index.js",
 	"type": "module",

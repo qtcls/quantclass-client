@@ -8,5 +8,11 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
+import pkg from "../../package.json"
+
 // 在 Electron 主进程中，环境变量应该从 process.env 获取
 export const BASE_URL = process.env.VITE_BASE_URL || "http://localhost:3000"
+
+// 应用版本信息
+export const CLIENT_VERSION = pkg.version
+export const PACKAGE_INFO = pkg

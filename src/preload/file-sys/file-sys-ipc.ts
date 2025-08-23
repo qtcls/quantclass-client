@@ -624,7 +624,7 @@ async function readChangelogHandler(): Promise<void> {
 	ipcMain.handle("read-changelog", async () => {
 		try {
 			const changelogPath = path.join(process.cwd(), "CHANGELOG.md")
-			
+
 			// -- 检查文件是否存在
 			if (!fs.existsSync(changelogPath)) {
 				logger.error("[readChangelogHandler] CHANGELOG.md 文件不存在")
@@ -633,7 +633,7 @@ async function readChangelogHandler(): Promise<void> {
 
 			// -- 读取文件内容
 			const content = fs.readFileSync(changelogPath, "utf-8")
-			
+
 			logger.info("[readChangelogHandler] 成功读取 CHANGELOG.md")
 			return { success: true, data: content }
 		} catch (error) {

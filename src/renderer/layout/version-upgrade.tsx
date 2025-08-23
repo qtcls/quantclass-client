@@ -17,13 +17,13 @@ import {
 	CircleCheckBig,
 	Sparkles,
 } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
 import {
 	Dialog,
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
 } from "../components/ui/dialog"
-import { useMemo, useEffect, useState } from "react"
 
 interface VersionTip {
 	title: string
@@ -38,11 +38,11 @@ interface VersionData {
 // 解析 Markdown 格式的更新日志
 const parseChangelog = (content: string): VersionData[] => {
 	const versions: VersionData[] = []
-	const lines = content.split('\n')
-	
-	let currentVersion = ''
+	const lines = content.split("\n")
+
+	let currentVersion = ""
 	let currentTips: VersionTip[] = []
-	
+
 	for (const line of lines) {
 		// 匹配版本号 ## [3.4.0] - 2025-01-XX
 		const versionMatch = line.match(/^## \[([^\]]+)\]/)
@@ -51,42 +51,42 @@ const parseChangelog = (content: string): VersionData[] => {
 			if (currentVersion && currentTips.length > 0) {
 				versions.push({
 					version: currentVersion,
-					versionTipsList: [...currentTips]
+					versionTipsList: [...currentTips],
 				})
 			}
-			
+
 			currentVersion = versionMatch[1]
 			currentTips = []
 			continue
 		}
-		
+
 		// 跳过分类标题 ### 新增功能
 		if (line.match(/^### (.+)/)) {
 			continue
 		}
-		
+
 		// 匹配具体项目 - 🚫 **添加实盘买入黑名单功能** - 描述内容
 		const itemMatch = line.match(/^- (.+?) \*\*(.+?)\*\* - (.+)/)
 		if (itemMatch) {
 			const emoji = itemMatch[1].trim()
 			const title = itemMatch[2].trim()
 			const description = itemMatch[3].trim()
-			
+
 			currentTips.push({
 				title: `${emoji} ${title}`,
-				describe: description
+				describe: description,
 			})
 		}
 	}
-	
+
 	// 保存最后一个版本的数据
 	if (currentVersion && currentTips.length > 0) {
 		versions.push({
 			version: currentVersion,
-			versionTipsList: [...currentTips]
+			versionTipsList: [...currentTips],
 		})
 	}
-	
+
 	return versions
 }
 
@@ -103,12 +103,12 @@ export default function VersionUpgrade() {
 					const parsedData = parseChangelog(result.data)
 					setData(parsedData)
 				} else {
-					console.error('Failed to read changelog:', result.error)
+					console.error("Failed to read changelog:", result.error)
 					// 如果读取失败，使用默认数据作为备份
 					setData([])
 				}
 			} catch (error) {
-				console.error('Error loading changelog:', error)
+				console.error("Error loading changelog:", error)
 				setData([])
 			} finally {
 				setLoading(false)
@@ -121,15 +121,15 @@ export default function VersionUpgrade() {
 	const isShow = useMemo(() => {
 		return !loading && data.length > 0 && !versionList.includes(data[0].version)
 	}, [versionList, data, loading])
-	
+
 	// 筛选出 data 中 version 不在 versionList 里的数据
 	const newData = data.filter((v) => !versionList.includes(v.version))
-	
+
 	// 如果正在加载或没有数据，不显示对话框
 	if (loading || data.length === 0) {
 		return null
 	}
-	
+
 	return (
 		<div>
 			<Dialog

@@ -19,11 +19,9 @@ import windowManager from "@/main/lib/WindowManager.js"
 import { postUserMainAction } from "@/main/request/index.js"
 import store from "@/main/store/index.js"
 import { getBinPath } from "@/main/utils/common.js"
-import { BASE_URL } from "@/main/vars.js"
+import { BASE_URL, CLIENT_VERSION } from "@/main/vars.js"
 import { platform } from "@electron-toolkit/utils"
 import dayjs from "dayjs"
-// @ts-ignore
-import pkg from "../../../package.json"
 import {
 	checkDownloadLimit,
 	checkLock,
@@ -36,7 +34,7 @@ import { getCoreVersion, getVersionWithLoop } from "./lib.js"
 const require = createRequire(import.meta.url)
 const AdmZip = require("adm-zip")
 
-const { version: clientVersion } = pkg
+const clientVersion = CLIENT_VERSION
 
 const URL = `${BASE_URL}/api/data/client`
 const CORE_VERSION_REMOTE_URL = {
