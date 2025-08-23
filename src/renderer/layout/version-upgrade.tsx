@@ -23,159 +23,113 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "../components/ui/dialog"
-import { useMemo } from "react"
+import { useMemo, useEffect, useState } from "react"
+
+interface VersionTip {
+	title: string
+	describe: string
+}
+
+interface VersionData {
+	version: string
+	versionTipsList: VersionTip[]
+}
+
+// 解析 Markdown 格式的更新日志
+const parseChangelog = (content: string): VersionData[] => {
+	const versions: VersionData[] = []
+	const lines = content.split('\n')
+	
+	let currentVersion = ''
+	let currentTips: VersionTip[] = []
+	
+	for (const line of lines) {
+		// 匹配版本号 ## [3.4.0] - 2025-01-XX
+		const versionMatch = line.match(/^## \[([^\]]+)\]/)
+		if (versionMatch) {
+			// 保存前一个版本的数据
+			if (currentVersion && currentTips.length > 0) {
+				versions.push({
+					version: currentVersion,
+					versionTipsList: [...currentTips]
+				})
+			}
+			
+			currentVersion = versionMatch[1]
+			currentTips = []
+			continue
+		}
+		
+		// 跳过分类标题 ### 新增功能
+		if (line.match(/^### (.+)/)) {
+			continue
+		}
+		
+		// 匹配具体项目 - 🚫 **添加实盘买入黑名单功能** - 描述内容
+		const itemMatch = line.match(/^- (.+?) \*\*(.+?)\*\* - (.+)/)
+		if (itemMatch) {
+			const emoji = itemMatch[1].trim()
+			const title = itemMatch[2].trim()
+			const description = itemMatch[3].trim()
+			
+			currentTips.push({
+				title: `${emoji} ${title}`,
+				describe: description
+			})
+		}
+	}
+	
+	// 保存最后一个版本的数据
+	if (currentVersion && currentTips.length > 0) {
+		versions.push({
+			version: currentVersion,
+			versionTipsList: [...currentTips]
+		})
+	}
+	
+	return versions
+}
+
 export default function VersionUpgrade() {
 	const [versionList, setVersionList] = useAtom(versionListAtom)
-	const data = [
-		{
-			version: "3.4.0",
-			versionTipsList: [
-				{
-					title: "🚫 添加实盘买入黑名单功能",
-					describe:
-						"支持在实盘页面，添加买入黑名单，避免策略在实盘时，买入黑名单中的股票。可以在交易前进行实时配置干预。",
-				},
-				{
-					title: "⏱️ 支持配置定风波择时的fallback仓位",
-					describe:
-						"当定风波计算超时的时候，可以设定一个默认数值给默认仓位，可以实现超时全量出击，超时不出击，甚至半仓出击的配置",
-				},
-				{
-					title: "🐛 修复了一些小问题",
-					describe:
-						"比如微信扫码在暗黑模式下扫不出来，并优化了数据订阅页面的所有逻辑",
-				},
-				{
-					title: "🎨 UI细节优化",
-					describe: "重构了部分UI细节，优化使用体验",
-				},
-			],
-		},
-		{
-			version: "3.3.1",
-			versionTipsList: [
-				{
-					title: "🐛 修复3.3.0中换仓随机时间的问题",
-					describe:
-						"修复换仓时间中随机时间生成的问题，会有一定几率无法被rocket识别，更新后重新保存一下策略（比如调整比例）即可生效。",
-				},
-			],
-		},
-		{
-			version: "3.3.0",
-			versionTipsList: [
-				{
-					title: "🍁 支持策略增量导入",
-					describe:
-						"支持从选股回测框架、仓位管理框架、fusion等框架中，增量导入策略",
-				},
-				{
-					title: "⏱️ 支持定时运行配置",
-					describe: "包括设置数据更新的时间，选股的时间，以及实盘的时间",
-				},
-				{
-					title: "✏️ 支持编辑更多策略细节",
-					describe: "支持策略更多实盘细节编辑，比如实盘的拆单金额等",
-				},
-				{
-					title: "🚤 Fuel内核优化",
-					describe: "优化fuel内核执行效率，优化磁盘使用",
-				},
-				{
-					title: "🐛 修复多进程锁在部分电脑上失效的问题",
-					describe: "修复多进程锁遇到encoding的问题，导致进程锁失效",
-				},
-				{
-					title: "🔄 换仓时间调整",
-					describe:
-						"保持仓位管理策略内换仓时间统一，避免出现策略内换仓时间不统一的问题",
-				},
-			],
-		},
-		{
-			version: "3.2.2",
-			versionTipsList: [
-				{
-					title: "🐛 修复仓位管理策略问题",
-					describe: "处理了仓位管理策略自定义参数不生效的问题",
-				},
-			],
-		},
-		{
-			version: "3.2.1",
-			versionTipsList: [
-				{
-					title: "🐛 修复策略库导入问题",
-					describe: "修复小问题，并且支持带默认仓位参数的定风波策略导入",
-				},
-			],
-		},
-		{
-			version: "3.2.0",
-			versionTipsList: [
-				{
-					title: "🚀 全新仓位管理实盘功能",
-					describe:
-						"新增仓位管理策略的实盘交易支持，大幅优化策略内核执行效率，完善多策略智能切换机制，为您提供更灵活的交易体验",
-				},
-				{
-					title: "🔄 优化换仓周期设置",
-					describe: "取消了尾盘换仓，需要尾盘换仓可以使用换仓时间来进行设置",
-				},
-				{
-					title: "⚡ 系统优化与问题修复",
-					describe: "全面优化页面交互逻辑，提升系统稳定性，改进用户操作体验",
-				},
-			],
-		},
-		{
-			version: "3.1.3",
-			versionTipsList: [
-				{
-					title: "🧹 清理缓存",
-					describe: "自动删除客户端运行时产生的缓存文件，释放磁盘空间.",
-				},
-				{
-					title: "🛠️ 修复已知问题",
-					describe: "修复回测页面设置过滤，修复偶尔不能编辑策略.",
-				},
-			],
-		},
-		{
-			version: "3.1.2",
-			versionTipsList: [
-				{
-					title: "📈 支持北交所的过滤",
-					describe: "可以选择是否过滤北交所.",
-				},
-				{
-					title: "⚙️ 优化调度的显示逻辑",
-					describe: "清晰的呈现内核运行的每一个环节.",
-				},
-				{
-					title: "↗️ 优化升级管理",
-					describe:
-						"在内核更新时，增加显著的交互提示，清晰知晓当前正处于更新状态.",
-				},
-				{
-					title: "📝 数据订阅页面更新",
-					describe:
-						"在数据订阅页面新增了'数据订阅名词解释'和'数据更新逻辑'两部分说明，快速掌握数据更新的关键信息.",
-				},
-				{
-					title: "🔧 修复已知问题",
-					describe:
-						"修复数据订阅列表，确保1小时实时更新数据的显示时间准确无误.",
-				},
-			],
-		},
-	]
+	const [data, setData] = useState<VersionData[]>([])
+	const [loading, setLoading] = useState(true)
+
+	useEffect(() => {
+		const loadChangelog = async () => {
+			try {
+				const result = await window.electronAPI.readChangelog()
+				if (result.success) {
+					const parsedData = parseChangelog(result.data)
+					setData(parsedData)
+				} else {
+					console.error('Failed to read changelog:', result.error)
+					// 如果读取失败，使用默认数据作为备份
+					setData([])
+				}
+			} catch (error) {
+				console.error('Error loading changelog:', error)
+				setData([])
+			} finally {
+				setLoading(false)
+			}
+		}
+
+		loadChangelog()
+	}, [])
 
 	const isShow = useMemo(() => {
-		return !versionList.includes(data[0].version)
-	}, [versionList])
+		return !loading && data.length > 0 && !versionList.includes(data[0].version)
+	}, [versionList, data, loading])
+	
 	// 筛选出 data 中 version 不在 versionList 里的数据
 	const newData = data.filter((v) => !versionList.includes(v.version))
+	
+	// 如果正在加载或没有数据，不显示对话框
+	if (loading || data.length === 0) {
+		return null
+	}
+	
 	return (
 		<div>
 			<Dialog

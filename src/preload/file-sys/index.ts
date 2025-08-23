@@ -41,4 +41,5 @@ export const fileSysIPC = {
 		ipcRenderer.invoke("import-select-stock", configFilePath),
 	importFusion: (configFilePath: string) =>
 		ipcRenderer.invoke("import-fusion", configFilePath),
+	readChangelog: () => ipcRenderer.invoke("read-changelog"),
 }

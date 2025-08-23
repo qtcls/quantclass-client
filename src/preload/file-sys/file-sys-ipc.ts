@@ -620,6 +620,31 @@ async function parseCsvFileHandler(): Promise<void> {
 	)
 }
 
+async function readChangelogHandler(): Promise<void> {
+	ipcMain.handle("read-changelog", async () => {
+		try {
+			const changelogPath = path.join(process.cwd(), "CHANGELOG.md")
+			
+			// -- 检查文件是否存在
+			if (!fs.existsSync(changelogPath)) {
+				logger.error("[readChangelogHandler] CHANGELOG.md 文件不存在")
+				return { success: false, error: "CHANGELOG.md 文件不存在", data: "" }
+			}
+
+			// -- 读取文件内容
+			const content = fs.readFileSync(changelogPath, "utf-8")
+			
+			logger.info("[readChangelogHandler] 成功读取 CHANGELOG.md")
+			return { success: true, data: content }
+		} catch (error) {
+			logger.error(
+				`[readChangelogHandler] 读取 CHANGELOG.md 文件失败: ${JSON.stringify(error, null, 2)}`,
+			)
+			return { success: false, error: "读取 CHANGELOG.md 文件失败", data: "" }
+		}
+	})
+}
+
 export const regFileSysIPC = () => {
 	openUrlHandler()
 	killRocketHandler()
@@ -630,6 +655,7 @@ export const regFileSysIPC = () => {
 	openDataDirectoryHandler()
 	openUserDirectoryHandler()
 	parseCsvFileHandler()
+	readChangelogHandler()
 	createDirectoryHandler()
 	// checkpythonLockHandler()
 	importSelectStockHandler()
