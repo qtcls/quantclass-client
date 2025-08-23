@@ -10,6 +10,7 @@
 
 import fs from "node:fs/promises"
 import store from "../store/index.js"
+import { PACKAGE_INFO } from "../vars.js"
 
 export async function getCoreVersion(binName = "fuel") {
 	try {
@@ -34,8 +35,7 @@ export async function getCoreVersion(binName = "fuel") {
  */
 export async function getVersionWithLoop() {
 	try {
-		// @ts-ignore
-		const { version } = await import("../../../package.json")
+		const { version } = PACKAGE_INFO
 		const fuelVersion = await getCoreVersion("fuel")
 		const aquaVersion = await getCoreVersion("aqua")
 		const rocketVersion = await getCoreVersion("rocket")
@@ -57,8 +57,7 @@ export async function getVersionWithLoop() {
 			rocketVersion,
 		}
 	} catch (error) {
-		// @ts-ignore
-		const { version } = await import("../../../package.json")
+		const { version } = PACKAGE_INFO
 
 		return {
 			coreVersion: "未配置内核路径",
