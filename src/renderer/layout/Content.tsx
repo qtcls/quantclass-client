@@ -19,8 +19,8 @@ import {
 } from "@/renderer/components/ui/sidebar"
 import {
 	BACKTEST_PAGE,
-	POSITION_INFO_PAGE,
 	FUSION_STRATEGY_LIBRARY_PAGE,
+	POSITION_INFO_PAGE,
 	// CHANGE_LOGS_PAGE,
 	// FAQ_PAGE,
 	// POSITION_INFO_PAGE,
@@ -35,9 +35,9 @@ import { activeTabAtom } from "@/renderer/store"
 import { libraryTypeAtom } from "@/renderer/store/storage"
 import { useAtomValue, useSetAtom } from "jotai"
 import {
+	Briefcase,
 	Check,
 	Code,
-	Briefcase,
 	DatabaseBackup,
 	Gamepad2,
 	House,

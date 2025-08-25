@@ -8,16 +8,16 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
-import { useState, useEffect } from "react"
 import { useAtom } from "jotai"
 import { atom } from "jotai"
 import { atomWithStorage } from "jotai/utils"
+import { useEffect, useState } from "react"
 import {
 	atomWithElectronStore,
 	atomWithElectronStorePro,
-	useSyncAtom,
-	useElectronStoreInit,
 	cacheUtils,
+	useElectronStoreInit,
+	useSyncAtom,
 } from "../utils/store"
 
 // ============================================================================

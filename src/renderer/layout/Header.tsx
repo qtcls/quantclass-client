@@ -34,10 +34,10 @@ import { activeTabAtom, isShowAboutAtom } from "@/renderer/store"
 import { useUpdateEffect } from "etc-hooks"
 import { useAtom, useSetAtom } from "jotai"
 import {
+	AudioWaveform,
+	GalleryVerticalEnd,
 	KanbanIcon,
 	LucideIcon,
-	GalleryVerticalEnd,
-	AudioWaveform,
 } from "lucide-react"
 import { useState } from "react"
 import { useLocation, useNavigate } from "react-router"
