@@ -17,11 +17,11 @@ import {
 	BreadcrumbSeparator,
 } from "@/renderer/components/ui/breadcrumb"
 import {
-	BACK_TEST_PAGE as BACKTEST_PAGE,
+	BACKTEST_PAGE as BACKTEST_PAGE,
 	DATA_TAB_NAME,
 	HOME_PAGE,
 	POSITION_INFO_PAGE,
-	POSITION_STRATEGY_LIBRARY_PAGE,
+	FUSION_STRATEGY_LIBRARY_PAGE,
 	REAL_MARKET_CONFIG_PAGE,
 	REAL_TRADING_TAB_NAME,
 	STRATEGY_LIBRARY_PAGE,
@@ -53,7 +53,7 @@ const breadcrumbList = {
 		title: "策略中心",
 		routes: {
 			[STRATEGY_LIBRARY_PAGE]: "选股策略",
-			[POSITION_STRATEGY_LIBRARY_PAGE]: "综合策略库",
+			[FUSION_STRATEGY_LIBRARY_PAGE]: "综合策略库",
 			[BACKTEST_PAGE]: "回测",
 			[TRADING_PLAN_PAGE]: "当日交易",
 			[POSITION_INFO_PAGE]: "持仓信息",

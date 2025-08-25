@@ -29,9 +29,9 @@ export const POSITION_INFO_PAGE = "/position_info"
 // 选股策略库
 export const STRATEGY_LIBRARY_PAGE = "/strategy_library"
 // 综合策略库
-export const POSITION_STRATEGY_LIBRARY_PAGE = "/position_strategy_library"
+export const FUSION_STRATEGY_LIBRARY_PAGE = "/fusion_strategy_library"
 // 策略试跑
-export const BACK_TEST_PAGE = "/back_test"
+export const BACKTEST_PAGE = "/backtest"
 // 常见问题解答
 export const FAQ_PAGE = "/faq"
 // 更新日志

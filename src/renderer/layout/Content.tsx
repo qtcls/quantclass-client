@@ -18,8 +18,9 @@ import {
 	SidebarMenuItem,
 } from "@/renderer/components/ui/sidebar"
 import {
-	BACK_TEST_PAGE as BACKTEST_PAGE,
-	POSITION_STRATEGY_LIBRARY_PAGE,
+	BACKTEST_PAGE,
+	POSITION_INFO_PAGE,
+	FUSION_STRATEGY_LIBRARY_PAGE,
 	// CHANGE_LOGS_PAGE,
 	// FAQ_PAGE,
 	// POSITION_INFO_PAGE,
@@ -75,7 +76,7 @@ const data = {
 			},
 			{
 				title: "综合策略库",
-				url: POSITION_STRATEGY_LIBRARY_PAGE,
+				url: FUSION_STRATEGY_LIBRARY_PAGE,
 				icon: SquareLibrary,
 				libraryType: "pos",
 			},
@@ -84,16 +85,16 @@ const data = {
 				url: BACKTEST_PAGE,
 				icon: PencilRuler,
 			},
-			// {
-			// 	title: "当日交易",
-			// 	url: TRADING_PLAN_PAGE,
-			// 	icon: ArrowRight,
-			// },
-			// {
-			// 	title: "持仓信息",
-			// 	url: POSITION_INFO_PAGE,
-			// 	icon: ArrowRight,
-			// },
+			{
+				title: "实盘",
+				url: REAL_MARKET_CONFIG_PAGE,
+				icon: TvMinimalPlay,
+			},
+			{
+				title: "持仓信息",
+				url: POSITION_INFO_PAGE,
+				icon: Briefcase,
+			},
 		],
 	},
 	feedback: {
@@ -226,39 +227,6 @@ export const _SidebarContent = () => {
 							</SidebarMenuButton>
 						</SidebarMenuItem>
 					))}
-
-					<SidebarMenuItem
-						onMouseEnter={() =>
-							setHoveredItems((prev) => ({
-								...prev,
-								[REAL_MARKET_CONFIG_PAGE]: true,
-							}))
-						}
-						onMouseLeave={() =>
-							setHoveredItems((prev) => ({
-								...prev,
-								[REAL_MARKET_CONFIG_PAGE]: false,
-							}))
-						}
-					>
-						<SidebarMenuButton
-							onClick={() => navigate(REAL_MARKET_CONFIG_PAGE)}
-							className={cn(
-								pathname === REAL_MARKET_CONFIG_PAGE &&
-									"bg-accent text-accent-foreground font-semibold",
-							)}
-						>
-							<TvMinimalPlay />
-							<span>实盘</span>
-						</SidebarMenuButton>
-					</SidebarMenuItem>
-
-					<SidebarMenuItem>
-						<SidebarMenuButton disabled className="text-warning">
-							<Briefcase />
-							<span>持仓（即将上线）</span>
-						</SidebarMenuButton>
-					</SidebarMenuItem>
 
 					<SidebarMenuItem>
 						<SidebarMenuButton disabled>
