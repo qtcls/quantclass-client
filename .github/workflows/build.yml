@@ -1,0 +1,62 @@
+name: Build & Release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*.*.*"
+
+jobs:
+  release:
+    name: build and release electron app
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: true
+      matrix:
+        # os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, macos-latest]
+
+    steps:
+      - name: Check out git repository
+        uses: actions/checkout@v3.0.0
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3.0.0
+        with:
+          node-version: "20"
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Build for Windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          pnpm build:win
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Build for MacOS
+        if: matrix.os == 'macos-latest'
+        run: |
+          pnpm build:mac
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      # - name: upload artifacts
+      #   uses: actions/upload-artifact@v3.0.0
+      #   with:
+      #     name: ${{ matrix.os }}
+      #     path: release
+
+      - name: release
+        uses: softprops/action-gh-release@v0.1.14
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: "dist/**"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
