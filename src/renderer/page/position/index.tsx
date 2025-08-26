@@ -10,11 +10,11 @@
 
 import { DataTable } from "@/renderer/components/ui/data-table"
 import { ScrollArea } from "@/renderer/components/ui/scroll-area"
+import { Tabs, TabsList, TabsTrigger } from "@/renderer/components/ui/tabs"
 import { H2 } from "@/renderer/components/ui/typography"
 import { usePermissionCheck } from "@/renderer/hooks"
 import { usePositionInfoColumns } from "@/renderer/page/position/columns"
 import { PositionInfoType } from "@/renderer/page/position/types"
-import { Tabs, TabsList, TabsTrigger } from "@/renderer/components/ui/tabs"
 import { useMutation, useQuery } from "@tanstack/react-query"
 
 const { loadPosition } = window.electronAPI
