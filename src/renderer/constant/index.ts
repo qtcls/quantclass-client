@@ -59,7 +59,7 @@ export const REAL_MARKET_SS_SELECTED_STRATEGIES =
 export const DATA_TAB_NAME = "data"
 export const REAL_TRADING_TAB_NAME = "real_trading"
 
-export const BASE_URL = "http://localhost"
+// BASE_URL 已移至环境变量 VITE_BASE_URL，请直接使用 import.meta.env.VITE_BASE_URL
 
 export const isWindows = window.electron.process.platform === "win32"
 export const { ipcRenderer: _ipcRenderer } = window.electron

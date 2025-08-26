@@ -22,10 +22,22 @@ const sharedConfig = {
 }
 
 export default defineConfig(({ mode }) => {
-	loadEnv(mode)
+	const env = loadEnv(mode, process.cwd())
+
+	// 定义需要在各个进程中使用的环境变量
+	const envVars = {
+		"process.env.VITE_BASE_URL": JSON.stringify(
+			env.VITE_BASE_URL || "https://api.quantclass.cn",
+		),
+		"process.env.VITE_XBX_ENV": JSON.stringify(env.VITE_XBX_ENV || mode),
+		"process.env.VITE_APP_VERSION": JSON.stringify(
+			env.VITE_APP_VERSION || "3.4.0",
+		),
+	}
 
 	return {
 		main: {
+			define: envVars,
 			resolve: {
 				alias: {
 					"@": resolve(__dirname, "src/"),
@@ -54,6 +66,7 @@ export default defineConfig(({ mode }) => {
 		},
 		preload: {
 			...sharedConfig,
+			define: envVars,
 			build: {
 				terserOptions: {
 					compress: {
@@ -70,6 +83,7 @@ export default defineConfig(({ mode }) => {
 		},
 		renderer: {
 			...sharedConfig,
+			define: envVars,
 			// @ts-ignore
 			plugins: [
 				react({
