@@ -42,6 +42,7 @@ import {
 	Filter,
 	Loader,
 	Shell,
+	Shuffle,
 	Timer,
 } from "lucide-react"
 import { useEffect, useState } from "react"
@@ -58,6 +59,7 @@ export function SelectStgForm({
 		resolver: zodResolver(SelectStgFormSchema),
 		defaultValues,
 	})
+	const [saving, setSaving] = useState(false)
 
 	// 初始化 signalTime 状态
 	const [signalTime, setSignalTime] = useState<string>()
@@ -90,7 +92,6 @@ export function SelectStgForm({
 			setSignalTime("close") // 如果 timing 或 timing.factor_list 不存在，重置 signalTime
 		}
 	}, [form.getValues("timing")]) // 依赖项是 timing 的值
-	const [saving, setSaving] = useState(false)
 
 	// -- 表单验证和提交逻辑
 	const validateAndSubmit = async (data: SelectStgFormData) => {
@@ -124,6 +125,7 @@ export function SelectStgForm({
 				rebalance_time: form.getValues("rebalance_time") || "close-open",
 				buy_time: formatTime(form.getValues("buy_time")),
 				sell_time: formatTime(form.getValues("sell_time")),
+				split_order_amount: Number(form.getValues("split_order_amount")),
 			})
 			setSaving(false)
 		}, 150)
@@ -654,7 +656,7 @@ export function SelectStgForm({
 						<hr />
 
 						<div className="flex flex-col gap-3 bg-gray-100 border p-2 rounded-lg dark:bg-black">
-							<h3 className="text-sm text-warning flex items-center gap-1">
+							<h3 className="text-sm text-warning-600 dark:text-warning flex items-center gap-1">
 								<Biohazard className="size-4 mr-1 font-bold" />
 								以下为高阶配置，默认会自动随机生成，无需手动设置。如果你不太了解，千万不要修改！
 							</h3>
@@ -676,7 +678,6 @@ export function SelectStgForm({
 												type="number"
 												min={6000}
 												max={12000}
-												step={Math.floor(Math.random() * 31) + 90}
 												className="bg-background"
 											/>
 										</FormControl>
@@ -694,12 +695,9 @@ export function SelectStgForm({
 									<FormItem className="flex flex-col">
 										<FormLabel className="flex items-center gap-1">
 											<span>🈳 卖出时间</span>
-											<ButtonTooltip content="根据换仓规则，自动随机生成卖出时间">
+											<ButtonTooltip content="保存时随机生成，或点击下方按钮随机生成">
 												<CircleHelp className="w-4 h-4 text-muted-foreground hover:cursor-pointer" />
 											</ButtonTooltip>
-											<span className="text-xs">
-												保存时随机生成，暂不支持修改🚫
-											</span>
 										</FormLabel>
 
 										<FormControl>
@@ -721,12 +719,9 @@ export function SelectStgForm({
 									<FormItem className="flex flex-col">
 										<FormLabel className="flex items-center gap-1">
 											<span>🈵 买入时间</span>
-											<ButtonTooltip content="根据换仓规则和随机的卖出时间，自动随机生成买入时间">
+											<ButtonTooltip content="保存时随机生成，或点击下方按钮随机生成">
 												<CircleHelp className="w-4 h-4 text-muted-foreground hover:cursor-pointer" />
 											</ButtonTooltip>
-											<span className="text-xs">
-												保存时随机生成，暂不支持修改🚫
-											</span>
 										</FormLabel>
 
 										<FormControl>
@@ -740,6 +735,23 @@ export function SelectStgForm({
 									</FormItem>
 								)}
 							/>
+
+							<Button
+								size="sm"
+								variant="outline"
+								className="w-52"
+								onClick={(e) => {
+									e.preventDefault()
+									const { sell_time, buy_time } = autoTradeTimeByRebTime(
+										form.getValues("rebalance_time") ?? "close-open",
+									)
+									form.setValue("sell_time", sell_time)
+									form.setValue("buy_time", buy_time)
+								}}
+							>
+								<Shuffle className="w-4 h-4 mr-2" />
+								随机生成买入、卖出时间
+							</Button>
 						</div>
 					</div>
 				</CardContent>

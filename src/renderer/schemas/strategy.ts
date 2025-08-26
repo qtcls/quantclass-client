@@ -140,6 +140,6 @@ export const SelectStgFormSchema = CoreStrategySchema.omit({ name: true })
 		buy_time: TimeValueSchema,
 		sell_time: TimeValueSchema,
 		offset_list: OffsetListFormSchema,
-		split_order_amount: SplitOrderAmountSchema,
+		split_order_amount: SplitOrderAmountFormSchema,
 	})
 	.passthrough() // 允许额外的字段
