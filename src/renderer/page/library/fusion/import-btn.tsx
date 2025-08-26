@@ -26,7 +26,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/renderer/components/ui/dialog"
-import { BACK_TEST_PAGE, REAL_MARKET_CONFIG_PAGE } from "@/renderer/constant"
+import { BACKTEST_PAGE, REAL_MARKET_CONFIG_PAGE } from "@/renderer/constant"
 import { useToggleAutoRealTrading } from "@/renderer/hooks"
 import { useFusionManager } from "@/renderer/hooks/useFusionManager"
 import {
@@ -400,7 +400,7 @@ export default function ImportStrategyButton() {
 						variant="outline"
 						disabled={isAutoRocket}
 						className="h-8 lg:flex"
-						onClick={() => navigate(BACK_TEST_PAGE)}
+						onClick={() => navigate(BACKTEST_PAGE)}
 					>
 						<PencilRuler className="size-4 mr-2" />
 						前往回测

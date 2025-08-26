@@ -11,7 +11,7 @@
 import { Button } from "@/renderer/components/ui/button"
 import { DataTable } from "@/renderer/components/ui/data-table"
 import { DataTableToolbar } from "@/renderer/components/ui/data-table-toolbar"
-import { BACK_TEST_PAGE, REAL_MARKET_CONFIG_PAGE } from "@/renderer/constant"
+import { BACKTEST_PAGE, REAL_MARKET_CONFIG_PAGE } from "@/renderer/constant"
 import { useToggleAutoRealTrading } from "@/renderer/hooks"
 import { useStrategyManager } from "@/renderer/hooks/useStrategyManager"
 import StgImportButton from "@/renderer/page/library/import-btn"
@@ -80,7 +80,7 @@ export const LibraryTable = forwardRef((_, _ref) => {
 						variant="outline"
 						disabled={isAutoRocket}
 						className="h-8 lg:flex"
-						onClick={() => navigate(BACK_TEST_PAGE)}
+						onClick={() => navigate(BACKTEST_PAGE)}
 					>
 						<PencilRuler className="size-4 mr-2" />
 						前往回测

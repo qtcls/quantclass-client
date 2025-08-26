@@ -39,6 +39,9 @@ jobs:
           pnpm build:win
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          VITE_BASE_URL: ${{ secrets.VITE_BASE_URL || 'https://api.quantclass.cn' }}
+          VITE_XBX_ENV: production
+          VITE_APP_VERSION: ${{ github.ref_name }}
 
       - name: Build for MacOS
         if: matrix.os == 'macos-latest'
@@ -46,6 +49,9 @@ jobs:
           pnpm build:mac
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          VITE_BASE_URL: ${{ secrets.VITE_BASE_URL || 'https://api.quantclass.cn' }}
+          VITE_XBX_ENV: production
+          VITE_APP_VERSION: ${{ github.ref_name }}
 
       # - name: upload artifacts
       #   uses: actions/upload-artifact@v3.0.0

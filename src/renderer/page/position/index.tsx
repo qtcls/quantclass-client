@@ -8,31 +8,26 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
-import LoadingAnime from "@/renderer/components/LoadingAnime"
-import { Badge } from "@/renderer/components/ui/badge"
-import { Button } from "@/renderer/components/ui/button"
 import { DataTable } from "@/renderer/components/ui/data-table"
-import { DataTableToolbar } from "@/renderer/components/ui/data-table-toolbar"
 import { ScrollArea } from "@/renderer/components/ui/scroll-area"
+import { Tabs, TabsList, TabsTrigger } from "@/renderer/components/ui/tabs"
 import { H2 } from "@/renderer/components/ui/typography"
 import { usePermissionCheck } from "@/renderer/hooks"
-import { DataTableActionOptionsProps } from "@/renderer/page/data/table/options"
 import { usePositionInfoColumns } from "@/renderer/page/position/columns"
 import { PositionInfoType } from "@/renderer/page/position/types"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { FolderIcon } from "lucide-react"
 
-const { execFuelWithEnv, selectDirectory, loadPosition } = window.electronAPI
+const { loadPosition } = window.electronAPI
 
-// -- 提取导入持仓信息的逻辑为自定义 hook
-function useImportPosition(onSuccess: () => void) {
-	return useMutation({
-		mutationKey: ["import-position"],
-		mutationFn: async (dirPath: string) =>
-			await execFuelWithEnv(["load", "old"], `导入持仓文件`, "rocket", dirPath),
-		onSuccess,
-	})
-}
+// // -- 提取导入持仓信息的逻辑为自定义 hook
+// function useImportPosition(onSuccess: () => void) {
+// 	return useMutation({
+// 		mutationKey: ["import-position"],
+// 		mutationFn: async (dirPath: string) =>
+// 			await execFuelWithEnv(["load", "old"], `导入持仓文件`, "rocket", dirPath),
+// 		onSuccess,
+// 	})
+// }
 
 export default function PositionInfo() {
 	const columns = usePositionInfoColumns()
@@ -47,26 +42,52 @@ export default function PositionInfo() {
 		refetchInterval: 1000 * 90,
 	})
 
-	const { mutateAsync: importPosition, isPending: importPositionLoading } =
-		useImportPosition(() => {
-			refetch()
-		})
-
 	return (
-		<div className="flex flex-col h-full gap-4">
-			<div className="flex flex-col mb-4">
+		<div className="flex flex-col h-full gap-3 py-3">
+			<div
+				className="flex items-center gap-2 px-4 py-2 mb-2 rounded-md border border-yellow-300 bg-yellow-50 text-yellow-800 dark:border-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-200"
+				role="alert"
+			>
+				<svg
+					className="w-5 h-5 shrink-0 text-yellow-500 dark:text-yellow-300"
+					fill="none"
+					stroke="currentColor"
+					strokeWidth={2}
+					viewBox="0 0 24 24"
+					aria-hidden="true"
+				>
+					<circle
+						cx="12"
+						cy="12"
+						r="10"
+						stroke="currentColor"
+						strokeWidth="2"
+						fill="none"
+					/>
+					<path
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						d="M12 8v4m0 4h.01"
+					/>
+				</svg>
+				<span className="text-sm font-medium">
+					该页面为未正式发布版本，没有实现功能，仅供参考。
+				</span>
+			</div>
+			<div className="flex flex-col">
 				<H2>持仓信息</H2>
 				<p className="text-muted-foreground">
 					当前实盘账户中，各个策略的持仓明细
 				</p>
 			</div>
-
-			<LoadingAnime
-				loading={importPositionLoading}
-				content="导入并解析持仓信息文件中..."
-			/>
 			<ScrollArea className="h-full">
-				<div className="space-y-4">
+				<div className="space-y-2">
+					<Tabs defaultValue="strategy">
+						<TabsList>
+							<TabsTrigger value="strategy">策略视图</TabsTrigger>
+							<TabsTrigger value="stock">个股视图</TabsTrigger>
+						</TabsList>
+					</Tabs>
 					<DataTable<PositionInfoType, unknown>
 						data={positions || []}
 						columns={columns}
@@ -76,60 +97,9 @@ export default function PositionInfo() {
 						}}
 						pagination={false}
 						placeholder="查找所有列..."
-						actionOptions={(props) => (
-							<PositionInfoTableToolbar
-								{...props}
-								importPosition={importPosition}
-							/>
-						)}
 					/>
 				</div>
 			</ScrollArea>
 		</div>
-	)
-}
-
-// -- 修改 PositionInfoTableToolbar 组件，接收 importPosition 函数作为 prop
-const PositionInfoTableToolbar = ({
-	refresh,
-	importPosition,
-	...props
-}: DataTableActionOptionsProps<any> & {
-	importPosition: (dirPath: string) => Promise<{
-		code: number
-		message: string
-	}>
-}) => {
-	const { check } = usePermissionCheck()
-	const handleImport = async () => {
-		// -- 权限检查
-		if (
-			!check({ requireMember: true, windowsOnly: true, onlyIn2025: true })
-				.isValid
-		) {
-			return
-		}
-
-		const res = await selectDirectory()
-		if (res) {
-			await importPosition(res as string)
-		}
-	}
-
-	return (
-		<DataTableToolbar {...props}>
-			<Button
-				size="sm"
-				variant="outline"
-				className="h-8 text-foreground lg:flex"
-				onClick={handleImport}
-			>
-				<FolderIcon className="mr-2 h-4 w-4" /> 导入持仓文件夹
-			</Button>
-
-			<span className="text-sm text-muted-foreground">
-				请选择 <Badge>rocket/data/账户信息</Badge> 文件夹
-			</span>
-		</DataTableToolbar>
 	)
 }

@@ -11,7 +11,7 @@
 import pkg from "../../package.json"
 
 // 在 Electron 主进程中，环境变量应该从 process.env 获取
-export const BASE_URL = process.env.VITE_BASE_URL || "http://localhost:3000"
+export const BASE_URL = process.env.VITE_BASE_URL || "https://api.quantclass.cn"
 
 // 应用版本信息
 export const CLIENT_VERSION = pkg.version

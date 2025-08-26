@@ -29,9 +29,9 @@ export const POSITION_INFO_PAGE = "/position_info"
 // 选股策略库
 export const STRATEGY_LIBRARY_PAGE = "/strategy_library"
 // 综合策略库
-export const POSITION_STRATEGY_LIBRARY_PAGE = "/position_strategy_library"
+export const FUSION_STRATEGY_LIBRARY_PAGE = "/fusion_strategy_library"
 // 策略试跑
-export const BACK_TEST_PAGE = "/back_test"
+export const BACKTEST_PAGE = "/backtest"
 // 常见问题解答
 export const FAQ_PAGE = "/faq"
 // 更新日志
@@ -59,7 +59,7 @@ export const REAL_MARKET_SS_SELECTED_STRATEGIES =
 export const DATA_TAB_NAME = "data"
 export const REAL_TRADING_TAB_NAME = "real_trading"
 
-export const BASE_URL = "http://localhost"
+// BASE_URL 已移至环境变量 VITE_BASE_URL，请直接使用 import.meta.env.VITE_BASE_URL
 
 export const isWindows = window.electron.process.platform === "win32"
 export const { ipcRenderer: _ipcRenderer } = window.electron

@@ -8,7 +8,7 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
-import { BASE_URL, isWindows } from "@/renderer/constant"
+import { isWindows } from "@/renderer/constant"
 import type { IDataListType } from "@/renderer/schemas/data-schema"
 import { atomWithQuery } from "jotai-tanstack-query"
 
@@ -62,7 +62,7 @@ export const productStatusAtom = atomWithQuery(() => ({
 	queryFn: async () => {
 		const port = await getStoreValue("server_port", 8787)
 		// 1. 获取产品状态
-		const res = await fetch(`${BASE_URL}:${port}/product-status`)
+		const res = await fetch(`http://localhost:${port}/product-status`)
 		if (!res.ok) {
 			rendererLog(
 				"warning",

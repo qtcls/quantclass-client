@@ -131,6 +131,9 @@ export async function getRemoteVersion(
 		intel: string
 	}
 }> {
+	console.log(
+		`[version] fetch ${CORE_VERSION_REMOTE_URL[core]}?client=${clientVersion}`,
+	)
 	const response = await fetch(
 		`${CORE_VERSION_REMOTE_URL[core]}?client=${clientVersion}`,
 	)
