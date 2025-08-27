@@ -146,9 +146,9 @@ export function SelectStgForm({
 				isDisabled: false,
 			},
 			// {
-			// 	key: "close",
-			// 	label: "尾盘换仓：盘中选股->立即换仓(卖出后买入)",
-			// 	isDisabled: true,
+			//     key: "close",
+			//     label: "尾盘换仓：盘中选股->立即换仓(卖出后买入)",
+			//     isDisabled: true,
 			// },
 		]
 		const index = selectItems.findIndex((item) => item.key === rebalance_time)
@@ -313,35 +313,35 @@ export function SelectStgForm({
 												</SelectItem>
 											))}
 											{/* <SelectItem
-												key="close-open"
-												isDisabled={name.includes("定风波")}
-											>
-												{"隔日换仓：尾盘卖出->盘后选股->早盘买入"}
-											</SelectItem>
-											<SelectItem
-												key="open"
-												isDisabled={name.includes("定风波")}
-											>
-												{"早盘换仓：盘后选股->早盘换仓(卖出后买入)"}
-											</SelectItem>
-											<SelectItem key="close" isDisabled={true}>
-												{"尾盘换仓：盘中选股->立即换仓(卖出后买入)"}
-											</SelectItem>
-											<SelectItem
-												key="0935-0935"
-												isDisabled={name.includes("定风波")}
-											>
-												{"9点35换仓：盘后选股->开盘后09:35换仓(卖出后买入)"}
-											</SelectItem>
-											<SelectItem
-												key="0945-0945"
-												isDisabled={name.includes("定风波")}
-											>
-												{"9点45换仓：盘后选股->开盘后09:45换仓(卖出后买入)"}
-											</SelectItem>
-											<SelectItem key="0955-0955">
-												{"9点55换仓：盘后选股->开盘后09:55换仓(卖出后买入)"}
-											</SelectItem> */}
+                                                key="close-open"
+                                                isDisabled={name.includes("定风波")}
+                                            >
+                                                {"隔日换仓：尾盘卖出->盘后选股->早盘买入"}
+                                            </SelectItem>
+                                            <SelectItem
+                                                key="open"
+                                                isDisabled={name.includes("定风波")}
+                                            >
+                                                {"早盘换仓：盘后选股->早盘换仓(卖出后买入)"}
+                                            </SelectItem>
+                                            <SelectItem key="close" isDisabled={true}>
+                                                {"尾盘换仓：盘中选股->立即换仓(卖出后买入)"}
+                                            </SelectItem>
+                                            <SelectItem
+                                                key="0935-0935"
+                                                isDisabled={name.includes("定风波")}
+                                            >
+                                                {"9点35换仓：盘后选股->开盘后09:35换仓(卖出后买入)"}
+                                            </SelectItem>
+                                            <SelectItem
+                                                key="0945-0945"
+                                                isDisabled={name.includes("定风波")}
+                                            >
+                                                {"9点45换仓：盘后选股->开盘后09:45换仓(卖出后买入)"}
+                                            </SelectItem>
+                                            <SelectItem key="0955-0955">
+                                                {"9点55换仓：盘后选股->开盘后09:55换仓(卖出后买入)"}
+                                            </SelectItem> */}
 										</Select>
 									</FormControl>
 								</FormItem>

@@ -73,9 +73,9 @@ export function DataTableColumnHeader<TData, TValue>({
 					<DropdownMenuSeparator />
 
 					{/* <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
-						<EyeNoneIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground/70 hover:cursor-pointer" />
-						隐藏
-					</DropdownMenuItem> */}
+                        <EyeNoneIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground/70 hover:cursor-pointer" />
+                        隐藏
+                    </DropdownMenuItem> */}
 					<DropdownMenuItem onClick={() => column.clearSorting()}>
 						<EraserIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground/70 hover:cursor-pointer" />
 						清除排序

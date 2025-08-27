@@ -134,19 +134,19 @@ export function BacktestSettings() {
 	useMount(async () => {
 		const startDate = await getStoreValue(`${configKey}.start_date`, "")
 		// const endDate = await getStoreValue(
-		// 	`${configKey}.end_date`,
-		// 	"",
+		//     `${configKey}.end_date`,
+		//     "",
 		// )
 
 		// if (
-		// 	!endDate &&
-		// 	dayjs(endDate).format("YYYY-MM-DD") !==
-		// 		dayjs(new Date()).format("YYYY-MM-DD")
+		//     !endDate &&
+		//     dayjs(endDate).format("YYYY-MM-DD") !==
+		//         dayjs(new Date()).format("YYYY-MM-DD")
 		// ) {
-		// 	setBacktestConfig((prev) => ({
-		// 		...prev,
-		// 		end_date: new Date(),
-		// 	}))
+		//     setBacktestConfig((prev) => ({
+		//         ...prev,
+		//         end_date: new Date(),
+		//     }))
 		// }
 
 		if (!startDate) {

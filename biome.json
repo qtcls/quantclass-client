@@ -1,59 +1,59 @@
 {
-	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-	"vcs": {
-		"clientKind": "git",
-		"enabled": true,
-		"useIgnoreFile": true,
-		"defaultBranch": "main"
-	},
-	"organizeImports": {
-		"enabled": true
-	},
-	"linter": {
-		"enabled": true,
-		"include": ["*.ts"],
-		"ignore": [
-			".pnpm/*",
-			".vscode/*",
-			"node_modules/*",
-			"dist/*",
-			".rspack/",
-			"out/",
-			"build/**"
-		],
-		"rules": {
-			"recommended": true,
-			"style": {
-				"noNonNullAssertion": "off"
-			},
-			"correctness": {
-				"noUnusedImports": "info",
-				"useExhaustiveDependencies": "off"
-			},
-			"suspicious": {
-				"noExplicitAny": "off"
-			}
-		}
-	},
-	"formatter": {
-		"indentStyle": "tab",
-		"indentWidth": 2,
-		"lineEnding": "lf",
-		"lineWidth": 80,
-		"ignore": [
-			".vscode/*",
-			"node_modules/*",
-			"dist/*",
-			".rspack/",
-			"out/",
-			"build/**"
-		]
-	},
-	"javascript": {
-		"formatter": {
-			"semicolons": "asNeeded",
-			"quoteProperties": "asNeeded",
-			"jsxQuoteStyle": "double"
-		}
-	}
+    "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+    "vcs": {
+        "clientKind": "git",
+        "enabled": true,
+        "useIgnoreFile": true,
+        "defaultBranch": "main"
+    },
+    "organizeImports": {
+        "enabled": true
+    },
+    "linter": {
+        "enabled": true,
+        "include": ["*.ts"],
+        "ignore": [
+            ".pnpm/*",
+            ".vscode/*",
+            "node_modules/*",
+            "dist/*",
+            ".rspack/",
+            "out/",
+            "build/**"
+        ],
+        "rules": {
+            "recommended": true,
+            "style": {
+                "noNonNullAssertion": "off"
+            },
+            "correctness": {
+                "noUnusedImports": "info",
+                "useExhaustiveDependencies": "off"
+            },
+            "suspicious": {
+                "noExplicitAny": "off"
+            }
+        }
+    },
+    "formatter": {
+        "indentStyle": "tab",
+        "indentWidth": 2,
+        "lineEnding": "lf",
+        "lineWidth": 80,
+        "ignore": [
+            ".vscode/*",
+            "node_modules/*",
+            "dist/*",
+            ".rspack/",
+            "out/",
+            "build/**"
+        ]
+    },
+    "javascript": {
+        "formatter": {
+            "semicolons": "asNeeded",
+            "quoteProperties": "asNeeded",
+            "jsxQuoteStyle": "double"
+        }
+    }
 }

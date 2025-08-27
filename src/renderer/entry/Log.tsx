@@ -151,7 +151,7 @@ export default function Log() {
 	}, [realMarketOutput, throttledSetTerminalTab])
 
 	// useEffect(() => {
-	// 	throttledSetTerminalTab("fuel")
+	//     throttledSetTerminalTab("fuel")
 	// }, [output, throttledSetTerminalTab])
 
 	return (

@@ -49,8 +49,8 @@ export const useGenLibraryColumn = (
 				value: "open",
 			},
 			// {
-			// 	label: "尾盘换仓",
-			// 	value: "close",
+			//     label: "尾盘换仓",
+			//     value: "close",
 			// },
 		]
 		const index = rebalanceTimeList.findIndex(

@@ -76,11 +76,11 @@ async function initializeSystem() {
 			// const status = (await _store.get("status", 0)) as 0 | 1 | 2
 
 			// if (status === 2) {
-			// 	await updateCore("aqua", true)
-			// 	await updateCore("rocket", true)
-			// 	await updateCore("zeus", true)
+			//     await updateCore("aqua", true)
+			//     await updateCore("rocket", true)
+			//     await updateCore("zeus", true)
 			// } else {
-			// 	logger.info("本地状态：非法状态")
+			//     logger.info("本地状态：非法状态")
 			// }
 		} catch (error) {
 			logger.error(`获取状态失败: ${error}`)

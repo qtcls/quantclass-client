@@ -274,14 +274,14 @@ export const _SiderFooter = () => {
 
 											// const isLatest = await checkBinVersion()
 											// if (isLatest) {
-											// 	toast.success("内核已都是最新")
-											// 	await runAsync()
-											// 	return
+											//     toast.success("内核已都是最新")
+											//     await runAsync()
+											//     return
 											// } else {
-											// 	toast.info("有可用更新，开始更新")
+											//     toast.info("有可用更新，开始更新")
 
-											// 	await fetchFuel()
-											// 	await runAsync()
+											//     await fetchFuel()
+											//     await runAsync()
 											// }
 
 											await fetchFuel()

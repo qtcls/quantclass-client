@@ -21,8 +21,8 @@ import { Check, HardDrive, Loader2, Server, TriangleAlert } from "lucide-react"
 
 // -- 辅助函数：格式化日期时间字符串
 // const formatDateTime = (dateTimeString: string): string => {
-// 	const [year, month, day, hour, minute] = dateTimeString.split("-")
-// 	return `${year}-${month}-${day} ${hour}:${minute}`
+//     const [year, month, day, hour, minute] = dateTimeString.split("-")
+//     return `${year}-${month}-${day} ${hour}:${minute}`
 // }
 
 export const dataColumns = (
@@ -33,7 +33,7 @@ export const dataColumns = (
 		accessorKey: "displayName",
 		header: () => <div className="text-foreground">数据名称</div>,
 		// cell: ({ row }) => (
-		// 	<div className="text-muted-foreground">{row.original?.displayName ?? "--"}</div>
+		//     <div className="text-muted-foreground">{row.original?.displayName ?? "--"}</div>
 		// ),
 	},
 	{
@@ -76,11 +76,11 @@ export const dataColumns = (
 			}
 
 			// if (row.original.name === "stock-1h-trading-data-daily") {
-			// 	return (
-			// 		<div className="text-muted-foreground">
-			// 			{row.original?.ts ? formatDateTime(row.original.ts) : "--:--:--"}
-			// 		</div>
-			// 	)
+			//     return (
+			//         <div className="text-muted-foreground">
+			//             {row.original?.ts ? formatDateTime(row.original.ts) : "--:--:--"}
+			//         </div>
+			//     )
 			// }
 			if (row.original.dataContentTime === "1990-01-01") {
 				dataContentTime = "--:--:--"
@@ -154,14 +154,14 @@ export const dataColumns = (
 		},
 	},
 	// {
-	// 	accessorKey: "lastUpdateTime",
-	// 	size: 120,
-	// 	header: () => <div className="text-foreground">客户端检查更新时间</div>,
-	// 	cell: ({ row }) => (
-	// 		<div className="text-muted-foreground">
-	// 			{row.original?.lastUpdateTime || "--:--:--"}
-	// 		</div>
-	// 	),
+	//     accessorKey: "lastUpdateTime",
+	//     size: 120,
+	//     header: () => <div className="text-foreground">客户端检查更新时间</div>,
+	//     cell: ({ row }) => (
+	//         <div className="text-muted-foreground">
+	//             {row.original?.lastUpdateTime || "--:--:--"}
+	//         </div>
+	//     ),
 	// },
 	{
 		id: "action",

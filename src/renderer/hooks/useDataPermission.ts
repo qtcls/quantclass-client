@@ -73,16 +73,16 @@ export function useDataPermission() {
 
 		// // -- 币圈权限
 		// if (user?.approval.crypto) {
-		// 	if (hasApiPermission || !(hasNoGroup && !extraWorkStatus)) {
-		// 		permittedTypes.push("coin")
-		// 	}
+		//     if (hasApiPermission || !(hasNoGroup && !extraWorkStatus)) {
+		//         permittedTypes.push("coin")
+		//     }
 		// }
 
 		// // -- 股票权限
 		// if (user?.approval.stock) {
-		// 	if (hasApiPermission || !(hasNoGroup && !extraWorkStatus)) {
-		// 		permittedTypes.push("stock")
-		// 	}
+		//     if (hasApiPermission || !(hasNoGroup && !extraWorkStatus)) {
+		//         permittedTypes.push("stock")
+		//     }
 		// }
 
 		return permittedTypes

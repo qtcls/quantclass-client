@@ -14,6 +14,13 @@ import { DataTable } from "@/renderer/components/ui/data-table"
 import { Separator } from "@/renderer/components/ui/separator"
 import ImportStrategyButton from "@/renderer/page/library/fusion/import-btn"
 
+import { ChangeLibrary } from "@/renderer/components/change-library"
+import { Button } from "@/renderer/components/ui/button"
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/renderer/components/ui/popover"
 import { useFusionManager } from "@/renderer/hooks/useFusionManager"
 import { useGenLibraryColumn } from "@/renderer/hooks/useGenLibraryCol"
 import { cn } from "@/renderer/lib/utils"
@@ -23,13 +30,6 @@ import { Plus, Trash2 } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 import { RatioIntro } from "../../FAQ/ratioIntro"
-import { Button } from "@/renderer/components/ui/button"
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@/renderer/components/ui/popover"
-import { ChangeLibrary } from "@/renderer/components/change-library"
 
 // 独立的策略表格组件
 interface StrategyTableProps {
@@ -239,13 +239,13 @@ const FusionStrategyLibrary = () => {
 				</div>
 				<div
 					className={`
-						grid transition-all duration-600 ease-in-out
-						${
-							isFold
-								? "grid-rows-[0fr] opacity-10"
-								: "grid-rows-[1fr] opacity-100"
-						}
-					`}
+                        grid transition-all duration-600 ease-in-out
+                        ${
+													isFold
+														? "grid-rows-[0fr] opacity-10"
+														: "grid-rows-[1fr] opacity-100"
+												}
+                    `}
 				>
 					<div className="overflow-hidden">
 						<div className="pb-2">{renderContent()}</div>

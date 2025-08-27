@@ -19,6 +19,12 @@ import {
 } from "@/renderer/components/ui/alert-dialog"
 import { Button } from "@/renderer/components/ui/button"
 import ButtonTooltip from "@/renderer/components/ui/button-tooltip"
+import {
+	Dialog,
+	DialogContent,
+	DialogTitle,
+} from "@/renderer/components/ui/dialog"
+import { DialogFooter, DialogHeader } from "@/renderer/components/ui/dialog"
 import { useToggleAutoRealTrading } from "@/renderer/hooks"
 import { useStrategyManager } from "@/renderer/hooks/useStrategyManager"
 import { backtestConfigAtom } from "@/renderer/store/storage"
@@ -40,12 +46,6 @@ import {
 import { useState } from "react"
 import { toast } from "sonner"
 import TradeCtrlBtn from "../../components/trade-ctrl-btn"
-import {
-	Dialog,
-	DialogContent,
-	DialogTitle,
-} from "@/renderer/components/ui/dialog"
-import { DialogFooter, DialogHeader } from "@/renderer/components/ui/dialog"
 
 export default function StgImportButton() {
 	const { selectFile, setStoreValue, importSelectStock } = window.electronAPI

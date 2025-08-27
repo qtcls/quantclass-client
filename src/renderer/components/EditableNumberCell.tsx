@@ -12,7 +12,14 @@ import { Input } from "@/renderer/components/ui/input"
 import { totalWeightAtom } from "@/renderer/store/storage"
 import { useUnmount } from "etc-hooks"
 import { useAtom } from "jotai"
-import { type FC, useEffect, useRef, useState, ChangeEvent, KeyboardEvent } from "react"
+import {
+	ChangeEvent,
+	type FC,
+	KeyboardEvent,
+	useEffect,
+	useRef,
+	useState,
+} from "react"
 import { toast } from "sonner"
 
 interface EditableNumberCellProps {

@@ -9,7 +9,11 @@
  */
 
 import AboutContent from "@/renderer/components/About/AboutContent"
-import { Dialog, DialogContent, DialogTitle } from "@/renderer/components/ui/dialog"
+import {
+	Dialog,
+	DialogContent,
+	DialogTitle,
+} from "@/renderer/components/ui/dialog"
 import React, { useState } from "react"
 import AboutLayout from "./AboutLayout"
 import AboutSidebar from "./AboutSidebar"

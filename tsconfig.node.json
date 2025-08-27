@@ -1,26 +1,26 @@
 {
-	"extends": "@electron-toolkit/tsconfig/tsconfig.node.json",
-	// "include": [
-	// 	"electron.vite.config.*",
-	// 	"src/main/**/*",
-	// 	"src/preload/**/*",
-	// 	// "src/renderer/**/*"
-	// 	"src/renderer/vite-env.d.ts",
-	// 	"src/renderer/types/**/*.ts",
-	// 	// "src/renderer/components/**/*.ts",
-	// 	"src/renderer/page/Data/schema/data-schema.ts"
-	// ],
-	"include": ["electron.vite.config.*", "src/main/**/*", "src/preload/**/*"],
-	"compilerOptions": {
-		"composite": true,
-		"types": ["electron-vite/node"],
-		"module": "Node16",
-		"moduleResolution": "NodeNext",
-		"paths": {
-			"@/*": ["./src/*"],
-			"@renderer/*": ["./src/renderer/*"],
-			"@/hooks": ["./src/renderer/hooks/*"],
-			"@/registry/*": ["./src/renderer/registry/*"]
-		}
-	}
+    "extends": "@electron-toolkit/tsconfig/tsconfig.node.json",
+    // "include": [
+    //     "electron.vite.config.*",
+    //     "src/main/**/*",
+    //     "src/preload/**/*",
+    //     // "src/renderer/**/*"
+    //     "src/renderer/vite-env.d.ts",
+    //     "src/renderer/types/**/*.ts",
+    //     // "src/renderer/components/**/*.ts",
+    //     "src/renderer/page/Data/schema/data-schema.ts"
+    // ],
+    "include": ["electron.vite.config.*", "src/main/**/*", "src/preload/**/*"],
+    "compilerOptions": {
+        "composite": true,
+        "types": ["electron-vite/node"],
+        "module": "Node16",
+        "moduleResolution": "NodeNext",
+        "paths": {
+            "@/*": ["./src/*"],
+            "@renderer/*": ["./src/renderer/*"],
+            "@/hooks": ["./src/renderer/hooks/*"],
+            "@/registry/*": ["./src/renderer/registry/*"]
+        }
+    }
 }

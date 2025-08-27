@@ -92,9 +92,9 @@ export function FinPieChart({
 	}, [selectStgList, totalWeight, totalCap, availCap])
 
 	// const { data = [] } = useQuery({
-	// 	queryKey: ["fin-pie-chart"],
-	// 	queryFn: calculateChartData,
-	// 	refetchInterval: 1000 * 1,
+	//     queryKey: ["fin-pie-chart"],
+	//     queryFn: calculateChartData,
+	//     refetchInterval: 1000 * 1,
 	// })
 
 	return (

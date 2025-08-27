@@ -16,72 +16,72 @@
 // ===== 通用验证函数 =====
 
 // export function createTimeRangeValidator<
-// 	T extends {
-// 		calc_time?: TimeValue | null
-// 		rebalance_time?: string
-// 	},
+//     T extends {
+//         calc_time?: TimeValue | null
+//         rebalance_time?: string
+//     },
 // >(errorMessages: {
-// 	closeTrading: string
-// 	nonCloseTrading: string
+//     closeTrading: string
+//     nonCloseTrading: string
 // }) {
-// 	return z.object({}).refine(
-// 		(data: T) => {
-// 			const { buy_point } = parseRebalanceTime(
-// 				data.rebalance_time ?? "close-open",
-// 			)
-// 			if (buy_point === "close") {
-// 				return (
-// 					data.calc_time != null &&
-// 					isTimeInRange(data.calc_time, "14:25:00", "14:50:00")
-// 				)
-// 			}
-// 			return (
-// 				data.calc_time == null ||
-// 				!isTimeInRange(data.calc_time, "14:25:00", "14:50:00")
-// 			)
-// 		},
-// 		(data: T) => ({
-// 			message:
-// 				data.rebalance_time !== "close"
-// 					? errorMessages.nonCloseTrading
-// 					: errorMessages.closeTrading,
-// 			path: ["calc_time"],
-// 		}),
-// 	)
+//     return z.object({}).refine(
+//         (data: T) => {
+//             const { buy_point } = parseRebalanceTime(
+//                 data.rebalance_time ?? "close-open",
+//             )
+//             if (buy_point === "close") {
+//                 return (
+//                     data.calc_time != null &&
+//                     isTimeInRange(data.calc_time, "14:25:00", "14:50:00")
+//                 )
+//             }
+//             return (
+//                 data.calc_time == null ||
+//                 !isTimeInRange(data.calc_time, "14:25:00", "14:50:00")
+//             )
+//         },
+//         (data: T) => ({
+//             message:
+//                 data.rebalance_time !== "close"
+//                     ? errorMessages.nonCloseTrading
+//                     : errorMessages.closeTrading,
+//             path: ["calc_time"],
+//         }),
+//     )
 // }
 
 // export function createBuySellTimeValidator<
-// 	T extends {
-// 		buy_time?: TimeValue | string
-// 		sell_time?: TimeValue | string
-// 		rebalance_time?: string
-// 	},
+//     T extends {
+//         buy_time?: TimeValue | string
+//         sell_time?: TimeValue | string
+//         rebalance_time?: string
+//     },
 // >(errorMessages: {
-// 	buyBeforeSell: string
-// 	buyAfterSell: string
+//     buyBeforeSell: string
+//     buyAfterSell: string
 // }) {
-// 	return z.object({}).refine(
-// 		(data: T) => {
-// 			const rebalance_time = data.rebalance_time ?? "close-open"
-// 			if (rebalance_time !== "close-open" && data.buy_time && data.sell_time) {
-// 				return compareTimeValues(data.buy_time, data.sell_time) > 0
-// 			}
-// 			if (rebalance_time === "close-open" && data.buy_time && data.sell_time) {
-// 				return compareTimeValues(data.buy_time, data.sell_time) < 0
-// 			}
-// 			return true
-// 		},
-// 		(data: T) => {
-// 			const rebalance_time = data.rebalance_time ?? "close-open"
-// 			return {
-// 				message:
-// 					rebalance_time === "close-open"
-// 						? errorMessages.buyBeforeSell
-// 						: errorMessages.buyAfterSell,
-// 				path: ["buy_time"],
-// 			}
-// 		},
-// 	)
+//     return z.object({}).refine(
+//         (data: T) => {
+//             const rebalance_time = data.rebalance_time ?? "close-open"
+//             if (rebalance_time !== "close-open" && data.buy_time && data.sell_time) {
+//                 return compareTimeValues(data.buy_time, data.sell_time) > 0
+//             }
+//             if (rebalance_time === "close-open" && data.buy_time && data.sell_time) {
+//                 return compareTimeValues(data.buy_time, data.sell_time) < 0
+//             }
+//             return true
+//         },
+//         (data: T) => {
+//             const rebalance_time = data.rebalance_time ?? "close-open"
+//             return {
+//                 message:
+//                     rebalance_time === "close-open"
+//                         ? errorMessages.buyBeforeSell
+//                         : errorMessages.buyAfterSell,
+//                 path: ["buy_time"],
+//             }
+//         },
+//     )
 // }
 
 // ===== 数据转换工具 =====

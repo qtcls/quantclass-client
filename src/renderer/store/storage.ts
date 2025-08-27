@@ -141,10 +141,10 @@ export const isAutoLoginAtom = atomWithStorage<boolean>(
 )
 
 // export const isAutoRocketAtom = atomWithStorage<boolean>(
-// 	"isAutoRocket",
-// 	false,
-// 	undefined,
-// 	{ getOnInit: true },
+//     "isAutoRocket",
+//     false,
+//     undefined,
+//     { getOnInit: true },
 // )
 
 // 用户身份标识数组

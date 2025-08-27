@@ -121,7 +121,7 @@ export const useColumns = (
 			{
 				id: "股票名称",
 				// header: ({ column }) => (
-				// 	<DataTableColumnHeader column={column} title="股票名称" />
+				//     <DataTableColumnHeader column={column} title="股票名称" />
 				// ),
 				accessorFn: (row) => row.股票名称,
 				cell: ({ row }) => (
@@ -218,7 +218,7 @@ export const useColumns = (
 					size: 100,
 					enableResizing: false,
 					// header: ({ column }) => (
-					// 	<DataTableColumnHeader column={column} title="股票代码" />
+					//     <DataTableColumnHeader column={column} title="股票代码" />
 					// ),
 					accessorFn: (row) => row.股票代码,
 					cell: ({ row }) => (
@@ -229,7 +229,7 @@ export const useColumns = (
 					id: "股票名称",
 					enableResizing: false,
 					// header: ({ column }) => (
-					// 	<DataTableColumnHeader column={column} title="股票名称" />
+					//     <DataTableColumnHeader column={column} title="股票名称" />
 					// ),
 					accessorFn: (row) => row.股票名称,
 					cell: ({ row }) => <span>{row.original.股票名称 ?? "--"}</span>,

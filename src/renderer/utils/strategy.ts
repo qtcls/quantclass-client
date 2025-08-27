@@ -34,11 +34,11 @@ export const processOffsetList = (offsetListStr: string): number[] => {
 
 // -- 生成随机交易时间
 // export const generateTradeTime = () => {
-// 	return {
-// 		buy_time: generateRandomTime(9, 24, 50),
-// 		sell_time: generateRandomTime(14, 45, 50),
-// 		split_order_amount: Math.floor(Math.random() * (12000 - 6000 + 1)) + 6000,
-// 	}
+//     return {
+//         buy_time: generateRandomTime(9, 24, 50),
+//         sell_time: generateRandomTime(14, 45, 50),
+//         split_order_amount: Math.floor(Math.random() * (12000 - 6000 + 1)) + 6000,
+//     }
 // }
 
 const genSelectStgInfo = (strategy: SelectStgType, includeInfo = true) => {

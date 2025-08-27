@@ -19,7 +19,7 @@ export const emitterIPC = {
 		ipcRenderer.removeAllListeners("send-update-status")
 	},
 	// onNetworkStatusChange: (callback: any) =>
-	// 	ipcRenderer.on("network-status", callback),
+	//     ipcRenderer.on("network-status", callback),
 	startNetworkCheck: () => {
 		ipcRenderer.send("start-network-check")
 	},

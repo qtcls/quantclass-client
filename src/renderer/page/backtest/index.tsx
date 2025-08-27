@@ -36,11 +36,11 @@ function StrategyRunContent() {
 			</div>
 			<div className="flex flex-col w-full space-y-1">
 				{/* <p className="text-muted-foreground">
-							试运行你准备实盘的策略，排查相关问题。本页面的任何操作，不会影响到实盘，请放心试跑。
-						</p> */}
+                            试运行你准备实盘的策略，排查相关问题。本页面的任何操作，不会影响到实盘，请放心试跑。
+                        </p> */}
 				{/* <h3 className="font-semibold flex items-center">
-					<SettingsGearIcon className="size-4 mr-2" /> 回测设置
-				</h3> */}
+                    <SettingsGearIcon className="size-4 mr-2" /> 回测设置
+                </h3> */}
 				<BacktestSettings />
 				<BacktestControls />
 			</div>

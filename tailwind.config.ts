@@ -175,16 +175,16 @@ const config = {
 				light: {
 					layout: {
 						// fontSize: {
-						// 	small: "calc(var(--font-size) * 0.875)",
-						// 	medium: "calc(var(--font-size))",
-						// 	large: "calc(var(--font-size) * 1.125)",
-						// 	tiny: "calc(var(--font-size) * 0.75)",
+						//     small: "calc(var(--font-size) * 0.875)",
+						//     medium: "calc(var(--font-size))",
+						//     large: "calc(var(--font-size) * 1.125)",
+						//     tiny: "calc(var(--font-size) * 0.75)",
 						// },
 						// lineHeight: {
-						// 	small: "1.25rem",
-						// 	medium: "1.5rem",
-						// 	large: "1.75rem",
-						// 	tiny: "1rem",
+						//     small: "1.25rem",
+						//     medium: "1.5rem",
+						//     large: "1.75rem",
+						//     tiny: "1rem",
 						// },
 						radius: {
 							small: "calc(var(--radius) - 4px)",
@@ -196,16 +196,16 @@ const config = {
 				dark: {
 					layout: {
 						// fontSize: {
-						// 	small: "calc(var(--font-size) * 0.875)",
-						// 	medium: "calc(var(--font-size))",
-						// 	large: "calc(var(--font-size) * 1.125)",
-						// 	tiny: "calc(var(--font-size) * 0.75)",
+						//     small: "calc(var(--font-size) * 0.875)",
+						//     medium: "calc(var(--font-size))",
+						//     large: "calc(var(--font-size) * 1.125)",
+						//     tiny: "calc(var(--font-size) * 0.75)",
 						// },
 						// lineHeight: {
-						// 	small: "1.25rem",
-						// 	medium: "1.5rem",
-						// 	large: "1.75rem",
-						// 	tiny: "1rem",
+						//     small: "1.25rem",
+						//     medium: "1.5rem",
+						//     large: "1.75rem",
+						//     tiny: "1rem",
 						// },
 						radius: {
 							small: "calc(var(--radius) - 4px)",

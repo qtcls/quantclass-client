@@ -51,12 +51,12 @@ export function generateTimestampSign(): string {
 }
 
 // export const extraWorkStatusAtom = atomWithStorage<boolean>(
-// 	"extra-work-status",
-// 	false,
-// 	undefined,
-// 	{
-// 		getOnInit: true,
-// 	},
+//     "extra-work-status",
+//     false,
+//     undefined,
+//     {
+//         getOnInit: true,
+//     },
 // )
 
 export const macAddressAtom = atomWithStorage<string>(

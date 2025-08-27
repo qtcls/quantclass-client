@@ -1,24 +1,24 @@
 {
-	"extends": "@electron-toolkit/tsconfig/tsconfig.web.json",
-	"include": [
-		"src/renderer/env.d.ts",
-		"src/renderer/**/*",
-		"src/renderer/**/*.tsx",
-		// "src/renderer/types/index.ts",
-		"src/preload/*.d.ts",
-		"src/test/**/*"
-	],
-	"compilerOptions": {
-		"composite": true,
-		"jsx": "react-jsx",
-		"esModuleInterop": true,
+    "extends": "@electron-toolkit/tsconfig/tsconfig.web.json",
+    "include": [
+        "src/renderer/env.d.ts",
+        "src/renderer/**/*",
+        "src/renderer/**/*.tsx",
+        // "src/renderer/types/index.ts",
+        "src/preload/*.d.ts",
+        "src/test/**/*"
+    ],
+    "compilerOptions": {
+        "composite": true,
+        "jsx": "react-jsx",
+        "esModuleInterop": true,
 
-		"baseUrl": ".",
-		"paths": {
-			"@/*": ["./src/*"],
-			"@renderer/*": ["./src/renderer/*"],
-			"@/hooks": ["./src/renderer/hooks/*"],
-			"@/registry/*": ["./src/renderer/registry/*"]
-		}
-	}
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["./src/*"],
+            "@renderer/*": ["./src/renderer/*"],
+            "@/hooks": ["./src/renderer/hooks/*"],
+            "@/registry/*": ["./src/renderer/registry/*"]
+        }
+    }
 }

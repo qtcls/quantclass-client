@@ -154,83 +154,83 @@ export default function AboutInfo() {
 
 			<div className="space-y-4">
 				{/*{(VITE_XBX_ENV === "development" || (isWindows && user?.isMember)) && (*/}
-				{/*	<div className="flex items-center justify-between">*/}
-				{/*		<div className="space-y-1">*/}
-				{/*			<h3 className="font-medium text-sm">检查更新</h3>*/}
-				{/*			<p className="text-xs text-muted-foreground">*/}
-				{/*				手动检查客户端版本更新*/}
-				{/*			</p>*/}
-				{/*		</div>*/}
-				{/*		<Button*/}
-				{/*			onClick={async () => {*/}
-				{/*				const data = await checkForUpdate()*/}
-				{/*				if (data.updateInfo.version === version.clientVersion) {*/}
-				{/*					toast.dismiss()*/}
-				{/*					toast.info("当前已是最新版本")*/}
-				{/*				}*/}
-				{/*				if (data.updateInfo.version !== version.clientVersion) {*/}
-				{/*					toast.dismiss()*/}
-				{/*					toast.info("发现新版本，开始下载")*/}
-				{/*					setIsShowAbout(false)*/}
-				{/*				}*/}
-				{/*				if (error) {*/}
-				{/*					toast.error("检查更新失败")*/}
-				{/*				}*/}
-				{/*			}}*/}
-				{/*			disabled={isPending}*/}
-				{/*		>*/}
-				{/*			{isPending ? "检查中..." : "检查更新"}*/}
-				{/*		</Button>*/}
-				{/*	</div>*/}
+				{/*    <div className="flex items-center justify-between">*/}
+				{/*        <div className="space-y-1">*/}
+				{/*            <h3 className="font-medium text-sm">检查更新</h3>*/}
+				{/*            <p className="text-xs text-muted-foreground">*/}
+				{/*                手动检查客户端版本更新*/}
+				{/*            </p>*/}
+				{/*        </div>*/}
+				{/*        <Button*/}
+				{/*            onClick={async () => {*/}
+				{/*                const data = await checkForUpdate()*/}
+				{/*                if (data.updateInfo.version === version.clientVersion) {*/}
+				{/*                    toast.dismiss()*/}
+				{/*                    toast.info("当前已是最新版本")*/}
+				{/*                }*/}
+				{/*                if (data.updateInfo.version !== version.clientVersion) {*/}
+				{/*                    toast.dismiss()*/}
+				{/*                    toast.info("发现新版本，开始下载")*/}
+				{/*                    setIsShowAbout(false)*/}
+				{/*                }*/}
+				{/*                if (error) {*/}
+				{/*                    toast.error("检查更新失败")*/}
+				{/*                }*/}
+				{/*            }}*/}
+				{/*            disabled={isPending}*/}
+				{/*        >*/}
+				{/*            {isPending ? "检查中..." : "检查更新"}*/}
+				{/*        </Button>*/}
+				{/*    </div>*/}
 				{/*)}*/}
 
 				{/* <div className="flex items-center justify-between">
-					<div className="space-y-1">
-						<h3 className="font-medium text-sm">清理数据订阅</h3>
-						<p className="text-xs text-muted-foreground">
-							清理客户端中所有数据订阅相关的缓存
-						</p>
-					</div>
-					<Button onClick={clearDataSubscriptions}>一键清理</Button>
-				</div>
+                    <div className="space-y-1">
+                        <h3 className="font-medium text-sm">清理数据订阅</h3>
+                        <p className="text-xs text-muted-foreground">
+                            清理客户端中所有数据订阅相关的缓存
+                        </p>
+                    </div>
+                    <Button onClick={clearDataSubscriptions}>一键清理</Button>
+                </div>
 
-				{(VITE_XBX_ENV === "development" || (user?.isMember && isWindows)) && (
-					<div className="space-y-6">
-						<div className="flex items-center justify-between">
-							<div className="space-y-1">
-								<h3 className="font-medium text-sm">清空已导入策略</h3>
-								<p className="text-xs text-muted-foreground">
-									一键清空所有已导入策略、交易计划
-								</p>
-							</div>
+                {(VITE_XBX_ENV === "development" || (user?.isMember && isWindows)) && (
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                                <h3 className="font-medium text-sm">清空已导入策略</h3>
+                                <p className="text-xs text-muted-foreground">
+                                    一键清空所有已导入策略、交易计划
+                                </p>
+                            </div>
 
-							<AlertDialog>
-								<AlertDialogTrigger asChild>
-									<Button disabled={clearImportedStrategiesLoading}>
-										{clearImportedStrategiesLoading ? "清空中..." : "一键清空"}
-									</Button>
-								</AlertDialogTrigger>
-								<AlertDialogContent>
-									<AlertDialogHeader>
-										<AlertDialogTitle>
-											确定要清空已导入策略吗？
-										</AlertDialogTitle>
-										<AlertDialogDescription className="text-destructive font-semibold">
-											该操作会影响正在进行的实盘，会重置所有实盘信息
-										</AlertDialogDescription>
-									</AlertDialogHeader>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button disabled={clearImportedStrategiesLoading}>
+                                        {clearImportedStrategiesLoading ? "清空中..." : "一键清空"}
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>
+                                            确定要清空已导入策略吗？
+                                        </AlertDialogTitle>
+                                        <AlertDialogDescription className="text-destructive font-semibold">
+                                            该操作会影响正在进行的实盘，会重置所有实盘信息
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
 
-									<AlertDialogFooter>
-										<AlertDialogCancel>取消</AlertDialogCancel>
-										<AlertDialogAction onClick={clearStrategies}>
-											确定
-										</AlertDialogAction>
-									</AlertDialogFooter>
-								</AlertDialogContent>
-							</AlertDialog>
-						</div>
-					</div>
-				)} */}
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>取消</AlertDialogCancel>
+                                        <AlertDialogAction onClick={clearStrategies}>
+                                            确定
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </div>
+                    </div>
+                )} */}
 				<div className="flex items-center justify-between">
 					<div className="space-y-1">
 						<Label

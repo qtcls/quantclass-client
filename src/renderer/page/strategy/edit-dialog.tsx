@@ -15,16 +15,16 @@ import { SelectStgType } from "@/renderer/types/strategy"
 
 import { parseToTimeValueWithSecond } from "@/renderer/utils"
 
-import { useFusionManager } from "@/renderer/hooks/useFusionManager"
-import { useStrategyManager } from "@/renderer/hooks/useStrategyManager"
-import { useState } from "react"
-import { toast } from "sonner"
 import {
 	Dialog,
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
 } from "@/renderer/components/ui/dialog"
+import { useFusionManager } from "@/renderer/hooks/useFusionManager"
+import { useStrategyManager } from "@/renderer/hooks/useStrategyManager"
+import { useState } from "react"
+import { toast } from "sonner"
 
 export default function StrategyEditDialog({
 	strategy,

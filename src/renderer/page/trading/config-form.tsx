@@ -180,8 +180,8 @@ export function TradingConfigForm() {
 
 	return (
 		// <Card className="flex-1 overflow-hidden border bg-transparent shadow-none">
-		// 	<CardContent className="p-0">
-		// 		<ScrollArea className="h-full">
+		//     <CardContent className="p-0">
+		//         <ScrollArea className="h-full">
 		<>
 			<Form {...form}>
 				<form className="w-full space-y-4 flex flex-col gap-4">
@@ -642,14 +642,14 @@ export function TradingConfigForm() {
 				</Button>
 			</div>
 		</>
-		// 		</ScrollArea>
-		// 	</CardContent>
+		//         </ScrollArea>
+		//     </CardContent>
 
-		// 	<CardFooter className="flex justify-end gap-2 p-4 pt-0">
-		// 		<Button size="sm" onClick={() => handleSave()}>
-		// 			保存实盘配置
-		// 		</Button>
-		// 	</CardFooter>
+		//     <CardFooter className="flex justify-end gap-2 p-4 pt-0">
+		//         <Button size="sm" onClick={() => handleSave()}>
+		//             保存实盘配置
+		//         </Button>
+		//     </CardFooter>
 		// </Card>
 	)
 }

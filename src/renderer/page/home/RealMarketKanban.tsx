@@ -141,15 +141,15 @@ export const RealMarketKanban = () => {
 					/>
 
 					{/* <Button
-					variant="linkHover1"
-					className="text-base text-muted-foreground"
-					onClick={() => {
-						navigate(POSITION_INFO_PAGE)
-						setActiveTab("positionInfo")
-					}}
-				>
-					<WeightIcon className="w-4 h-4 mr-2" /> 查看持仓
-				</Button> */}
+                    variant="linkHover1"
+                    className="text-base text-muted-foreground"
+                    onClick={() => {
+                        navigate(POSITION_INFO_PAGE)
+                        setActiveTab("positionInfo")
+                    }}
+                >
+                    <WeightIcon className="w-4 h-4 mr-2" /> 查看持仓
+                </Button> */}
 				</div>
 
 				<div className="flex items-center gap-2 flex-wrap">
@@ -219,17 +219,17 @@ export const RealMarketKanban = () => {
 					<BuyBlacklist />
 				</div>
 				{/* <div className="flex items-center justify-center gap-2">
-					<Button
-						variant="linkHover1"
-						size="sm"
-						onClick={() => {
-							navigate(STRATEGY_LIBRARY_PAGE)
-							setActiveTab(REAL_TRADING_TAB_NAME)
-						}}
-					>
-						前往策略库
-					</Button>
-				</div> */}
+                    <Button
+                        variant="linkHover1"
+                        size="sm"
+                        onClick={() => {
+                            navigate(STRATEGY_LIBRARY_PAGE)
+                            setActiveTab(REAL_TRADING_TAB_NAME)
+                        }}
+                    >
+                        前往策略库
+                    </Button>
+                </div> */}
 			</div>
 
 			<Dialog

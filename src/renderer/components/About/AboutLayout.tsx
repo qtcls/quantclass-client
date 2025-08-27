@@ -19,10 +19,10 @@ interface SettingsLayoutProps {
 }
 
 const SettingsLayout: React.FC<SettingsLayoutProps> = ({
-	                                                       hideSidebar = false,
-	                                                       sidebar,
-	                                                       children,
-                                                       }) => {
+	hideSidebar = false,
+	sidebar,
+	children,
+}) => {
 	return (
 		<ThemeWrapper className="max-w-4xl flex flex-row p-0 gap-0 rounded-lg overflow-hidden">
 			{!hideSidebar && (

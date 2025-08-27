@@ -2,12 +2,12 @@
 !define DIR_NAME "Quantclass"
 
 !macro preInit
-	SetRegView 64
-	WriteRegExpandStr HKLM "Software\${PRODUCT_NAME}" InstallLocation "${DEFAULT_INSTALL_DIR}"
-	WriteRegExpandStr HKCU "Software\${PRODUCT_NAME}" InstallLocation "${DEFAULT_INSTALL_DIR}"
-	SetRegView 32
-	WriteRegExpandStr HKLM "Software\${PRODUCT_NAME}" InstallLocation "${DEFAULT_INSTALL_DIR}"
-	WriteRegExpandStr HKCU "Software\${PRODUCT_NAME}" InstallLocation "${DEFAULT_INSTALL_DIR}"
+    SetRegView 64
+    WriteRegExpandStr HKLM "Software\${PRODUCT_NAME}" InstallLocation "${DEFAULT_INSTALL_DIR}"
+    WriteRegExpandStr HKCU "Software\${PRODUCT_NAME}" InstallLocation "${DEFAULT_INSTALL_DIR}"
+    SetRegView 32
+    WriteRegExpandStr HKLM "Software\${PRODUCT_NAME}" InstallLocation "${DEFAULT_INSTALL_DIR}"
+    WriteRegExpandStr HKCU "Software\${PRODUCT_NAME}" InstallLocation "${DEFAULT_INSTALL_DIR}"
 !macroend
 
 Function .onVerifyInstDir

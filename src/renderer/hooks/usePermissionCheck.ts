@@ -101,11 +101,11 @@ export function usePermissionCheck() {
 
 		// -- 检查 2025 年权限
 		// if (onlyIn2025 && isOnly2025Member(user?.membershipInfo)) {
-		// 	const message =
-		// 		messages.onlyIn2025 ??
-		// 		"针对目前 2025 的新分享会同学的实盘功能 2025 春节后上线"
-		// 	!skipToast && showToast(message)
-		// 	return { isValid: false, message, type: "2025" }
+		//     const message =
+		//         messages.onlyIn2025 ??
+		//         "针对目前 2025 的新分享会同学的实盘功能 2025 春节后上线"
+		//     !skipToast && showToast(message)
+		//     return { isValid: false, message, type: "2025" }
 		// }
 
 		// -- 检查系统要求

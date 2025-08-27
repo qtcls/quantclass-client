@@ -20,6 +20,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/renderer/components/ui/dialog"
+import { Label } from "@/renderer/components/ui/label"
 import {
 	RadioGroup,
 	RadioGroupItem,
@@ -31,10 +32,9 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/renderer/components/ui/select"
-import { toast } from "sonner"
-import { Label } from "@/renderer/components/ui/label"
-import type { BlacklistItem } from "@/renderer/types/trading"
 import { cn } from "@/renderer/lib/utils"
+import type { BlacklistItem } from "@/renderer/types/trading"
+import { toast } from "sonner"
 
 export default function BuyBlacklistAddConfirm({
 	show,

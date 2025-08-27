@@ -80,13 +80,13 @@ async function createRealTradingDirHandler(): Promise<void> {
 }
 
 // async function StrategyDirExitHandler(): Promise<void> {
-// 	ipcMain.handle("strategy-dir-exit", async () => {
-// 		const all_data_path = await store.getSetting("all_data_path", "")
+//     ipcMain.handle("strategy-dir-exit", async () => {
+//         const all_data_path = await store.getSetting("all_data_path", "")
 
-// 		const fullPath = path.join(all_data_path, "strategy")
+//         const fullPath = path.join(all_data_path, "strategy")
 
-// 		return fs.existsSync(fullPath)
-// 	})
+//         return fs.existsSync(fullPath)
+//     })
 // }
 
 async function selectFileDirHandler(): Promise<void> {
@@ -196,13 +196,13 @@ function openFileHandler() {
 }
 
 // async function checkpythonLockHandler(): Promise<void> {
-// 	ipcMain.handle("check-python-lock", async () => {
-// 		const status = await checkLock()
+//     ipcMain.handle("check-python-lock", async () => {
+//         const status = await checkLock()
 
-// 		return {
-// 			pending: status,
-// 		}
-// 	})
+//         return {
+//             pending: status,
+//         }
+//     })
 // }
 
 async function checkFuelUpdateLockHandler(): Promise<void> {
@@ -287,10 +287,10 @@ async function importSelectStockHandler(): Promise<void> {
 			)
 			// 如果是Windows操作系统，需要保证当前文件夹下，所有的文件都不是“只读”的
 			// if (platform.isWindows) {
-			// 	logger.info("[import] 重置只读权限")
-			// 	execSync(`chcp 65001 | attrib -r "${fuelProTradingPath}\*" /s /d`, {
-			// 		stdio: ["pipe", "ignore", "ignore"],
-			// 	})
+			//     logger.info("[import] 重置只读权限")
+			//     execSync(`chcp 65001 | attrib -r "${fuelProTradingPath}\*" /s /d`, {
+			//         stdio: ["pipe", "ignore", "ignore"],
+			//     })
 			// }
 			let configJsonStr: string | undefined
 			let backtestName: string | undefined
@@ -322,23 +322,23 @@ async function importSelectStockHandler(): Promise<void> {
 
 			// -- 检查策略库和因子库文件夹是否存在
 			// if (!fs.existsSync(strategyPath) || !fs.existsSync(factorPath)) {
-			// 	await sendErrorToClient("源路径中未找到策略库或因子库文件夹")
-			// 	logger.error(
-			// 		"[importLibraryDirHandler] 源路径中未找到策略库或因子库文件夹",
-			// 	)
-			// 	throw new Error("源路径中未找到策略库或因子库文件夹")
+			//     await sendErrorToClient("源路径中未找到策略库或因子库文件夹")
+			//     logger.error(
+			//         "[importLibraryDirHandler] 源路径中未找到策略库或因子库文件夹",
+			//     )
+			//     throw new Error("源路径中未找到策略库或因子库文件夹")
 			// }
 
 			// -- 确保目标路径存在
 			// if (!fs.existsSync(fuelProTradingPath)) {
-			// 	fs.mkdirSync(fuelProTradingPath, { recursive: true })
+			//     fs.mkdirSync(fuelProTradingPath, { recursive: true })
 			// }
 
 			// -- 复制 config.py 到目标目录
 			// 不需要复制 config.py 文件
 			// fs.copyFileSync(
-			// 	configFilePath,
-			// 	path.join(fuelProTradingPath, "config.py"),
+			//     configFilePath,
+			//     path.join(fuelProTradingPath, "config.py"),
 			// )
 
 			// -- 复制策略库文件

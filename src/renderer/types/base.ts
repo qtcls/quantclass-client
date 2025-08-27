@@ -59,5 +59,5 @@ export interface BaseAPI {
 }
 
 // export interface ElectronAPI {
-// 	syncNetworkStatus: (isOnline: boolean) => void
+//     syncNetworkStatus: (isOnline: boolean) => void
 // }
