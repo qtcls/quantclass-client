@@ -8,21 +8,21 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
+import { DataTableColumnHeader } from "@/renderer/components/ui/data-table-column-heder"
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/renderer/components/ui/tooltip"
 import {
 	PositionInfoType,
 	PositionStockInfoType,
 	PositionStrategyInfoType,
 } from "@/renderer/page/position/types"
 import { formatCurrency } from "@/renderer/utils/formatCurrency"
-import { DataTableColumnHeader } from "@/renderer/components/ui/data-table-column-heder"
 import { ColumnDef } from "@tanstack/react-table"
 import dayjs from "dayjs"
 import { InfoIcon } from "lucide-react"
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/renderer/components/ui/tooltip"
 
 export const usePositionInfoColumns = (): ColumnDef<PositionInfoType>[] => {
 	return [

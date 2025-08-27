@@ -12,6 +12,7 @@ import fs from "node:fs"
 import os from "node:os"
 import path from "node:path"
 import { CONFIG } from "@/main/config.js"
+import { getJsonDataFromFile } from "@/main/core/dataList.js"
 // @ts-ignore
 import {
 	convertPythonVariableToJson,
@@ -34,7 +35,6 @@ import {
 	shell,
 } from "electron"
 import { keys } from "lodash-es"
-import { getJsonDataFromFile } from "@/main/core/dataList.js"
 
 async function createStrategyDirHandler(): Promise<void> {
 	ipcMain.handle("create-strategy-dir", async () => {
