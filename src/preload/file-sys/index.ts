@@ -42,4 +42,6 @@ export const fileSysIPC = {
 	importFusion: (configFilePath: string) =>
 		ipcRenderer.invoke("import-fusion", configFilePath),
 	readChangelog: () => ipcRenderer.invoke("read-changelog"),
+	loadPositionJson: (filename: string) =>
+		ipcRenderer.invoke("load-position-json", filename),
 }

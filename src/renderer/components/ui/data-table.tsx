@@ -170,7 +170,6 @@ export function DataTable<TData, TValue>({
 		enableColumnResizing: true,
 		getRowId,
 		onSortingChange: setSorting,
-		// @ts-ignore
 		onRowSelectionChange: setRowSelection,
 		onGlobalFilterChange: setGlobalFilter,
 		onColumnFiltersChange: setColumnFilters,

@@ -91,7 +91,7 @@ const data = {
 				icon: TvMinimalPlay,
 			},
 			{
-				title: "持仓信息 (即将上线)",
+				title: "持仓信息",
 				url: POSITION_INFO_PAGE,
 				icon: Briefcase,
 			},
