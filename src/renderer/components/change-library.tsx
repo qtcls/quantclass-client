@@ -12,10 +12,10 @@ import { Button } from "@/renderer/components/ui/button"
 import { useToggleAutoRealTrading } from "@/renderer/hooks/useToggleAutoRealTrading"
 import { libraryTypeAtom } from "@/renderer/store/storage"
 import { useAtom } from "jotai"
+import { CircleCheck } from "lucide-react"
 import { useAlertDialog } from "../context/alert-dialog"
 import { useFusionManager } from "../hooks/useFusionManager"
 import { useStrategyManager } from "../hooks/useStrategyManager"
-import { CircleCheck } from "lucide-react"
 import { Badge } from "./ui/badge"
 export function ChangeLibrary({
 	currentLibraryType,
