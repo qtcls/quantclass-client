@@ -68,7 +68,7 @@ export default function ScheduleControl() {
 						</span>
 					</div>
 				</div>
-				<div className=" text-yellow-700 text-xs dark:text-yellow-300">
+				<div className=" text-warning text-xs bg-warning-50 p-1 rounded border border-warning">
 					<span className="font-medium0">提示：</span>
 					<span>
 						无论是自动还是定时更新，

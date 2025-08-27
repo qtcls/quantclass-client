@@ -620,7 +620,7 @@ export function SelectStgForm({
 								<FormField
 									control={form.control}
 									name="timing"
-									render={({ field, formState }) => (
+									render={({ field }) => (
 										<FormItem className={cn("px-1")}>
 											<FormLabel className="flex items-center gap-1">
 												<Shell className="size-4 mr-1" />
@@ -779,30 +779,3 @@ export function SelectStgForm({
 	)
 }
 
-const CalcHint = () => {
-	return (
-		<ButtonTooltip
-			content={
-				<div>
-					<div className="font-semibold flex items-center gap-1">
-						<span className="size-1 rounded-full bg-gray-300" />
-						<span>隔日换仓、早盘换仓次日 8 点自动计算，暂不支持修改配置</span>
-					</div>
-					<div className="flex items-center gap-1">
-						<span className="size-1 rounded-full bg-gray-300" />
-						<span>
-							尾盘换仓选股时间可修改，建议为 14:35～14:45 之间，最大支持
-							14:25～14:50
-						</span>
-					</div>
-					<div className="flex items-center gap-1">
-						<span className="size-1 rounded-full bg-gray-300" />
-						<span>尾盘换仓设置选股时间后，会同步到所有尾盘换仓策略</span>
-					</div>
-				</div>
-			}
-		>
-			<CircleHelp className="w-4 h-4 text-muted-foreground hover:cursor-pointer" />
-		</ButtonTooltip>
-	)
-}

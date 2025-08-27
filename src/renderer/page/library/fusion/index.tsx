@@ -12,7 +12,6 @@ import { Badge } from "@/renderer/components/ui/badge"
 import ButtonTooltip from "@/renderer/components/ui/button-tooltip"
 import { DataTable } from "@/renderer/components/ui/data-table"
 import { Separator } from "@/renderer/components/ui/separator"
-import { useToggleAutoRealTrading } from "@/renderer/hooks/useToggleAutoRealTrading"
 import ImportStrategyButton from "@/renderer/page/library/fusion/import-btn"
 
 import { useFusionManager } from "@/renderer/hooks/useFusionManager"
@@ -30,6 +29,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/renderer/components/ui/popover"
+import { ChangeLibrary } from "@/renderer/components/change-library"
 
 // 独立的策略表格组件
 interface StrategyTableProps {
@@ -257,6 +257,7 @@ const FusionStrategyLibrary = () => {
 
 	return (
 		<div className="w-full h-full space-y-4 py-4">
+			<ChangeLibrary currentLibraryType="pos" />
 			<ImportStrategyButton />
 			{fusion.map((strategyGroup, strategyIndex) => {
 				// 使用 isFoldState 来获取和更新每个 strategyGroup 的 isFold 状态
