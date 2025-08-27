@@ -14,6 +14,7 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/renderer/components/ui/tooltip"
+import { cn } from "@/renderer/lib/utils"
 import {
 	PositionInfoType,
 	PositionStockInfoType,
@@ -97,17 +98,21 @@ export const usePositionStockInfoColumns =
 				header: "策略名称",
 			},
 			{
-				accessorKey: "证券代码",
-			},
-			{
-				accessorKey: "证券名称",
-				header: "证券名称",
+				header: "股票名称",
+				cell: ({ row }) => {
+					return (
+						<span>
+							{row.original?.证券名称 ?? "-"}({row.original?.证券代码 ?? "-"})
+						</span>
+					)
+				},
 			},
 			{
 				accessorKey: "持仓量",
 				header: ({ column }) => (
 					<DataTableColumnHeader column={column} title="持仓量" />
 				),
+				size: 100,
 				enableSorting: true,
 			},
 			{
@@ -116,13 +121,10 @@ export const usePositionStockInfoColumns =
 					<DataTableColumnHeader column={column} title="占比" />
 				),
 				enableSorting: true,
+				size: 100,
 				cell: ({ row }) => {
 					return <span>{((row.original?.占比 ?? 0) * 100).toFixed(2)}%</span>
 				},
-			},
-			{
-				accessorKey: "offset",
-				header: "offset",
 			},
 			{
 				accessorKey: "当日盈亏",
@@ -131,7 +133,34 @@ export const usePositionStockInfoColumns =
 				),
 				enableSorting: true,
 				cell: ({ row }) => {
-					return <span>￥{formatCurrency(row.original?.当日盈亏 ?? 0)}</span>
+					return (
+						<span
+							className={cn(
+								row.original?.当日盈亏 > 0 ? "text-danger" : "text-success",
+							)}
+						>
+							￥{formatCurrency(row.original?.当日盈亏 ?? 0)}
+						</span>
+					)
+				},
+			},
+			{
+				accessorKey: "当日收益率",
+				header: ({ column }) => (
+					<DataTableColumnHeader column={column} title="当日收益率" />
+				),
+				enableSorting: true,
+				size: 100,
+				cell: ({ row }) => {
+					return (
+						<span
+							className={cn(
+								row.original?.当日收益率 > 0 ? "text-danger" : "text-success",
+							)}
+						>
+							{((row.original?.当日收益率 ?? 0) * 100).toFixed(2)}%
+						</span>
+					)
 				},
 			},
 			{
@@ -141,7 +170,15 @@ export const usePositionStockInfoColumns =
 				),
 				enableSorting: true,
 				cell: ({ row }) => {
-					return <span>￥{formatCurrency(row.original?.累计盈亏 ?? 0)}</span>
+					return (
+						<span
+							className={cn(
+								row.original?.累计盈亏 > 0 ? "text-danger" : "text-success",
+							)}
+						>
+							￥{formatCurrency(row.original?.累计盈亏 ?? 0)}
+						</span>
+					)
 				},
 			},
 			{
@@ -150,9 +187,16 @@ export const usePositionStockInfoColumns =
 					<DataTableColumnHeader column={column} title="累计收益率" />
 				),
 				enableSorting: true,
+				size: 100,
 				cell: ({ row }) => {
 					return (
-						<span>{((row.original?.累计收益率 ?? 0) * 100).toFixed(4)}%</span>
+						<span
+							className={cn(
+								row.original?.累计收益率 > 0 ? "text-danger" : "text-success",
+							)}
+						>
+							{((row.original?.累计收益率 ?? 0) * 100).toFixed(2)}%
+						</span>
 					)
 				},
 			},
@@ -177,6 +221,10 @@ export const usePositionStockInfoColumns =
 				cell: ({ row }) => {
 					return <span>{row.original?.["滑点（‰）"] ?? "--"}</span>
 				},
+			},
+			{
+				accessorKey: "offset",
+				header: "offset",
 			},
 		]
 	}
@@ -215,7 +263,15 @@ export const usePositionStrategyInfoColumns =
 				),
 				enableSorting: true,
 				cell: ({ row }) => {
-					return <span>￥{formatCurrency(row.original?.当日盈亏 ?? 0)}</span>
+					return (
+						<span
+							className={cn(
+								row.original?.当日盈亏 > 0 ? "text-danger" : "text-success",
+							)}
+						>
+							￥{formatCurrency(row.original?.当日盈亏 ?? 0)}
+						</span>
+					)
 				},
 			},
 			{
@@ -226,7 +282,13 @@ export const usePositionStrategyInfoColumns =
 				enableSorting: true,
 				cell: ({ row }) => {
 					return (
-						<span>{((row.original?.当日收益率 ?? 0) * 100).toFixed(4)}%</span>
+						<span
+							className={cn(
+								row.original?.当日收益率 > 0 ? "text-danger" : "text-success",
+							)}
+						>
+							{((row.original?.当日收益率 ?? 0) * 100).toFixed(2)}%
+						</span>
 					)
 				},
 			},

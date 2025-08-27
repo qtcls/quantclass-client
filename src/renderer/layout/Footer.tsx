@@ -271,19 +271,6 @@ export const _SiderFooter = () => {
 												toast.error("请先登录")
 												return
 											}
-
-											// const isLatest = await checkBinVersion()
-											// if (isLatest) {
-											// 	toast.success("内核已都是最新")
-											// 	await runAsync()
-											// 	return
-											// } else {
-											// 	toast.info("有可用更新，开始更新")
-
-											// 	await fetchFuel()
-											// 	await runAsync()
-											// }
-
 											await fetchFuel()
 											await runAsync()
 										}}

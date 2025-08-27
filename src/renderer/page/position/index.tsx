@@ -110,6 +110,7 @@ export default function PositionInfo() {
 						}}
 						pagination={false}
 						placeholder="查找所有列..."
+						_maxHeight="calc(100vh - 275px)"
 					/>
 				) : (
 					<DataTable<PositionStockInfoType, unknown>
@@ -121,6 +122,7 @@ export default function PositionInfo() {
 						}}
 						pagination={false}
 						placeholder="查找所有列..."
+						_maxHeight="calc(100vh - 275px)"
 					/>
 				)}
 			</div>
