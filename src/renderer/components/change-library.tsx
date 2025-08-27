@@ -60,7 +60,7 @@ export function ChangeLibrary({
 	return (
 		<>
 			{currentLibraryType === libraryType ? (
-				<div className="flex items-center gap-2 border border-blue-500 bg-blue-50 text-blue-500 rounded-lg p-2 dark:bg-blue-900 dark:border-blue-300 dark:text-blue-300">
+				<div className="flex items-center gap-2 border border-blue-500 bg-blue-50 text-blue-500 rounded-lg px-2 py-1.5 dark:bg-blue-900 dark:border-blue-300 dark:text-blue-300">
 					<Badge className="py-1 px-1.5 flex items-center gap-1 bg-blue-500 dark:bg-blue-300">
 						<CircleCheck size={14} />
 						<span>已启用</span>
@@ -69,13 +69,13 @@ export function ChangeLibrary({
 					<span>客户端会使用当前策略库中的配置进行回测和实盘</span>
 				</div>
 			) : (
-				<div className="flex items-center gap-2 border border-warning-500 bg-warning-50 text-warning-500 rounded-lg p-2">
+				<div className="flex items-center gap-2 border border-warning bg-warning-50 text-warning rounded-lg px-2 py-1.5">
 					<Button
 						disabled={isAutoRocket}
 						onClick={handleChangeLibrary}
 						size="sm"
 						variant="ringHover"
-						className="h-7 w-16 text-sm"
+						className="h-7 w-16"
 					>
 						启用
 					</Button>
