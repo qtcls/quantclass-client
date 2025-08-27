@@ -37,6 +37,8 @@ const AdmZip = require("adm-zip")
 const clientVersion = CLIENT_VERSION
 
 const URL = `${BASE_URL}/api/data/client`
+
+// 2025-08-27 更新，未来不再使用这套更新逻辑
 const CORE_VERSION_REMOTE_URL = {
 	fuel: `${URL}/fuel-bin-v2/version`,
 	aqua: `${URL}/aqua-bin/version`,
