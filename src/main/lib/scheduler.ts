@@ -19,7 +19,7 @@ import dayjs from "dayjs"
 import isBetween from "dayjs/plugin/isBetween.js"
 import Store from "electron-store"
 import schedule from "node-schedule"
-import { updateCore, updateFuelCore } from "../core/runpy.js"
+// import { updateCore, updateFuelCore } from "../core/runpy.js" // 2025-08-27不再自动更新内核
 
 const _store = new Store()
 
@@ -47,7 +47,7 @@ const systemState: SystemState = {
 async function initializeSystem() {
 	try {
 		// -- fuel 内核直接更新，无需检查状态
-		await updateFuelCore(true)
+		// await updateFuelCore(true)
 
 		// -- 非 Windows 平台到此结束
 		if (!platform.isWindows) return
@@ -73,15 +73,15 @@ async function initializeSystem() {
 				}
 			}
 
-			const status = (await _store.get("status", 0)) as 0 | 1 | 2
+			// const status = (await _store.get("status", 0)) as 0 | 1 | 2
 
-			if (status === 2) {
-				await updateCore("aqua", true)
-				await updateCore("rocket", true)
-				await updateCore("zeus", true)
-			} else {
-				logger.info("本地状态：非法状态")
-			}
+			// if (status === 2) {
+			// 	await updateCore("aqua", true)
+			// 	await updateCore("rocket", true)
+			// 	await updateCore("zeus", true)
+			// } else {
+			// 	logger.info("本地状态：非法状态")
+			// }
 		} catch (error) {
 			logger.error(`获取状态失败: ${error}`)
 			return
@@ -246,8 +246,9 @@ const setupScheduler = async (): Promise<schedule.Job> => {
 
 // -- 处理自动更新逻辑
 async function wakeUpFuel(mw) {
-	mw?.webContents.send("send-schedule-status", "fuel_updating")
-	await updateFuelCore()
+	// 2025-08-27不再自动更新内核
+	// mw?.webContents.send("send-schedule-status", "fuel_updating")
+	// await updateFuelCore()
 	try {
 		logger.info("[fuel] 自动更新所有数据...")
 		mw?.webContents.send("send-schedule-status", "fuel_start")
@@ -263,8 +264,9 @@ async function wakeUpAqua(userState: UserState, mw) {
 		logger.info(`[aqua] 非分享会状态，跳过Aqua，${userState?.user}`)
 		return
 	}
-	mw?.webContents.send("send-schedule-status", "aqua_updating")
-	await updateCore("aqua")
+	// 2025-08-27不再自动更新内核
+	// mw?.webContents.send("send-schedule-status", "aqua_updating")
+	// await updateCore("aqua")
 	try {
 		mw?.webContents.send("send-schedule-status", "aqua_start")
 		await execBin(["select", "trading"], "选股", "aqua")
@@ -280,8 +282,9 @@ async function wakeUpZeus(userState: UserState, mw) {
 		return
 	}
 	logger.info("[zeus] 正在调用zeus")
-	mw?.webContents.send("send-schedule-status", "aqua_updating")
-	await updateCore("zeus")
+	// 2025-08-27不再自动更新内核
+	// mw?.webContents.send("send-schedule-status", "aqua_updating")
+	// await updateCore("zeus")
 	try {
 		mw?.webContents.send("send-schedule-status", "aqua_start")
 		await execBin(["select", "trading"], "选股", "zeus")
@@ -318,8 +321,9 @@ async function wakeUpRocket(userState: UserState, mw) {
 		return
 	}
 
-	mw?.webContents.send("send-schedule-status", "rocket_updating")
-	await updateCore("rocket")
+	// 2025-08-27不再自动更新内核
+	// mw?.webContents.send("send-schedule-status", "rocket_updating")
+	// await updateCore("rocket")
 
 	// -- 启动 rocket
 	mw?.webContents.send("send-schedule-status", "rocket_start")

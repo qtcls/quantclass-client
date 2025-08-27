@@ -38,7 +38,6 @@ export const dataIPC = {
 	) => ipcRenderer.invoke("exec-fuel-with-env", args, action, kernel, extraEnv),
 	calcTradingPlan: () => ipcRenderer.invoke("calc-trading-plan"),
 	rocketExecute: () => ipcRenderer.invoke("rocket-execute"),
-	loadPosition: () => ipcRenderer.invoke("load-position"),
 	// TODO: 需要迁移到trading.ts
 
 	// 从renderer/ipc/index.ts迁移的方法

@@ -31,7 +31,6 @@ import {
 
 import LoadingAnime from "@/renderer/components/LoadingAnime"
 import MonitorDialog from "@/renderer/components/MonitorDialog"
-import { Badge } from "@/renderer/components/ui/badge"
 import {
 	Sidebar,
 	SidebarInset,
@@ -42,7 +41,6 @@ import { useCalcTotalWeight } from "@/renderer/hooks/useCalcTotalWeight"
 // import { useClassStatusInterval } from "@/renderer/hooks/useClassStatusInterval"
 import { Footer } from "@/renderer/layout/Footer"
 import { UserMenu } from "@/renderer/layout/UserMenu"
-import { libraryTypeAtom } from "@/renderer/store/storage"
 import { _BreadCrumb } from "./BreadCrumb"
 import { _SidebarContent } from "./Content"
 import { _SiderFooter } from "./Footer"
@@ -51,17 +49,13 @@ import { useReportErr } from "./hooks/useReportErr"
 
 // -- Utils & Constants
 import { AlertDialogProvider } from "@/renderer/context/alert-dialog"
-import { ConfirmChangeLibrary } from "@/renderer/layout/ConfirmChangeLibrary"
-import { ChangeLibrary } from "@/renderer/layout/changeLibrary"
 import VersionUpgrade from "@/renderer/layout/version-upgrade"
 import { cn } from "@/renderer/lib/utils"
-import { Check } from "lucide-react"
 
 const { handleToggleFullscreen } = window.electronAPI
 
 // -- Types
 interface MainLayoutProps {
-	pathname: string
 	loading: boolean
 	content: string | undefined
 	isShowAbout: boolean
@@ -117,7 +111,6 @@ const Layout: FC = () => {
 				</Sidebar>
 
 				<MainLayout
-					pathname={pathname}
 					loading={loading}
 					content={content}
 					isShowAbout={isShowAbout}
@@ -126,7 +119,6 @@ const Layout: FC = () => {
 				/>
 			</SidebarProvider>
 			<VersionUpgrade />
-			<ConfirmChangeLibrary />
 		</>
 	)
 }
@@ -134,7 +126,6 @@ const Layout: FC = () => {
 export default Layout
 
 const MainLayout: FC<MainLayoutProps> = ({
-	pathname,
 	loading,
 	content,
 	isShowAbout,
@@ -142,19 +133,6 @@ const MainLayout: FC<MainLayoutProps> = ({
 	isShowMonitorPanel,
 }) => {
 	useLocation()
-	const libraryType = useAtomValue(libraryTypeAtom)
-	const pathList = [
-		{
-			pathname: "/strategy_library",
-			libraryType: "select",
-		},
-		{
-			pathname: "/position_strategy_library",
-			libraryType: "pos",
-		},
-	]
-	// 找到当前 pathname 对应的 pathList 项
-	const currentPath = pathList.find((item) => item.pathname === pathname)
 	return (
 		<SidebarInset className="min-h-[calc(100svh-2.5rem-1px)] h-[calc(100svh-2.5rem-1px)] overflow-y: auto">
 			<header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
@@ -162,18 +140,6 @@ const MainLayout: FC<MainLayoutProps> = ({
 				<Separator orientation="vertical" className="mr-2 h-4" /> */}
 				<div className="flex items-center gap-10">
 					<_BreadCrumb />
-					{currentPath && libraryType !== currentPath.libraryType && (
-						<ChangeLibrary isButton={true} />
-					)}
-					{currentPath && libraryType === currentPath.libraryType ? (
-						<Badge
-							variant="outline"
-							className="py-1 px-1.5 ml-auto flex items-center gap-1 text-success border-success"
-						>
-							<Check size={14} />
-							<span>已启用</span>
-						</Badge>
-					) : null}
 				</div>
 				<div className="ml-auto flex items-center gap-2">
 					<UserMenu />

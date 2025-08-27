@@ -20,3 +20,25 @@ export type PositionInfoType = {
 	成交均价: number
 	其他: string
 }
+
+export type PositionStockInfoType = {
+	策略名称: string
+	证券代码: string
+	证券名称: string
+	持仓量: number
+	占比: number
+	offset: string
+	当日盈亏: number
+	当日收益率: number
+	累计盈亏: number
+	累计收益率: number
+	"滑点（‰）": string
+}
+
+export type PositionStrategyInfoType = {
+	策略名称: string
+	占比: number
+	占用资金: number
+	当日盈亏: number
+	当日收益率: number
+}

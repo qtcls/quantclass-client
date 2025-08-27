@@ -112,13 +112,6 @@ export const libraryTypeAtom = atomWithStorage<string>(
 	{ getOnInit: true },
 )
 
-export const libraryShowAtom = atomWithStorage<boolean>(
-	"libraryShow",
-	false,
-	undefined,
-	{ getOnInit: true },
-)
-
 export const accountKeyAtom = atomWithStorage<{
 	apiKey: string
 	uuid: string

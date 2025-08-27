@@ -12,6 +12,7 @@ import fs from "node:fs"
 import os from "node:os"
 import path from "node:path"
 import { CONFIG } from "@/main/config.js"
+import { getJsonDataFromFile } from "@/main/core/dataList.js"
 // @ts-ignore
 import {
 	convertPythonVariableToJson,
@@ -645,6 +646,22 @@ async function readChangelogHandler(): Promise<void> {
 	})
 }
 
+async function importPositionHandler(): Promise<void> {
+	ipcMain.handle("load-position-json", async (_, filename: string) => {
+		try {
+			return await getJsonDataFromFile(
+				["real_trading", "rocket", "data", "账户信息", `${filename}.json`],
+				"持仓信息文件不存在或为空",
+			)
+		} catch (error) {
+			logger.error(
+				`[importPositionHandler] 导入持仓文件失败: ${JSON.stringify(error, null, 2)}`,
+			)
+			return { success: false, error: "导入持仓文件失败", data: [] }
+		}
+	})
+}
+
 export const regFileSysIPC = () => {
 	openUrlHandler()
 	killRocketHandler()
@@ -670,5 +687,6 @@ export const regFileSysIPC = () => {
 	createRealTradingDirHandler()
 	forceKillAllProcessesHandler()
 	strategyResultPathHandler()
+	importPositionHandler()
 	console.log("[ok] file-sys-ipc")
 }

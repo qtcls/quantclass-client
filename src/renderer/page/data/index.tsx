@@ -76,7 +76,7 @@ const Data: FC = () => {
 							? `指定时间更新数据：${dataScheduleTimes.join(", ")}`
 							: "自动每分钟检查更新，并实时更新数据"}
 					</p>
-					<div className="w-full rounded-md border border-yellow-300 bg-yellow-50 text-yellow-700 px-2 py-1.5 flex items-center gap-2 text-xs dark:bg-yellow-900 dark:border-yellow-700 dark:text-yellow-300">
+					<div className="w-full rounded-md border border-warning-500 bg-warning-50 text-warning px-2 py-1.5 flex items-center gap-2 text-sm">
 						<Info className="w-4 h-4" />
 						<span className="font-medium">提示：</span>
 						<span>
