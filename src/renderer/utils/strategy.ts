@@ -160,15 +160,23 @@ export const saveStrategyListFusion = async (
 							const key = `${strategyName}#${index1}.${curr1.name}`
 							acc[key] = genSelectStrategyDict({
 								...curr1,
-								cap_weight: (curr1.cap_weight / 100) * (item.cap_weight || 1),
+								cap_weight: (curr1.cap_weight / 100) * (item.cap_weight ?? 0),
 							})
 						})
 					} else {
-						acc[strategyName] = genSelectStrategyDict(item.strategy_list[0])
+						acc[strategyName] = genSelectStrategyDict({
+							...item.strategy_list[0],
+							cap_weight:
+								(item.strategy_list[0].cap_weight / 100) *
+								(item.cap_weight ?? 0),
+						})
 					}
 					break
 				default:
-					acc[strategyName] = genSelectStrategyDict(item as SelectStgType)
+					acc[strategyName] = genSelectStrategyDict({
+						...item,
+						cap_weight: item.cap_weight ?? 0 / 100,
+					})
 					break
 			}
 			return acc
