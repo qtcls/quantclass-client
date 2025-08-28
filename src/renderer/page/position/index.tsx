@@ -92,7 +92,7 @@ export default function PositionInfo() {
 								refetch()
 								toast.success("刷新成功")
 							}}
-							className="flex items-center gap-2"
+							className="flex items-center gap-2 h-8"
 							disabled={loading}
 						>
 							<RefreshCcw className="w-4 h-4" />

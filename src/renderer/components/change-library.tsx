@@ -61,7 +61,7 @@ export function ChangeLibrary({
 		<>
 			{currentLibraryType === libraryType ? (
 				<div className="flex items-center gap-2 border border-blue-500 bg-blue-50 text-blue-500 rounded-lg px-2 py-1.5 dark:bg-blue-900 dark:border-blue-300 dark:text-blue-300">
-					<Badge className="py-1 px-1.5 flex items-center gap-1 bg-blue-500 dark:bg-blue-300">
+					<Badge variant="info" className="py-1 px-1.5 flex items-center gap-1">
 						<CircleCheck size={14} />
 						<span>已启用</span>
 					</Badge>
