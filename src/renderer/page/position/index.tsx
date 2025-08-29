@@ -58,16 +58,16 @@ export default function PositionInfo() {
 			</div>
 			<div className="space-y-2">
 				<div className="flex items-center justify-between">
-					<Tabs
-						defaultValue={filename}
-						onValueChange={(value) => setFilename(value)}
-					>
-						<TabsList>
-							<TabsTrigger value="策略表现">策略表现</TabsTrigger>
-							<TabsTrigger value="个股表现">个股表现</TabsTrigger>
-						</TabsList>
-					</Tabs>
 					<div className="flex items-center gap-2">
+						<Tabs
+							defaultValue={filename}
+							onValueChange={(value) => setFilename(value)}
+						>
+							<TabsList>
+								<TabsTrigger value="策略表现">策略表现</TabsTrigger>
+								<TabsTrigger value="个股表现">个股表现</TabsTrigger>
+							</TabsList>
+						</Tabs>
 						<div className="text-sm text-muted-foreground">
 							数据更新时间：
 							{positions.update_time
@@ -85,20 +85,20 @@ export default function PositionInfo() {
 									)
 								: "无"}
 						</div>
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => {
-								refetch()
-								toast.success("刷新成功")
-							}}
-							className="flex items-center gap-2 h-8"
-							disabled={loading}
-						>
-							<RefreshCcw className="w-4 h-4" />
-							刷新
-						</Button>
 					</div>
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => {
+							refetch()
+							toast.success("刷新成功")
+						}}
+						className="flex items-center gap-2 h-8"
+						disabled={loading}
+					>
+						<RefreshCcw className="w-4 h-4" />
+						刷新
+					</Button>
 				</div>
 				{filename === "策略表现" ? (
 					<DataTable<PositionStrategyInfoType, unknown>

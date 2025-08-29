@@ -118,7 +118,10 @@ export default function StgImportButton() {
 					清空选股策略
 				</Button>
 			</ButtonTooltip>
-			<ButtonTooltip content="打开存放“策略库”和“因子库”的文件夹，方便查看、确认已导入的策略信息">
+			<ButtonTooltip
+				content="打开存放“策略库”和“因子库”的文件夹，方便查看、确认已导入的策略信息"
+				delayDuration={100}
+			>
 				<Button
 					onClick={async () => {
 						setPending(true)
@@ -135,7 +138,7 @@ export default function StgImportButton() {
 					) : (
 						<FolderOpen size={16} />
 					)}
-					打开策略库文件夹
+					打开文件夹
 				</Button>
 			</ButtonTooltip>
 			<Dialog open={importOpen} onOpenChange={setImportOpen}>
@@ -196,12 +199,9 @@ export default function StgImportButton() {
 						</p>
 						<div className="text-xs leading-relaxed">
 							如果遇到导入失败，很可能你的“策略库”或者“因子库”有只读的.py文件，客户端无法自动写入。可以{" "}
-							<span className="font-bold text-warning-700">
-								打开策略库文件夹
-							</span>{" "}
-							后 ，删除{" "}
-							<span className="font-bold text-warning-700">策略库</span> 和{" "}
-							<span className="font-bold text-warning-700">因子库</span>{" "}
+							<span className="font-bold text-warning-700">打开文件夹</span> 后
+							，删除 <span className="font-bold text-warning-700">策略库</span>{" "}
+							和 <span className="font-bold text-warning-700">因子库</span>{" "}
 							文件夹后，然后再导入
 						</div>
 					</div>
