@@ -35,9 +35,9 @@ import { isEmpty } from "lodash-es"
 import { toast } from "sonner"
 import { syncUserState } from "../ipc/userInfo"
 import { useFusionManager } from "./useFusionManager"
+import { useSettings } from "./useSettings"
 import { useStrategyManager } from "./useStrategyManager"
 import { useUserInfoSync } from "./useUserInfoSync"
-import { useSettings } from "./useSettings"
 // import { useVersionCheck } from "./useVersionCheck"
 
 const {

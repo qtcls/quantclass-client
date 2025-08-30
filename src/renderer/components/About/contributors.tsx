@@ -1,9 +1,9 @@
-import { contributorsList } from "@/renderer/constant/contributors"
 import {
 	Avatar,
 	AvatarFallback,
 	AvatarImage,
 } from "@/renderer/components/ui/avatar"
+import { contributorsList } from "@/renderer/constant/contributors"
 import { cn } from "@/renderer/lib/utils"
 
 const { openUrl } = window.electronAPI

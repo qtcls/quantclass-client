@@ -18,6 +18,7 @@ import { Separator } from "@/renderer/components/ui/separator"
 import { Switch } from "@/renderer/components/ui/switch"
 import { usePermissionCheck } from "@/renderer/hooks"
 import { useRealTradingRole } from "@/renderer/hooks/useRealTradingRole"
+import { useSettings } from "@/renderer/hooks/useSettings"
 import {
 	isAutoLoginAtom,
 	userChoiceAtom,
@@ -28,21 +29,20 @@ import { useAtom, useAtomValue } from "jotai"
 import {
 	Ban,
 	Blocks,
+	ChevronDown,
+	ChevronUp,
 	CodeXml,
 	DatabaseZap,
 	ShieldCheck,
 	SquareFunction,
-	ChevronUp,
-	ChevronDown,
 } from "lucide-react"
+import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import Img from "../../../../build/icon.ico"
 import { Badge } from "../ui/badge"
-import { Tabs, TabsList, TabsTrigger } from "../ui/tabs"
-import { useSettings } from "@/renderer/hooks/useSettings"
-import { useMemo, useState } from "react"
-import Contributors from "./contributors"
 import { Button } from "../ui/button"
+import { Tabs, TabsList, TabsTrigger } from "../ui/tabs"
+import Contributors from "./contributors"
 
 const { setStoreValue, setAutoLaunch } = window.electronAPI
 
