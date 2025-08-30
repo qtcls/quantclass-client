@@ -16,47 +16,59 @@ import {
 import { Label } from "@/renderer/components/ui/label"
 import { Separator } from "@/renderer/components/ui/separator"
 import { Switch } from "@/renderer/components/ui/switch"
-import { contributorsList } from "@/renderer/constant"
 import { usePermissionCheck } from "@/renderer/hooks"
 import { useRealTradingRole } from "@/renderer/hooks/useRealTradingRole"
-import { cn } from "@/renderer/lib/utils"
 import {
-	isAutoLaunchRealTradingAtom,
-	isAutoLaunchUpdateAtom,
 	isAutoLoginAtom,
 	userChoiceAtom,
 	versionAtom,
 } from "@/renderer/store/storage"
 import { userAtom } from "@/renderer/store/user"
 import { useAtom, useAtomValue } from "jotai"
-import { Blocks, DatabaseZap, SquareFunction } from "lucide-react"
+import {
+	Ban,
+	Blocks,
+	CodeXml,
+	DatabaseZap,
+	ShieldCheck,
+	SquareFunction,
+	ChevronUp,
+	ChevronDown,
+} from "lucide-react"
 import { toast } from "sonner"
 import Img from "../../../../build/icon.ico"
 import { Badge } from "../ui/badge"
+import { Tabs, TabsList, TabsTrigger } from "../ui/tabs"
+import { useSettings } from "@/renderer/hooks/useSettings"
+import { useMemo, useState } from "react"
+import Contributors from "./contributors"
+import { Button } from "../ui/button"
 
-const { setStoreValue, setAutoLaunch, openUrl } = window.electronAPI
+const { setStoreValue, setAutoLaunch } = window.electronAPI
 
 export default function AboutInfo() {
+	const [showContributors, setShowContributors] = useState(false)
 	const { user } = useAtomValue(userAtom)
 	const { check } = usePermissionCheck()
 	const hasRealTradingAccess = useRealTradingRole()
-	// const setIsShowAbout = useSetAtom(isShowAboutAtom)
 	const version = useAtomValue(versionAtom)
 	const [isAutoLogin, setIsAutoLogin] = useAtom(isAutoLoginAtom)
-	const [isAutoLaunchUpdate, setIsAutoLaunchUpdate] = useAtom(
-		isAutoLaunchUpdateAtom,
-	)
-	const [isAutoLaunchRealTrading, setIsAutoLaunchRealTrading] = useAtom(
-		isAutoLaunchRealTradingAtom,
-	)
+
 	const [userChoice, setUserChoice] = useAtom(userChoiceAtom)
+	const { settings, updateSettings } = useSettings()
+
+	const isAutoLaunchRealTrading = useMemo(() => {
+		return settings.is_auto_launch_real_trading
+	}, [settings.is_auto_launch_real_trading])
+
+	const isAutoLaunchUpdate = useMemo(() => {
+		return settings.is_auto_launch_update
+	}, [settings.is_auto_launch_update])
 
 	const handleSetIsAutoLaunchUpdate = async (value: boolean) => {
-		setIsAutoLaunchUpdate(value)
-		await setStoreValue("settings.is_auto_launch_update", value)
+		updateSettings({ is_auto_launch_update: value })
 		if (!value) {
-			setIsAutoLaunchRealTrading(false)
-			await setStoreValue("settings.is_auto_launch_real_trading", false)
+			updateSettings({ is_auto_launch_real_trading: false })
 		}
 		toast.dismiss()
 		toast.success(value ? "自动更新已开启" : "自动更新已关闭")
@@ -65,11 +77,9 @@ export default function AboutInfo() {
 	const handleSetIsAutoLaunchRealTrading = async (value: boolean) => {
 		if (!check({ requireMember: true, onlyIn2025: true }).isValid) return
 
-		setIsAutoLaunchRealTrading(value)
-		setStoreValue("settings.is_auto_launch_real_trading", value)
+		updateSettings({ is_auto_launch_real_trading: value })
 		if (value) {
-			setIsAutoLaunchUpdate(true)
-			setStoreValue("settings.is_auto_launch_update", true)
+			updateSettings({ is_auto_launch_update: true })
 		}
 		toast.dismiss()
 		toast.success(value ? "实盘自动启动已开启" : "实盘自动启动已关闭")
@@ -150,87 +160,108 @@ export default function AboutInfo() {
 				</div>
 			</div>
 
+			<div className="space-y-4">
+				<div className="flex items-center justify-between">
+					<div className="space-y-1">
+						<Label className="font-medium text-sm hover:cursor-pointer">
+							内核更新设置
+						</Label>
+						<p className="text-xs text-muted-foreground">
+							选择如何自动更新客户端内核，开发版会包含所有最新功能
+						</p>
+					</div>
+					<Tabs
+						defaultValue={settings.update_core_channel || "never"}
+						onValueChange={(value) => {
+							updateSettings({
+								update_core_channel: value as "never" | "stable" | "beta",
+							})
+							toast.success(
+								`内核更新设置为${value === "never" ? "不更新" : value === "stable" ? "稳定版" : "开发版"}`,
+							)
+						}}
+					>
+						<TabsList>
+							<TabsTrigger value="never">
+								<Ban className="size-4 mr-1" />
+								不更新
+							</TabsTrigger>
+							<TabsTrigger value="stable">
+								<ShieldCheck className="size-4 mr-1 text-success" />
+								稳定版
+							</TabsTrigger>
+							<TabsTrigger value="beta">
+								<CodeXml className="size-4 mr-1 text-warning" />
+								开发版
+							</TabsTrigger>
+						</TabsList>
+					</Tabs>
+				</div>
+			</div>
+
 			<Separator />
 
 			<div className="space-y-4">
-				{/*{(VITE_XBX_ENV === "development" || (isWindows && user?.isMember)) && (*/}
-				{/*	<div className="flex items-center justify-between">*/}
-				{/*		<div className="space-y-1">*/}
-				{/*			<h3 className="font-medium text-sm">检查更新</h3>*/}
-				{/*			<p className="text-xs text-muted-foreground">*/}
-				{/*				手动检查客户端版本更新*/}
-				{/*			</p>*/}
-				{/*		</div>*/}
-				{/*		<Button*/}
-				{/*			onClick={async () => {*/}
-				{/*				const data = await checkForUpdate()*/}
-				{/*				if (data.updateInfo.version === version.clientVersion) {*/}
-				{/*					toast.dismiss()*/}
-				{/*					toast.info("当前已是最新版本")*/}
-				{/*				}*/}
-				{/*				if (data.updateInfo.version !== version.clientVersion) {*/}
-				{/*					toast.dismiss()*/}
-				{/*					toast.info("发现新版本，开始下载")*/}
-				{/*					setIsShowAbout(false)*/}
-				{/*				}*/}
-				{/*				if (error) {*/}
-				{/*					toast.error("检查更新失败")*/}
-				{/*				}*/}
-				{/*			}}*/}
-				{/*			disabled={isPending}*/}
-				{/*		>*/}
-				{/*			{isPending ? "检查中..." : "检查更新"}*/}
-				{/*		</Button>*/}
-				{/*	</div>*/}
-				{/*)}*/}
-
-				{/* <div className="flex items-center justify-between">
+				<div className="flex items-center justify-between">
 					<div className="space-y-1">
-						<h3 className="font-medium text-sm">清理数据订阅</h3>
+						<Label className="font-medium text-sm hover:cursor-pointer">
+							数据更新性能模式
+						</Label>
 						<p className="text-xs text-muted-foreground">
-							清理客户端中所有数据订阅相关的缓存
+							数据更新性能模式，开启后会自动更新数据，但会占用更多性能。
 						</p>
 					</div>
-					<Button onClick={clearDataSubscriptions}>一键清理</Button>
+					<Tabs
+						defaultValue={settings.performance_mode || "EQUAL"}
+						onValueChange={(value) => {
+							updateSettings({
+								performance_mode: value as "ECONOMY" | "EQUAL" | "PERFORMANCE",
+							})
+							toast.success(
+								`数据更新性能模式设置为${value === "ECONOMY" ? "经济模式" : value === "EQUAL" ? "均衡模式" : "性能模式"}`,
+							)
+						}}
+					>
+						<TabsList>
+							<TabsTrigger value="ECONOMY">经济模式</TabsTrigger>
+							<TabsTrigger value="EQUAL">均衡模式</TabsTrigger>
+							<TabsTrigger value="PERFORMANCE">性能模式</TabsTrigger>
+						</TabsList>
+					</Tabs>
 				</div>
 
-				{(VITE_XBX_ENV === "development" || (user?.isMember && isWindows)) && (
-					<div className="space-y-6">
-						<div className="flex items-center justify-between">
-							<div className="space-y-1">
-								<h3 className="font-medium text-sm">清空已导入策略</h3>
-								<p className="text-xs text-muted-foreground">
-									一键清空所有已导入策略、交易计划
-								</p>
-							</div>
-
-							<AlertDialog>
-								<AlertDialogTrigger asChild>
-									<Button disabled={clearImportedStrategiesLoading}>
-										{clearImportedStrategiesLoading ? "清空中..." : "一键清空"}
-									</Button>
-								</AlertDialogTrigger>
-								<AlertDialogContent>
-									<AlertDialogHeader>
-										<AlertDialogTitle>
-											确定要清空已导入策略吗？
-										</AlertDialogTitle>
-										<AlertDialogDescription className="text-destructive font-semibold">
-											该操作会影响正在进行的实盘，会重置所有实盘信息
-										</AlertDialogDescription>
-									</AlertDialogHeader>
-
-									<AlertDialogFooter>
-										<AlertDialogCancel>取消</AlertDialogCancel>
-										<AlertDialogAction onClick={clearStrategies}>
-											确定
-										</AlertDialogAction>
-									</AlertDialogFooter>
-								</AlertDialogContent>
-							</AlertDialog>
-						</div>
+				<div className="flex items-center justify-between">
+					<div className="space-y-1">
+						<Label className="font-medium text-sm hover:cursor-pointer">
+							选股性能模式
+						</Label>
+						<p className="text-xs text-muted-foreground">
+							选股性能模式，性能越高，选股速度越快，但会占用更多性能。
+						</p>
 					</div>
-				)} */}
+					<Tabs
+						defaultValue={settings.performance_mode || "EQUAL"}
+						onValueChange={(value) => {
+							updateSettings({
+								performance_mode: value as "ECONOMY" | "EQUAL" | "PERFORMANCE",
+							})
+							toast.success(
+								`数据更新性能模式设置为${value === "ECONOMY" ? "经济模式" : value === "EQUAL" ? "均衡模式" : "性能模式"}`,
+							)
+						}}
+					>
+						<TabsList>
+							<TabsTrigger value="ECONOMY">经济模式</TabsTrigger>
+							<TabsTrigger value="EQUAL">均衡模式</TabsTrigger>
+							<TabsTrigger value="PERFORMANCE">性能模式</TabsTrigger>
+						</TabsList>
+					</Tabs>
+				</div>
+			</div>
+
+			<Separator />
+
+			<div className="space-y-4">
 				<div className="flex items-center justify-between">
 					<div className="space-y-1">
 						<Label
@@ -314,63 +345,25 @@ export default function AboutInfo() {
 			<Separator />
 
 			<div>
-				<div className="flex flex-col gap-4">
-					<div className="text-muted-foreground">
-						感谢以下同学参与到客户端的开发、测试中来 (以下排名不分先后)
-					</div>
-
-					<div className="grid grid-cols-4 gap-4">
-						{contributorsList.map((item) => (
-							<ContributorCard key={item.name} {...item} />
-						))}
-					</div>
-				</div>
-			</div>
-		</div>
-	)
-}
-
-const ContributorCard = ({
-	name,
-	avatar,
-	homepage,
-	gourd,
-}: {
-	name: string
-	avatar: string
-	homepage: string
-	gourd?: number
-}) => {
-	return (
-		<div
-			className="flex items-center gap-4  hover:underline hover:cursor-pointer"
-			onClick={() => openUrl(homepage)}
-		>
-			<Avatar>
-				<AvatarImage src={avatar} alt={name} />
-				<AvatarFallback>{name[0]}</AvatarFallback>
-			</Avatar>
-			<div
-				className={cn(
-					"grid flex-1 text-left text-sm leading-tight",
-					gourd === 1
-						? "text-amber-500 dark:text-amber-300"
-						: "text-gray-500 dark:text-gray-300",
-				)}
-			>
-				<span className="truncate font-semibold">{name}</span>
-				{gourd && (
-					<div
-						className={cn(
-							"text-xs text-muted-foreground",
-							gourd === 1
-								? "text-amber-400 dark:text-amber-700"
-								: "text-gray-400 dark:text-gray-500",
-						)}
+				<div className="flex items-center justify-between">
+					<Label className="font-medium text-sm hover:cursor-pointer">
+						特别鸣谢贡献者
+					</Label>
+					<Button
+						variant="outline"
+						size="icon"
+						className="size-8"
+						onClick={() => setShowContributors(!showContributors)}
 					>
-						赠予 {gourd ?? 10} 个{gourd === 1 ? "金葫芦" : "银葫芦"}
-					</div>
-				)}
+						{showContributors ? (
+							<ChevronUp className="size-4" />
+						) : (
+							<ChevronDown className="size-4" />
+						)}
+					</Button>
+				</div>
+
+				{showContributors && <Contributors />}
 			</div>
 		</div>
 	)
