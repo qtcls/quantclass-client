@@ -8,6 +8,7 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
+import { Button } from "@/renderer/components/ui/button"
 import {
 	Dialog,
 	DialogContent,
@@ -16,7 +17,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/renderer/components/ui/dialog"
-import { Button } from "@/renderer/components/ui/button"
+import { Loader2 } from "lucide-react"
 import {
 	ReactNode,
 	createContext,
@@ -26,7 +27,6 @@ import {
 	useRef,
 	useState,
 } from "react"
-import { Loader2 } from "lucide-react"
 
 interface AlertDialogState {
 	isOpen: boolean

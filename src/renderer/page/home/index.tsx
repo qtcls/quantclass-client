@@ -8,7 +8,6 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
-import { SelfStarting } from "@/renderer/page/settings/preview"
 import {
 	ProcessHoverCard,
 	ProcessHoverCardContent,
@@ -20,6 +19,7 @@ import { DataKanban } from "@/renderer/page/home/DataKanban"
 import { ProcessCard, ProcessKanban } from "@/renderer/page/home/ProcessKanban"
 import { RealMarketKanban } from "@/renderer/page/home/RealMarketKanban"
 import { CoreUpdateStatus } from "@/renderer/page/home/coreUpdateStatus"
+import { SelfStarting } from "@/renderer/page/settings/preview"
 import { isAutoRocketAtom, isUpdatingAtom } from "@/renderer/store"
 import { monitorProcessesQueryAtom } from "@/renderer/store/query"
 import { useAtom, useAtomValue } from "jotai"

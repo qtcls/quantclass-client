@@ -39,7 +39,7 @@ import {
 	SidebarMenuItem,
 } from "@/renderer/components/ui/sidebar"
 import { InlineCode } from "@/renderer/components/ui/typography"
-import { isWindows, SETTINGS_PAGE } from "@/renderer/constant"
+import { SETTINGS_PAGE, isWindows } from "@/renderer/constant"
 import { UpdateStatus } from "@/renderer/context/update-context"
 import { useQueryVersion } from "@/renderer/hooks"
 import { useAppUpdate } from "@/renderer/hooks/useAppUpdate"
@@ -69,10 +69,10 @@ import {
 } from "lucide-react"
 import { FC } from "react"
 import Markdown from "react-markdown"
+import { useNavigate } from "react-router"
 import { toast } from "sonner"
 import Img from "../../../build/icon.ico"
 import { Badge } from "../components/ui/badge"
-import { useNavigate } from "react-router"
 
 const { createTerminalWindow, openUserDirectory, rendererLog } =
 	window.electronAPI
@@ -176,7 +176,7 @@ export const _SiderFooter = () => {
 		mutationKey: ["fetch-kernel-version"],
 		mutationFn: async () => {
 			rendererLog("info", "fetch latest kernel version")
-			return await getCoreAndClientVersion(user?.isMember ?? false)
+			// return await getCoreAndClientVersion(user?.isMember ?? false)
 		},
 	})
 	const setVersionList = useSetAtom(versionListAtom)

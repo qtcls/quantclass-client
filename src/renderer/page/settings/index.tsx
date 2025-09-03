@@ -13,12 +13,17 @@ import {
 	AvatarFallback,
 	AvatarImage,
 } from "@/renderer/components/ui/avatar"
+import { Badge } from "@/renderer/components/ui/badge"
+import { Button } from "@/renderer/components/ui/button"
 import { Label } from "@/renderer/components/ui/label"
 import { Separator } from "@/renderer/components/ui/separator"
 import { Switch } from "@/renderer/components/ui/switch"
+import { Tabs, TabsList, TabsTrigger } from "@/renderer/components/ui/tabs"
+import { useAlertDialog } from "@/renderer/context/alert-dialog"
 import { usePermissionCheck, useQueryVersion } from "@/renderer/hooks"
 import { useRealTradingRole } from "@/renderer/hooks/useRealTradingRole"
 import { useSettings } from "@/renderer/hooks/useSettings"
+import Contributors from "@/renderer/page/settings/contributors"
 import {
 	isAutoLoginAtom,
 	userChoiceAtom,
@@ -39,11 +44,6 @@ import {
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import Img from "../../../../build/icon.ico"
-import { Badge } from "@/renderer/components/ui/badge"
-import { Button } from "@/renderer/components/ui/button"
-import { Tabs, TabsList, TabsTrigger } from "@/renderer/components/ui/tabs"
-import Contributors from "@/renderer/page/settings/contributors"
-import { useAlertDialog } from "@/renderer/context/alert-dialog"
 
 const { setStoreValue, setAutoLaunch } = window.electronAPI
 
@@ -237,7 +237,7 @@ export default function SettingsPage() {
 							toast.error("请先登录")
 							return
 						}
-						await fetchFuel()
+						// await fetchFuel()
 						await updateKernels()
 					}}
 				>
