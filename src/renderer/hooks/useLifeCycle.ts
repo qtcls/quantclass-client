@@ -22,8 +22,6 @@ import {
 } from "@/renderer/store"
 import {
 	accountKeyAtom,
-	isAutoLaunchRealTradingAtom,
-	isAutoLaunchUpdateAtom,
 	isAutoLoginAtom,
 	realMarketConfigSchemaAtom,
 	userChoiceAtom,
@@ -37,6 +35,7 @@ import { isEmpty } from "lodash-es"
 import { toast } from "sonner"
 import { syncUserState } from "../ipc/userInfo"
 import { useFusionManager } from "./useFusionManager"
+import { useSettings } from "./useSettings"
 import { useStrategyManager } from "./useStrategyManager"
 import { useUserInfoSync } from "./useUserInfoSync"
 // import { useVersionCheck } from "./useVersionCheck"
@@ -67,8 +66,7 @@ export const useLifeCycle = () => {
 	const { run } = useQueryVersion()
 	const isUpdating = useAtomValue(isUpdatingAtom)
 	const isAutoLogin = useAtomValue(isAutoLoginAtom)
-	const isAutoLaunchUpdate = useAtomValue(isAutoLaunchUpdateAtom)
-	const isAutoLaunchRealTrading = useAtomValue(isAutoLaunchRealTradingAtom)
+	const { settings } = useSettings()
 	useAtom(versionEffectAtom)
 
 	// -- 自定义 Hooks
@@ -243,13 +241,16 @@ export const useLifeCycle = () => {
 		})
 
 		// -- 处理自动启动
-		if (isAutoLaunchUpdate) {
+		if (settings.is_auto_launch_update) {
 			await handleTimeTask(false, false)
 			toast.success("已为您开启自动更新数据")
 		}
 
 		// -- 处理自动实盘
-		if (isAutoLaunchUpdate && isAutoLaunchRealTrading) {
+		if (
+			settings.is_auto_launch_update &&
+			settings.is_auto_launch_real_trading
+		) {
 			await handleToggleAutoRocket(true, false, true)
 			toast.success("已为您开启自动实盘和自动更新数据")
 		} else {

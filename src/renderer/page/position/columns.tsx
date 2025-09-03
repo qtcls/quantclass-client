@@ -8,6 +8,7 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
+import { Badge } from "@/renderer/components/ui/badge"
 import { DataTableColumnHeader } from "@/renderer/components/ui/data-table-column-heder"
 import {
 	Tooltip,
@@ -101,9 +102,14 @@ export const usePositionStockInfoColumns =
 				header: "股票名称",
 				cell: ({ row }) => {
 					return (
-						<span>
-							{row.original?.证券名称 ?? "-"}({row.original?.证券代码 ?? "-"})
-						</span>
+						<div className="flex flex-wrap gap-0.5">
+							<span className="text-sm font-mono">
+								{row.original?.证券代码 ?? "-"}
+							</span>
+							<Badge variant="outline" className="text-xs">
+								{row.original?.证券名称 ?? "-"}
+							</Badge>
+						</div>
 					)
 				},
 			},
@@ -112,8 +118,12 @@ export const usePositionStockInfoColumns =
 				header: ({ column }) => (
 					<DataTableColumnHeader column={column} title="持仓量" />
 				),
-				size: 100,
 				enableSorting: true,
+				size: 100,
+				enableResizing: false,
+				cell: ({ row }) => {
+					return <span className="px-3">{row.original?.持仓量 ?? "-"}</span>
+				},
 			},
 			{
 				accessorKey: "占比",
@@ -122,8 +132,13 @@ export const usePositionStockInfoColumns =
 				),
 				enableSorting: true,
 				size: 100,
+				enableResizing: false,
 				cell: ({ row }) => {
-					return <span>{((row.original?.占比 ?? 0) * 100).toFixed(2)}%</span>
+					return (
+						<span className="px-3">
+							{((row.original?.占比 ?? 0) * 100).toFixed(2)}%
+						</span>
+					)
 				},
 			},
 			{
@@ -137,6 +152,7 @@ export const usePositionStockInfoColumns =
 						<span
 							className={cn(
 								row.original?.当日盈亏 > 0 ? "text-danger" : "text-success",
+								"px-3",
 							)}
 						>
 							￥{formatCurrency(row.original?.当日盈亏 ?? 0)}
@@ -151,11 +167,13 @@ export const usePositionStockInfoColumns =
 				),
 				enableSorting: true,
 				size: 100,
+				enableResizing: false,
 				cell: ({ row }) => {
 					return (
 						<span
 							className={cn(
 								row.original?.当日收益率 > 0 ? "text-danger" : "text-success",
+								"px-3",
 							)}
 						>
 							{((row.original?.当日收益率 ?? 0) * 100).toFixed(2)}%
@@ -174,6 +192,7 @@ export const usePositionStockInfoColumns =
 						<span
 							className={cn(
 								row.original?.累计盈亏 > 0 ? "text-danger" : "text-success",
+								"px-3",
 							)}
 						>
 							￥{formatCurrency(row.original?.累计盈亏 ?? 0)}
@@ -188,11 +207,13 @@ export const usePositionStockInfoColumns =
 				),
 				enableSorting: true,
 				size: 100,
+				enableResizing: false,
 				cell: ({ row }) => {
 					return (
 						<span
 							className={cn(
 								row.original?.累计收益率 > 0 ? "text-danger" : "text-success",
+								"px-3",
 							)}
 						>
 							{((row.original?.累计收益率 ?? 0) * 100).toFixed(2)}%
@@ -237,13 +258,51 @@ export const usePositionStrategyInfoColumns =
 				header: "策略名称",
 			},
 			{
-				accessorKey: "占比",
+				accessorKey: "理论占比",
 				header: ({ column }) => (
-					<DataTableColumnHeader column={column} title="占比" />
+					<DataTableColumnHeader column={column} title="理论占比" />
 				),
 				enableSorting: true,
+				size: 100,
+				enableResizing: false,
 				cell: ({ row }) => {
-					return <span>{((row.original?.占比 ?? 0) * 100).toFixed(2)}%</span>
+					return (
+						<span className="px-3">
+							{((row.original?.理论占比 ?? 0) * 100).toFixed(2)}%
+						</span>
+					)
+				},
+			},
+			{
+				accessorKey: "实际占比",
+				header: ({ column }) => (
+					<DataTableColumnHeader column={column} title="实际占比" />
+				),
+				enableSorting: true,
+				size: 100,
+				enableResizing: false,
+				cell: ({ row }) => {
+					return (
+						<span className="px-3">
+							{((row.original?.实际占比 ?? 0) * 100).toFixed(2)}%
+						</span>
+					)
+				},
+			},
+			{
+				accessorKey: "策略仓位",
+				header: ({ column }) => (
+					<DataTableColumnHeader column={column} title="策略仓位" />
+				),
+				enableSorting: true,
+				size: 100,
+				enableResizing: false,
+				cell: ({ row }) => {
+					return (
+						<span className="px-3">
+							{((row.original?.策略仓位 ?? 0) * 100).toFixed(2)}%
+						</span>
+					)
 				},
 			},
 			{
@@ -253,7 +312,11 @@ export const usePositionStrategyInfoColumns =
 				),
 				enableSorting: true,
 				cell: ({ row }) => {
-					return <span>￥{formatCurrency(row.original?.占用资金 ?? 0)}</span>
+					return (
+						<span className="px-3">
+							￥{formatCurrency(row.original?.占用资金 ?? 0)}
+						</span>
+					)
 				},
 			},
 			{
@@ -267,6 +330,7 @@ export const usePositionStrategyInfoColumns =
 						<span
 							className={cn(
 								row.original?.当日盈亏 > 0 ? "text-danger" : "text-success",
+								"px-3",
 							)}
 						>
 							￥{formatCurrency(row.original?.当日盈亏 ?? 0)}
@@ -280,11 +344,14 @@ export const usePositionStrategyInfoColumns =
 					<DataTableColumnHeader column={column} title="当日收益率" />
 				),
 				enableSorting: true,
+				size: 100,
+				enableResizing: false,
 				cell: ({ row }) => {
 					return (
 						<span
 							className={cn(
 								row.original?.当日收益率 > 0 ? "text-danger" : "text-success",
+								"px-3",
 							)}
 						>
 							{((row.original?.当日收益率 ?? 0) * 100).toFixed(2)}%

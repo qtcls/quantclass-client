@@ -62,13 +62,6 @@ export const isAutoLaunchUpdateAtom = atomWithStorage<boolean>(
 	{ getOnInit: true },
 )
 
-export const isAutoLaunchRealTradingAtom = atomWithStorage<boolean>(
-	"isAutoLaunchRealTrading",
-	false,
-	undefined,
-	{ getOnInit: true },
-)
-
 export const userChoiceAtom = atomWithStorage<boolean>(
 	"userChoice",
 	false,

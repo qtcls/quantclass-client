@@ -9,19 +9,16 @@
  */
 
 import { H3 } from "@/renderer/components/ui/typography"
+import { useSettings } from "@/renderer/hooks/useSettings"
 import { isShowAboutAtom } from "@/renderer/store"
-import {
-	isAutoLaunchRealTradingAtom,
-	isAutoLaunchUpdateAtom,
-	isAutoLoginAtom,
-} from "@/renderer/store/storage"
+import { isAutoLoginAtom } from "@/renderer/store/storage"
 import { useAtomValue, useSetAtom } from "jotai"
 import { Bot } from "lucide-react"
 export function SelfStarting() {
 	const isAutoLogin = useAtomValue(isAutoLoginAtom)
-	const isAutoLaunchUpdate = useAtomValue(isAutoLaunchUpdateAtom)
-	const isAutoLaunchRealTrading = useAtomValue(isAutoLaunchRealTradingAtom)
 	const setIsShowAbout = useSetAtom(isShowAboutAtom)
+	const { settings } = useSettings()
+
 	return (
 		<div className="space-y-3">
 			<div className="flex items-center gap-2">
@@ -41,14 +38,14 @@ export function SelfStarting() {
 					onClick={() => setIsShowAbout((prev) => !prev)}
 				>
 					<div>开机启动自动更新数据：</div>
-					<div>{isAutoLaunchUpdate ? "✅" : "🈚️"}</div>
+					<div>{settings.is_auto_launch_update ? "✅" : "🈚️"}</div>
 				</div>
 				<div
 					className="flex items-center"
 					onClick={() => setIsShowAbout((prev) => !prev)}
 				>
 					<div>开机启动自动实盘：</div>
-					<div>{isAutoLaunchRealTrading ? "✅" : "🈚️"}</div>
+					<div>{settings.is_auto_launch_real_trading ? "✅" : "🈚️"}</div>
 				</div>
 			</div>
 		</div>
