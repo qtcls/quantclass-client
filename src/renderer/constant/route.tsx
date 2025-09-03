@@ -16,10 +16,10 @@ import {
 	HOME_PAGE,
 	POSITION_INFO_PAGE,
 	REAL_MARKET_CONFIG_PAGE,
+	SETTINGS_PAGE,
 	STRATEGY_LIBRARY_PAGE,
 	STRATEGY_PAGE,
 	TRADING_PLAN_PAGE,
-	SETTINGS_PAGE,
 } from "@/renderer/constant"
 import FAQ from "@/renderer/page/FAQ"
 import StrategyRun from "@/renderer/page/backtest"
@@ -42,8 +42,8 @@ import {
 	Settings,
 	WeightIcon,
 } from "lucide-react"
-import TradingPage from "../page/trading"
 import SettingsPage from "../page/settings"
+import TradingPage from "../page/trading"
 
 export const ROUTES = [
 	{
