@@ -34,8 +34,8 @@ export const FUSION_STRATEGY_LIBRARY_PAGE = "/fusion_strategy_library"
 export const BACKTEST_PAGE = "/backtest"
 // 常见问题解答
 export const FAQ_PAGE = "/faq"
-// 更新日志
-export const CHANGE_LOGS_PAGE = "/change_logs"
+// 设置
+export const SETTINGS_PAGE = "/settings"
 // 问题反馈
 export const QUESTION_FEEDBACK_PAGE = "https://bbs.quantclass.cn/thread/48835"
 
@@ -52,9 +52,6 @@ export const TRADING_MAIN_PAGE = STRATEGY_LIBRARY_PAGE
 // -- 选股 config
 export const SELECT_STOCK_STRATEGY_CONFIG = "select_stock"
 export const POS_MGMT_STRATEGY_CONFIG = "pos_mgmt"
-
-export const REAL_MARKET_SS_SELECTED_STRATEGIES =
-	"real_market.selected_stock_sties_25"
 
 export const DATA_TAB_NAME = "data"
 export const REAL_TRADING_TAB_NAME = "real_trading"

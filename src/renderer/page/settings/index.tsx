@@ -16,7 +16,7 @@ import {
 import { Label } from "@/renderer/components/ui/label"
 import { Separator } from "@/renderer/components/ui/separator"
 import { Switch } from "@/renderer/components/ui/switch"
-import { usePermissionCheck } from "@/renderer/hooks"
+import { usePermissionCheck, useQueryVersion } from "@/renderer/hooks"
 import { useRealTradingRole } from "@/renderer/hooks/useRealTradingRole"
 import { useSettings } from "@/renderer/hooks/useSettings"
 import {
@@ -27,34 +27,100 @@ import {
 import { userAtom } from "@/renderer/store/user"
 import { useAtom, useAtomValue } from "jotai"
 import {
-	Ban,
 	Blocks,
 	ChevronDown,
 	ChevronUp,
-	CodeXml,
+	CircleArrowUp,
 	DatabaseZap,
-	ShieldCheck,
+	LucideIcon,
+	RefreshCcw,
 	SquareFunction,
 } from "lucide-react"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import Img from "../../../../build/icon.ico"
-import { Badge } from "../ui/badge"
-import { Button } from "../ui/button"
-import { Tabs, TabsList, TabsTrigger } from "../ui/tabs"
-import Contributors from "./contributors"
+import { Badge } from "@/renderer/components/ui/badge"
+import { Button } from "@/renderer/components/ui/button"
+import { Tabs, TabsList, TabsTrigger } from "@/renderer/components/ui/tabs"
+import Contributors from "@/renderer/page/settings/contributors"
+import { useAlertDialog } from "@/renderer/context/alert-dialog"
 
 const { setStoreValue, setAutoLaunch } = window.electronAPI
 
-export default function AboutInfo() {
+const CoreVersion = ({
+	name,
+	title,
+	Icon,
+	versionKey,
+}: { name: string; title: string; Icon: LucideIcon; versionKey: string }) => {
+	const version = useAtomValue(versionAtom)
+	const useAlert = useAlertDialog()
+	return (
+		<div className="space-y-1">
+			<h3 className="font-medium text-sm flex items-center gap-1">
+				<Icon className="size-4" />
+				{title}
+				<span
+					className="text-xs text-blue-500 dark:text-blue-400 cursor-pointer"
+					onClick={() => {
+						useAlert.open({
+							title: `更新${title}(${name})内核？`,
+							content: (
+								<div className="space-y-3 leading-relaxed">
+									<div className="bg-warning-50 dark:bg-warning/20 border border-warning rounded-lg px-3 py-2.5">
+										<div className="flex items-center gap-2 text-warning">
+											<span className="text-lg">⚠️</span>
+											<span className="font-medium">版本更新提醒</span>
+										</div>
+										<p className="text-sm text-warning mt-1">
+											即将从版本{" "}
+											<span className="font-mono bg-warning-200 text-warning-600 px-1 py-0.5 rounded">
+												{version[versionKey]}
+											</span>{" "}
+											更新到最新版本
+										</p>
+									</div>
+									<Separator />
+									<p>
+										🛑
+										更新前，会自动停止自动数据更新和实盘功能。在完成更新后，需要
+										<span className="text-warning">手动开启</span>。
+									</p>
+									<p>
+										🔥 更新内核的时候，会强制退出运行中的{name}
+										进程，建议手动停止数据更新以及实盘功能后更新。
+									</p>
+									<p>⏩ 内核更新立即生效，建议盘后更新较为稳妥。</p>
+									<p>💬 如果遇到问题，可以私信林奇或者夏普助教帮助。</p>
+								</div>
+							),
+							okText: "立即更新",
+							okDelay: 5,
+						})
+					}}
+				>
+					更新
+				</span>
+				<span className="text-xs text-muted-foreground cursor-pointer">
+					更换
+				</span>
+			</h3>
+			<Badge className="font-mono">{version[versionKey]}</Badge>
+		</div>
+	)
+}
+
+export default function SettingsPage() {
 	const [showContributors, setShowContributors] = useState(false)
 	const { user } = useAtomValue(userAtom)
 	const { check } = usePermissionCheck()
 	const hasRealTradingAccess = useRealTradingRole()
-	const version = useAtomValue(versionAtom)
 	const [isAutoLogin, setIsAutoLogin] = useAtom(isAutoLoginAtom)
+	const version = useAtomValue(versionAtom)
 
 	const [userChoice, setUserChoice] = useAtom(userChoiceAtom)
+	const { runAsync: updateKernels, loading: isUpdatingKernels } =
+		useQueryVersion()
 	const { settings, updateSettings } = useSettings()
 
 	const isAutoLaunchRealTrading = useMemo(() => {
@@ -102,113 +168,106 @@ export default function AboutInfo() {
 	}
 
 	return (
-		<div className="space-y-4">
-			<div className="space-y-2">
-				<h4 className="text-xl font-semibold">关于量化小讲堂客户端</h4>
-				<p className="text-sm text-muted-foreground">
-					提供量化交易策略的开发、回测、模拟交易、实盘交易等功能。
+		<div className="space-y-4 py-4">
+			<div className="space-y-4">
+				{/* <div className="text-sm text-muted-foreground">版本</div> */}
+
+				<div className="flex items-center gap-3">
+					<Avatar className="border bg-white dark:border-white ">
+						<AvatarImage src={Img} alt="@shadcn" />
+						<AvatarFallback>QC</AvatarFallback>
+					</Avatar>
+
+					<div className="">
+						<div className="font-semibold">量化小讲堂</div>
+						<div className="text-sm text-muted-foreground">
+							v{version.clientVersion}
+						</div>
+					</div>
+				</div>
+
+				<div className="grid grid-cols-3">
+					<CoreVersion
+						name="fuel"
+						title="数据内核"
+						Icon={DatabaseZap}
+						versionKey="coreVersion"
+					/>
+
+					{hasRealTradingAccess && user?.isMember && (
+						<>
+							{settings.libraryType === "select" ? (
+								<CoreVersion
+									name="aqua"
+									title="选股内核"
+									Icon={SquareFunction}
+									versionKey="aquaVersion"
+								/>
+							) : (
+								<CoreVersion
+									name="zeus"
+									title="高级选股内核"
+									Icon={SquareFunction}
+									versionKey="zeusVersion"
+								/>
+							)}
+
+							<CoreVersion
+								name="rocket"
+								title="下单内核"
+								Icon={Blocks}
+								versionKey="rocketVersion"
+							/>
+						</>
+					)}
+				</div>
+			</div>
+
+			<div className="flex items-center gap-2">
+				<Button variant="outline" size="sm">
+					<RefreshCcw className="size-4 mr-2" />
+					检查更新
+				</Button>
+				<Button
+					variant="outline"
+					size="sm"
+					onClick={async () => {
+						if (!user?.isMember) {
+							toast.dismiss()
+							toast.error("请先登录")
+							return
+						}
+						await fetchFuel()
+						await updateKernels()
+					}}
+				>
+					<CircleArrowUp className="size-4 mr-2" />
+					一键更新内核
+				</Button>
+			</div>
+
+			<div className="space-y-1">
+				<Label className="font-medium text-sm hover:cursor-pointer flex items-center gap-1">
+					ℹ️ 更新说明
+				</Label>
+				<p className="text-xs text-muted-foreground">
+					客户端会自动检查软件和内核更新，但
+					<span className="text-warning">不会自动更新</span>
+					。更新后遇到问题，也可以在上方回退任意适配的历史版本。
 				</p>
 			</div>
 
 			<Separator />
 
 			<div className="space-y-4">
-				{/* <div className="text-sm text-muted-foreground">版本</div> */}
-
-				<div className="flex items-center gap-2">
-					<Avatar>
-						<AvatarImage src={Img} alt="@shadcn" />
-						<AvatarFallback>Q</AvatarFallback>
-					</Avatar>
-
-					<div className="text-sm space-y-1">
-						<div className="font-semibold text-sm">量化小讲堂</div>
-						<div className="text-xs text-muted-foreground">
-							2025版 (v{version.clientVersion})
-						</div>
-					</div>
-				</div>
-
-				<div className="grid grid-cols-3">
+				<div className="flex items-center justify-between">
 					<div className="space-y-1">
-						<h3 className="font-medium text-sm flex items-center gap-1">
+						<Label className="font-medium text-sm hover:cursor-pointer flex items-center gap-1">
 							<DatabaseZap className="size-4" />
-							数据内核版本
-						</h3>
-						<Badge className="font-mono">{version.coreVersion}</Badge>
-					</div>
-
-					{hasRealTradingAccess && user?.isMember && (
-						<>
-							<div className="space-y-1">
-								<h3 className="font-medium text-sm flex items-center gap-1">
-									<SquareFunction className="size-4" />
-									选股内核版本
-								</h3>
-								<Badge className="font-mono">{version.aquaVersion}</Badge>
-							</div>
-
-							<div className="space-y-1">
-								<h3 className="font-medium text-sm flex items-center gap-1">
-									<Blocks className="size-4" />
-									实盘内核版本
-								</h3>
-								<Badge className="font-mono">{version.rocketVersion}</Badge>
-							</div>
-						</>
-					)}
-				</div>
-			</div>
-
-			<div className="space-y-4">
-				<div className="flex items-center justify-between">
-					<div className="space-y-1">
-						<Label className="font-medium text-sm hover:cursor-pointer">
-							内核更新设置
+							数据更新性能
 						</Label>
 						<p className="text-xs text-muted-foreground">
-							选择如何自动更新客户端内核，开发版会包含所有最新功能
-						</p>
-					</div>
-					<Tabs
-						defaultValue={settings.update_core_channel || "never"}
-						onValueChange={(value) => {
-							updateSettings({
-								update_core_channel: value as "never" | "stable" | "beta",
-							})
-							toast.success(
-								`内核更新设置为${value === "never" ? "不更新" : value === "stable" ? "稳定版" : "开发版"}`,
-							)
-						}}
-					>
-						<TabsList>
-							<TabsTrigger value="never">
-								<Ban className="size-4 mr-1" />
-								不更新
-							</TabsTrigger>
-							<TabsTrigger value="stable">
-								<ShieldCheck className="size-4 mr-1 text-success" />
-								稳定版
-							</TabsTrigger>
-							<TabsTrigger value="beta">
-								<CodeXml className="size-4 mr-1 text-warning" />
-								开发版
-							</TabsTrigger>
-						</TabsList>
-					</Tabs>
-				</div>
-			</div>
-
-			<Separator />
-
-			<div className="space-y-4">
-				<div className="flex items-center justify-between">
-					<div className="space-y-1">
-						<Label className="font-medium text-sm hover:cursor-pointer">
-							数据更新性能模式
-						</Label>
-						<p className="text-xs text-muted-foreground">
-							数据更新性能模式，开启后会自动更新数据，但会占用更多性能。
+							数据更新性能，性能越高，数据更新速度越快，但会占用更多性能。
 						</p>
 					</div>
 					<Tabs
@@ -223,16 +282,17 @@ export default function AboutInfo() {
 						}}
 					>
 						<TabsList>
-							<TabsTrigger value="ECONOMY">经济模式</TabsTrigger>
-							<TabsTrigger value="EQUAL">均衡模式</TabsTrigger>
-							<TabsTrigger value="PERFORMANCE">性能模式</TabsTrigger>
+							<TabsTrigger value="ECONOMY">经济</TabsTrigger>
+							<TabsTrigger value="EQUAL">均衡</TabsTrigger>
+							<TabsTrigger value="PERFORMANCE">性能</TabsTrigger>
 						</TabsList>
 					</Tabs>
 				</div>
 
 				<div className="flex items-center justify-between">
 					<div className="space-y-1">
-						<Label className="font-medium text-sm hover:cursor-pointer">
+						<Label className="font-medium text-sm hover:cursor-pointer flex items-center gap-1">
+							<SquareFunction className="size-4" />
 							选股性能模式
 						</Label>
 						<p className="text-xs text-muted-foreground">
@@ -251,9 +311,9 @@ export default function AboutInfo() {
 						}}
 					>
 						<TabsList>
-							<TabsTrigger value="ECONOMY">经济模式</TabsTrigger>
-							<TabsTrigger value="EQUAL">均衡模式</TabsTrigger>
-							<TabsTrigger value="PERFORMANCE">性能模式</TabsTrigger>
+							<TabsTrigger value="ECONOMY">经济</TabsTrigger>
+							<TabsTrigger value="EQUAL">均衡</TabsTrigger>
+							<TabsTrigger value="PERFORMANCE">性能</TabsTrigger>
 						</TabsList>
 					</Tabs>
 				</div>

@@ -71,8 +71,6 @@ export const realTradingTabAtom = atom<string>("tradingPlan")
 
 export const errAlertAtom = atom<boolean>(false)
 
-export const isShowAboutAtom = atom<boolean>(false)
-
 export const terminalTabAtom = atom<string>("fuel")
 
 export const realConfigEditModalAtom = atom<boolean>(false) // 实盘配置页面的modal

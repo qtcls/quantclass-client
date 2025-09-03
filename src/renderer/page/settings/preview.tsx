@@ -9,16 +9,16 @@
  */
 
 import { H3 } from "@/renderer/components/ui/typography"
+import { SETTINGS_PAGE } from "@/renderer/constant"
 import { useSettings } from "@/renderer/hooks/useSettings"
-import { isShowAboutAtom } from "@/renderer/store"
 import { isAutoLoginAtom } from "@/renderer/store/storage"
-import { useAtomValue, useSetAtom } from "jotai"
+import { useAtomValue } from "jotai"
 import { Bot } from "lucide-react"
+import { useNavigate } from "react-router"
 export function SelfStarting() {
 	const isAutoLogin = useAtomValue(isAutoLoginAtom)
-	const setIsShowAbout = useSetAtom(isShowAboutAtom)
 	const { settings } = useSettings()
-
+	const navigate = useNavigate()
 	return (
 		<div className="space-y-3">
 			<div className="flex items-center gap-2">
@@ -28,21 +28,21 @@ export function SelfStarting() {
 			<div className="flex flex-col xl:flex-row xl:justify-between xl:items-center justify-start items-start space-y-2">
 				<div
 					className="flex items-center"
-					onClick={() => setIsShowAbout((prev) => !prev)}
+					onClick={() => navigate(SETTINGS_PAGE)}
 				>
 					<div>开机自动打开客户端：</div>
 					<div>{isAutoLogin ? "✅" : "🈚️"}</div>
 				</div>
 				<div
 					className="flex items-center"
-					onClick={() => setIsShowAbout((prev) => !prev)}
+					onClick={() => navigate(SETTINGS_PAGE)}
 				>
 					<div>开机启动自动更新数据：</div>
 					<div>{settings.is_auto_launch_update ? "✅" : "🈚️"}</div>
 				</div>
 				<div
 					className="flex items-center"
-					onClick={() => setIsShowAbout((prev) => !prev)}
+					onClick={() => navigate(SETTINGS_PAGE)}
 				>
 					<div>开机启动自动实盘：</div>
 					<div>{settings.is_auto_launch_real_trading ? "✅" : "🈚️"}</div>

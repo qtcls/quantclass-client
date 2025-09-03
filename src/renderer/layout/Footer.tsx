@@ -39,7 +39,7 @@ import {
 	SidebarMenuItem,
 } from "@/renderer/components/ui/sidebar"
 import { InlineCode } from "@/renderer/components/ui/typography"
-import { isWindows } from "@/renderer/constant"
+import { isWindows, SETTINGS_PAGE } from "@/renderer/constant"
 import { UpdateStatus } from "@/renderer/context/update-context"
 import { useQueryVersion } from "@/renderer/hooks"
 import { useAppUpdate } from "@/renderer/hooks/useAppUpdate"
@@ -48,7 +48,7 @@ import { useRealTradingRole } from "@/renderer/hooks/useRealTradingRole"
 import { SettingsGearIcon } from "@/renderer/icons/SettingsGearIcon"
 
 import { CoreVersionDes } from "@/renderer/page/home"
-import { isShowAboutAtom, isShowMonitorPanelAtom } from "@/renderer/store"
+import { isShowMonitorPanelAtom } from "@/renderer/store"
 import {
 	libraryTypeAtom,
 	versionAtom,
@@ -72,21 +72,17 @@ import Markdown from "react-markdown"
 import { toast } from "sonner"
 import Img from "../../../build/icon.ico"
 import { Badge } from "../components/ui/badge"
+import { useNavigate } from "react-router"
 
-const {
-	getCoreAndClientVersion,
-	createTerminalWindow,
-	openUserDirectory,
-	rendererLog,
-} = window.electronAPI
+const { createTerminalWindow, openUserDirectory, rendererLog } =
+	window.electronAPI
 
 export const Footer: FC = () => {
 	const setIsShowMonitorPanel = useSetAtom(isShowMonitorPanelAtom)
-	const setIsShowAbout = useSetAtom(isShowAboutAtom)
-
+	const navigate = useNavigate()
 	useHotkeys([
 		["mod+`", async () => await createTerminalWindow()],
-		["mod+,", () => setIsShowAbout((prev) => !prev)],
+		["mod+,", () => navigate(SETTINGS_PAGE)],
 	])
 
 	return (
@@ -153,7 +149,7 @@ export const Footer: FC = () => {
 						variant="ghost"
 						size="icon"
 						className="focus-visible:outline-none focus-visible:ring-transparent"
-						onClick={() => setIsShowAbout((prev) => !prev)}
+						onClick={() => navigate(SETTINGS_PAGE)}
 					>
 						<SettingsGearIcon className="h-4 w-4 text-foreground hover:cursor-pointer" />
 					</Button>

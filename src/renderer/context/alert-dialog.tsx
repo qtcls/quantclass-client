@@ -22,6 +22,8 @@ import {
 	createContext,
 	useCallback,
 	useContext,
+	useEffect,
+	useRef,
 	useState,
 } from "react"
 import { Loader2 } from "lucide-react"
@@ -33,6 +35,7 @@ interface AlertDialogState {
 	content: ReactNode
 	okText?: string
 	cancelText?: string
+	okDelay?: number // 延迟时间，单位为秒
 	onOk?: () => void | Promise<void>
 	onCancel?: () => void | Promise<void>
 }
@@ -54,9 +57,12 @@ export function AlertDialogProvider({ children }: { children: ReactNode }) {
 		okText: "确定",
 		cancelText: "取消",
 		description: "",
+		okDelay: 0,
 	})
 
 	const [loading, setLoading] = useState(false)
+	const [seconds, setSeconds] = useState(0)
+	const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
 	const open = useCallback((options: Omit<AlertDialogState, "isOpen">) => {
 		setState({ ...options, isOpen: true })
@@ -65,6 +71,47 @@ export function AlertDialogProvider({ children }: { children: ReactNode }) {
 	const close = useCallback(() => {
 		setState((prev) => ({ ...prev, isOpen: false }))
 	}, [])
+
+	useEffect(() => {
+		if (state.isOpen && state.okDelay && state.okDelay > 0) {
+			setSeconds(state.okDelay)
+
+			// 清除之前的定时器
+			if (intervalRef.current) {
+				clearInterval(intervalRef.current)
+			}
+
+			// 设置新的倒计时定时器
+			intervalRef.current = setInterval(() => {
+				setSeconds((prev) => {
+					if (prev <= 1) {
+						// 倒计时结束，清除定时器
+						if (intervalRef.current) {
+							clearInterval(intervalRef.current)
+							intervalRef.current = null
+						}
+						return 0
+					}
+					return prev - 1
+				})
+			}, 1000)
+		} else {
+			// 如果对话框关闭或没有延迟，重置倒计时
+			setSeconds(0)
+			if (intervalRef.current) {
+				clearInterval(intervalRef.current)
+				intervalRef.current = null
+			}
+		}
+
+		// 清理函数：组件卸载时清除定时器
+		return () => {
+			if (intervalRef.current) {
+				clearInterval(intervalRef.current)
+				intervalRef.current = null
+			}
+		}
+	}, [state.isOpen, state.okDelay])
 
 	return (
 		<AlertDialogContext.Provider value={{ open, close }}>
@@ -95,7 +142,7 @@ export function AlertDialogProvider({ children }: { children: ReactNode }) {
 							</Button>
 						)}
 						<Button
-							disabled={loading}
+							disabled={loading || seconds > 0}
 							onClick={async () => {
 								setLoading(true)
 								if (state.onOk) {
@@ -107,9 +154,12 @@ export function AlertDialogProvider({ children }: { children: ReactNode }) {
 							}}
 						>
 							{loading ? (
-								<Loader2 className="animate-spin" />
+								<Loader2 className="animate-spin mr-2" />
 							) : (
-								<span className="flex items-center gap-2">{state.okText}</span>
+								<span className="flex items-center gap-2">
+									{state.okText || "确定"}
+									{seconds > 0 && <span>({seconds}s)</span>}
+								</span>
 							)}
 						</Button>
 					</DialogFooter>

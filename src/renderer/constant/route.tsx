@@ -10,7 +10,6 @@
 
 import {
 	BACKTEST_PAGE,
-	CHANGE_LOGS_PAGE,
 	DATA_PAGE,
 	FAQ_PAGE,
 	FUSION_STRATEGY_LIBRARY_PAGE,
@@ -20,12 +19,12 @@ import {
 	STRATEGY_LIBRARY_PAGE,
 	STRATEGY_PAGE,
 	TRADING_PLAN_PAGE,
+	SETTINGS_PAGE,
 } from "@/renderer/constant"
 import FAQ from "@/renderer/page/FAQ"
 import StrategyRun from "@/renderer/page/backtest"
 import Data from "@/renderer/page/data"
 import Home from "@/renderer/page/home"
-import ChangeLogs from "@/renderer/page/info"
 import StrategyLibrary from "@/renderer/page/library"
 import FusionStrategyLibrary from "@/renderer/page/library/fusion"
 import PositionInfo from "@/renderer/page/position"
@@ -37,13 +36,14 @@ import {
 	BarChartIcon,
 	DatabaseIcon,
 	HelpCircleIcon,
-	HistoryIcon,
 	HomeIcon,
 	LayoutGrid,
 	LibraryIcon,
+	Settings,
 	WeightIcon,
 } from "lucide-react"
 import TradingPage from "../page/trading"
+import SettingsPage from "../page/settings"
 
 export const ROUTES = [
 	{
@@ -107,9 +107,9 @@ export const ROUTES = [
 		element: FAQ,
 	},
 	{
-		key: CHANGE_LOGS_PAGE,
-		icon: HistoryIcon,
-		label: "更新日志",
-		element: ChangeLogs,
+		key: SETTINGS_PAGE,
+		icon: Settings,
+		label: "设置",
+		element: SettingsPage,
 	},
 ]

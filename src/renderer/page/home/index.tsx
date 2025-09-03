@@ -8,7 +8,7 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
-import { SelfStarting } from "@/renderer/components/About/selfStarting"
+import { SelfStarting } from "@/renderer/page/settings/preview"
 import {
 	ProcessHoverCard,
 	ProcessHoverCardContent,

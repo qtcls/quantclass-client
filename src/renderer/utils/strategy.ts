@@ -8,7 +8,6 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
-import { REAL_MARKET_SS_SELECTED_STRATEGIES as REAL_MARKET_SELECT_STRATEGIES } from "@/renderer/constant"
 import type {
 	PosStrategyType,
 	SelectStgType,
@@ -79,10 +78,6 @@ export const saveStrategyList = async (strategies: SelectStgType[]) => {
 	// -- 生成aqua内核策略列表
 	const selectStrategyList = strategiesWithAdjustedWeight.map((stg) =>
 		genSelectStgInfo(stg, false),
-	)
-	await setStoreValue(
-		REAL_MARKET_SELECT_STRATEGIES,
-		strategiesWithAdjustedWeight,
 	)
 	await setStoreValue("select_stock.strategy_list", selectStrategyList)
 	return strategyDict

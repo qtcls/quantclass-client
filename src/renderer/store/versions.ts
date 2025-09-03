@@ -12,7 +12,8 @@ import { atomEffect } from "jotai-effect"
 import { atomWithQuery } from "jotai-tanstack-query"
 import { versionAtom } from "./storage"
 
-const { getCoreAndClientVersionWithLoop } = window.electronAPI
+const { getCoreAndClientVersions: getCoreAndClientVersionWithLoop } =
+	window.electronAPI
 
 // -- 版本查询 atom
 export const versionQueryAtom = atomWithQuery(() => ({
