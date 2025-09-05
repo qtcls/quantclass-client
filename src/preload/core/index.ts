@@ -30,8 +30,6 @@ export const coreIPC = {
 	},
 	toggleHandler: (isUpdating: boolean) =>
 		ipcRenderer.invoke("toggle-handle", isUpdating),
-	getCoreAndClientVersion: (isMember: boolean) =>
-		ipcRenderer.invoke("get-core-and-client-version", isMember),
 	syncNetworkStatus: (isOnline: boolean) => {
 		ipcRenderer.send("sync-network-status", isOnline)
 	},

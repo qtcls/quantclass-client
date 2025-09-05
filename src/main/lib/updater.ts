@@ -111,7 +111,8 @@ export default async () => {
 		win.webContents.send("update-progress", progress)
 	})
 
-	ipcMain.handle("check-update", async () => {
+	// 这个updater主要是用于客户端的自更新逻辑，短时间内都没有启用的计划
+	ipcMain.handle("check-github-update", async () => {
 		return await autoUpdater.checkForUpdates()
 	})
 }

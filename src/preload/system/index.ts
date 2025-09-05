@@ -31,10 +31,11 @@ export const systemIPC = {
 	setAutoUpdate: () => ipcRenderer.invoke("set-auto-update"),
 
 	// 版本管理
-	checkUpdate: () => ipcRenderer.invoke("check-update"),
-	checkBinVersion: () => ipcRenderer.invoke("check-bin-version"),
-	getCoreAndClientVersionWithLoop: () =>
-		ipcRenderer.invoke("get-core-and-client-version-loop"),
+	checkUpdate: (now = true) => ipcRenderer.invoke("check-update", now),
+	updateCore: (name: string, targetVersion?: string) =>
+		ipcRenderer.invoke("update-core", name, targetVersion),
+	getCoreAndClientVersions: () =>
+		ipcRenderer.invoke("get-core-and-client-versions"),
 
 	// 系统信息
 	getMacAddress: () => ipcRenderer.invoke("get-mac-address"),

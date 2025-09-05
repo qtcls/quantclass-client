@@ -8,6 +8,8 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
+import { getCoreAndClientVersions } from "@/main/core/lib.js"
+import { checkRemoteVersions, updateCore } from "@/main/core/runpy.js"
 import windowManager from "@/main/lib/WindowManager.js"
 import { process_manager } from "@/main/lib/process.js"
 import { setupScheduler } from "@/main/lib/scheduler.js"
@@ -101,6 +103,31 @@ function handleRestartApp() {
 	})
 }
 
+async function handleCheckUpdate(): Promise<void> {
+	ipcMain.handle("check-update", async (_event, now = true) => {
+		return await checkRemoteVersions(now)
+	})
+}
+
+async function handleGetCoreAndClientVersions(): Promise<void> {
+	ipcMain.handle("get-core-and-client-versions", async () => {
+		return await getCoreAndClientVersions()
+	})
+}
+
+async function handleUpdateCore(): Promise<void> {
+	ipcMain.handle(
+		"update-core",
+		async (_event, name: string, targetVersion?: string) => {
+			return await updateCore(
+				name as "aqua" | "rocket" | "zeus" | "fuel",
+				true,
+				targetVersion,
+			)
+		},
+	)
+}
+
 export const regSystemIPC = () => {
 	handleClose()
 	handleMinimize()
@@ -112,5 +139,8 @@ export const regSystemIPC = () => {
 	handleMonitorProcess()
 	handleToggleFullscreen()
 	handleRestartApp()
+	handleGetCoreAndClientVersions()
+	handleUpdateCore()
+	handleCheckUpdate()
 	console.log("[ok] system-ipc")
 }

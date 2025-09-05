@@ -16,7 +16,7 @@ import {
 	spawn,
 } from "node:child_process"
 import fs from "node:fs"
-import { updateCore, updateFuelCore } from "@/main/core/runpy.js"
+import { updateCore } from "@/main/core/runpy.js"
 import { userStore } from "@/main/lib/userStore.js"
 import store, { CONFIG_PATH, ROCKET_STR_INFO_PATH } from "@/main/store/index.js"
 import {
@@ -227,11 +227,7 @@ export const execBin = async (
 		if (!isBinExist) {
 			logger.warn(`[exec-${kernel}] 内核不存在，下载中`)
 			try {
-				if (kernel === "fuel") {
-					await updateFuelCore(true)
-				} else {
-					await updateCore(kernel, true)
-				}
+				await updateCore(kernel, true)
 			} catch (e) {
 				logger.error(
 					`[exec-${kernel}] 内核更新失败: ${JSON.stringify(e, null, 2)}`,
