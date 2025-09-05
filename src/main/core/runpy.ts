@@ -26,7 +26,7 @@ import {
 	removeLockFile,
 } from "../utils/tools.js"
 import logger from "../utils/wiston.js"
-import { getCoreVersion, getCoreAndClientVersions } from "./lib.js"
+import { getCoreAndClientVersions, getCoreVersion } from "./lib.js"
 
 const require = createRequire(import.meta.url)
 const AdmZip = require("adm-zip")

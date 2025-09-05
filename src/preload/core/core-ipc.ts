@@ -9,6 +9,7 @@
  */
 
 import { networkInterfaces } from "node:os"
+import { getCoreAndClientVersions } from "@/main/core/lib.js"
 import { updateCores } from "@/main/core/runpy.js"
 import {
 	setAutoTrading,
@@ -17,7 +18,6 @@ import {
 } from "@/main/lib/scheduler.js"
 import logger from "@/main/utils/wiston.js"
 import { ipcMain } from "electron"
-import { getCoreAndClientVersions } from "@/main/core/lib.js"
 
 async function toggleHandler(): Promise<void> {
 	ipcMain.handle("toggle-handle", (_event: { sender: any }, isOn: boolean) => {
