@@ -68,8 +68,14 @@ const useInvokeUpdateCore = () => {
 				core as "fuel" | "aqua" | "rocket" | "zeus",
 				targetVersion,
 			)
-			console.log(res)
-			toast.success(`${core} 内核更新成功`, { id: toastId })
+			if (res.success) {
+				toast.success(`${core} 内核更新成功`, { id: toastId })
+			} else {
+				toast.warning(`${core} 内核更新异常`, {
+					id: toastId,
+					description: res.error,
+				})
+			}
 		} catch (error) {
 			toast.error(`${core} 内核更新失败`, { id: toastId })
 		} finally {

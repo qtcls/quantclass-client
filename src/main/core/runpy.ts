@@ -165,7 +165,7 @@ export async function downloadCore(
 				code: 400,
 				message: `文件系统权限错误，内核下载失败: ${error}`,
 			})
-			return
+			return { success: false, error: "文件系统权限错误，内核下载失败" }
 		}
 
 		// -- 检查下载次数限制
@@ -176,7 +176,10 @@ export async function downloadCore(
 				code: 400,
 				message: "今日内核下载次数已达上限，请联系助教再试",
 			})
-			return
+			return {
+				success: false,
+				error: "今日内核下载次数已达上限，请联系助教再试",
+			}
 		}
 
 		// -- 开始下载
@@ -216,8 +219,11 @@ export async function downloadCore(
 		await fs.promises.unlink(coreZipPath) // 删除zip文件
 
 		logger.info(`[${core}] 内核文件已解压到 ${codeFolder}`)
+
+		return { success: true, data: { version, downloadUrl } }
 	} catch (error) {
 		logger.error(`[${core}] 更新/下载内核失败: ${error}`)
+		return { success: false, error: "更新/下载内核失败" }
 	} finally {
 		await removeLockFile(lockFileName)
 	}
@@ -239,13 +245,13 @@ export async function updateCore(
 	// -- 非Windows系统，跳过更新
 	if (!platform.isWindows && windows_cores.includes(core)) {
 		logger.info(`[${core}] 非Windows系统，跳过更新`)
-		return
+		return { success: true, data: localVersion }
 	}
 
 	if (targetVersion) {
 		if (localVersion === targetVersion) {
 			logger.info(`[${core}] 版本一致，跳过更新`)
-			return
+			return { success: true, data: localVersion }
 		}
 		downloadVersion = targetVersion
 		downloadUrl = remoteVersions.downloads[core].replace(
@@ -255,7 +261,7 @@ export async function updateCore(
 	} else {
 		if (remoteVersions.latest[core] === localVersion) {
 			logger.info(`[${core}] 与远程版本一致`)
-			return
+			return { success: true, data: localVersion }
 		}
 		downloadVersion = remoteVersions.latest[core]
 		downloadUrl = remoteVersions.downloads[core]

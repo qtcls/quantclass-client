@@ -74,10 +74,6 @@ export const dataIPC = {
 	fetchMonitorProcesses: () => ipcRenderer.invoke("fetch-monitor-processes"),
 
 	// 导入功能
-	importLibraryDir: (filePath: string) =>
-		ipcRenderer.invoke("import-library-dir", filePath),
-	importFusionDir: (filePath: string) =>
-		ipcRenderer.invoke("import-fusion-dir", filePath),
 	parseCsvFile: (csvfileName = "最新选股结果", mode = "backtest") =>
 		ipcRenderer.invoke("parse-csv-file", csvfileName, mode),
 }
