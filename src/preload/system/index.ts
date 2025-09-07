@@ -13,6 +13,10 @@ import { ipcRenderer } from "electron"
 export const systemIPC = {
 	// 进程控制
 	handleKillProcess: (pid: number) => ipcRenderer.invoke("kill-process", pid),
+	killAllCores: (byForce = false) =>
+		ipcRenderer.invoke("kill-all-cores", byForce),
+	killCore: (core: "fuel" | "rocket" | "aqua" | "zeus", byForce = false) =>
+		ipcRenderer.invoke("kill-core", core, byForce),
 
 	// 全屏控制
 	handleToggleFullscreen: () => ipcRenderer.invoke("toggle-fullscreen"),

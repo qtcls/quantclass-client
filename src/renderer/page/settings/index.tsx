@@ -20,7 +20,11 @@ import { Separator } from "@/renderer/components/ui/separator"
 import { Switch } from "@/renderer/components/ui/switch"
 import { Tabs, TabsList, TabsTrigger } from "@/renderer/components/ui/tabs"
 import { useAlertDialog } from "@/renderer/context/alert-dialog"
-import { usePermissionCheck } from "@/renderer/hooks"
+import {
+	useHandleTimeTask,
+	usePermissionCheck,
+	useToggleAutoRealTrading,
+} from "@/renderer/hooks"
 import { useAppVersions } from "@/renderer/hooks/useAppVersion"
 import { useRealTradingRole } from "@/renderer/hooks/useRealTradingRole"
 import { useSettings } from "@/renderer/hooks/useSettings"
@@ -156,6 +160,9 @@ const CoreVersion = ({
 	const version = useAtomValue(versionsAtom)
 	const useAlert = useAlertDialog()
 	const invokeUpdateCore = useInvokeUpdateCore()
+	const handleTimeTask = useHandleTimeTask()
+	const { isAutoRocket, handleToggleAutoRocket } = useToggleAutoRealTrading()
+	const { killCore } = window.electronAPI
 
 	const handleCoreUpdate = (targetVersion?: string, kernelName?: string) => {
 		if (disabled) {
@@ -207,6 +214,14 @@ const CoreVersion = ({
 			okDelay: 5,
 			isContentLong: true,
 			onOk: async () => {
+				// 暂停数据更新和实盘功能
+				await handleTimeTask(true, false)
+				if (isAutoRocket) {
+					await handleToggleAutoRocket(false, false)
+				}
+
+				await killCore(kernelName as "aqua" | "rocket" | "zeus" | "fuel", true)
+
 				await invokeUpdateCore(
 					kernelName as "aqua" | "rocket" | "zeus" | "fuel",
 					targetVersion,
@@ -257,7 +272,9 @@ export default function SettingsPage() {
 	const [isAutoLogin, setIsAutoLogin] = useAtom(isAutoLoginAtom)
 	const version = useAtomValue(versionsAtom)
 	const setVersionList = useSetAtom(versionListAtom)
-	const { setAutoLaunch } = window.electronAPI
+	const { setAutoLaunch, openDataDirectory, killAllCores } = window.electronAPI
+	const handleTimeTask = useHandleTimeTask() // 数据任务控制
+	const { isAutoRocket, handleToggleAutoRocket } = useToggleAutoRealTrading() // 自动交易控制
 
 	const { settings, updateSettings } = useSettings()
 	const isAutoLaunchRealTrading = useMemo(() => {
@@ -355,6 +372,12 @@ export default function SettingsPage() {
 			okText: "立即更新",
 			okDelay: 10,
 			onOk: async () => {
+				await handleTimeTask(true, false)
+				if (isAutoRocket) {
+					await handleToggleAutoRocket(false, false)
+				}
+
+				await killAllCores(true) // 强制杀死所有内核
 				for (const core of [
 					"fuel",
 					settings.libraryType === "select" ? "aqua" : "zeus",
@@ -491,11 +514,12 @@ export default function SettingsPage() {
 
 			<div className="space-y-1">
 				<Label className="font-medium text-sm hover:cursor-pointer flex items-center gap-1">
-					ℹ️ 更新说明
+					<CircleArrowUp className="size-4" />
+					更新说明
 				</Label>
 				<p className="text-xs text-muted-foreground">
 					客户端会自动检查软件和内核更新，但
-					<span className="text-warning">不会自动更新</span>
+					<span className="text-success font-bold">不会自动更新</span>
 					。更新后遇到问题，也可以在上方回退任意适配的历史版本。
 				</p>
 			</div>

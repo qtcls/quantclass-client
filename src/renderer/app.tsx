@@ -88,7 +88,7 @@ const App: FC = () => {
 					{VITE_XBX_ENV === "development" && (
 						<>
 							<ReactQueryDevtools initialIsOpen={true} />
-							<DevTools theme="dark" />
+							{/* <DevTools theme="dark" /> */}
 						</>
 					)}
 				</Provider>

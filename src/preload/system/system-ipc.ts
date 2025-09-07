@@ -13,6 +13,7 @@ import { checkRemoteVersions, updateCore } from "@/main/core/runpy.js"
 import windowManager from "@/main/lib/WindowManager.js"
 import { process_manager } from "@/main/lib/process.js"
 import { setupScheduler } from "@/main/lib/scheduler.js"
+import { killAllCoreByForce, killCoreByForce } from "@/main/utils/tools.js"
 import { log } from "@/main/utils/wiston.js"
 import { electronApp, platform } from "@electron-toolkit/utils"
 import { app, ipcMain } from "electron"
@@ -81,6 +82,25 @@ function handleKillProcess() {
 	})
 }
 
+function handleKillAllCores() {
+	ipcMain.handle("kill-all-cores", async (_event, byForce = false) => {
+		return await killAllCoreByForce(byForce)
+	})
+}
+
+function handleKillCore() {
+	ipcMain.handle(
+		"kill-core",
+		async (
+			_event,
+			core: "fuel" | "rocket" | "aqua" | "zeus",
+			byForce = false,
+		) => {
+			return await killCoreByForce(core, byForce)
+		},
+	)
+}
+
 function handleSetAutoUpdate() {
 	ipcMain.handle("set-auto-update", async (_event) => {
 		await setupScheduler()
@@ -133,6 +153,8 @@ export const regSystemIPC = () => {
 	handleMinimize()
 	handleRendererLog()
 	handleKillProcess()
+	handleKillAllCores()
+	handleKillCore()
 	handleSetAutoLogin()
 	handleSetAutoUpdate()
 	fetchFullscreenState()

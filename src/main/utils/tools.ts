@@ -189,7 +189,10 @@ export const isCoreRunning = async (
 		}
 	}
 
-	const pidLockPath: string = await store.getAllDataPath(PID_LOCK_PATH[core])
+	const pidLockPath: string = await store.getAllDataPath(
+		PID_LOCK_PATH[core],
+		true,
+	)
 	logger.info(`[${core}] 检查运行中的进程: ${pidLockPath}`)
 
 	// -- 检查文件夹是否存在
@@ -331,7 +334,14 @@ export const killCoreByForce = async (
 ) => {
 	const pidLockFilePath: string = await store.getAllDataPath(
 		PID_LOCK_PATH[core],
+		true, // -- 自动创建文件夹
 	)
+
+	if (!fs.existsSync(pidLockFilePath)) {
+		logger.info(`[${core}] 进程锁文件夹不存在，运行中: ${strictMode}`)
+		return
+	}
+
 	const lockFiles = readdirSync(pidLockFilePath).filter((file) =>
 		file.endsWith(".py.lock"),
 	)
