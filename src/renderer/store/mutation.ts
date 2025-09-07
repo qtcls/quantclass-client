@@ -9,7 +9,8 @@
  */
 
 import { postUserAction } from "@/renderer/request"
-import { accountKeyAtom, versionAtom } from "@/renderer/store/storage"
+import { accountKeyAtom } from "@/renderer/store/storage"
+import { versionsAtom } from "@/renderer/store/versions"
 import { userAtom } from "@/renderer/store/user"
 import { atomWithMutation } from "jotai-tanstack-query"
 import { syncUserState } from "../ipc/userInfo"
@@ -55,7 +56,7 @@ export const userInfoMutationAtom = atomWithMutation(() => ({
 // -- 用户行为记录
 export const postUserActionMutationAtom = atomWithMutation((get) => {
 	const { uuid = "", apiKey = "" } = get(accountKeyAtom)
-	const { clientVersion } = get(versionAtom)
+	const { clientVersion } = get(versionsAtom)
 	const { user } = get(userAtom)
 
 	return {

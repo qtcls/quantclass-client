@@ -19,5 +19,5 @@ export type SettingsType = {
 	api_key: string
 	libraryType: string
 	performance_mode: string
-	update_core_channel: "never" | "stable" | "beta"
+	user_choice: boolean
 }

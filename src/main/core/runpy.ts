@@ -12,6 +12,7 @@ import fs from "node:fs"
 import { writeFile } from "node:fs/promises"
 import { createRequire } from "node:module"
 import path from "node:path"
+import type { AppVersions } from "@/shared/types/index.js"
 import { CONFIG } from "@/main/config.js"
 import windowManager from "@/main/lib/WindowManager.js"
 import { postUserMainAction } from "@/main/request/index.js"
@@ -35,21 +36,6 @@ const clientVersion = CLIENT_VERSION
 
 const URL = `${BASE_URL}/api/data/query/client-versions`
 
-interface CoreVersionType {
-	description: string
-	download: string
-	version: string
-	release: string
-}
-interface AppVersions {
-	client: string
-	latest: Record<string, string>
-	downloads: Record<string, string>
-	aqua: CoreVersionType[]
-	rocket: CoreVersionType[]
-	zeus: CoreVersionType[]
-}
-
 // -- 添加工具函数
 function getRandomDelay(min: number, max: number): number {
 	return Math.floor(Math.random() * (max - min + 1) + min) * 1000
@@ -69,12 +55,8 @@ export async function fetchRemoteVersions(): Promise<AppVersions> {
 
 	const resp = await response.json()
 
-	if (resp.code === 200) {
-		store.setValue("app.versions", resp.data)
-		return resp.data
-	}
-
-	throw new Error(`[app] 内核版本获取失败: ${response.status}`)
+	store.setValue("app.versions", resp)
+	return resp
 }
 
 /**
@@ -132,9 +114,7 @@ export async function downloadCore(
 	version: string,
 	downloadUrl: string,
 ) {
-	const lockFileName =
-		CONFIG[`UPDATE_${core.toUpperCase()}_LOCK_FILE_NAME`] ??
-		CONFIG.LOCK_FILE_NAME
+	const lockFileName = `update_${core.toLowerCase()}.app.lock`
 
 	if (await checkLock(lockFileName)) {
 		logger.info(`[${core}] 正在下载中，退出`)
@@ -249,7 +229,7 @@ export async function updateCore(
 	now = false,
 	targetVersion?: string,
 ) {
-	const windows_cores = ["aqua", "rocket", "zeus"]
+	const windows_cores = ["rocket"]
 	// -- 如果需要立即检查版本，并且没有指定版本，则立即检查版本
 	const remoteVersions = await checkRemoteVersions(now && !targetVersion)
 	const localVersion = await getCoreVersion(core)
@@ -271,7 +251,7 @@ export async function updateCore(
 		downloadVersion = targetVersion
 		downloadUrl = remoteVersions.downloads[core].replace(
 			`${remoteVersions.latest[core]}`,
-			"",
+			targetVersion,
 		)
 	} else {
 		if (remoteVersions.latest[core] === localVersion) {
@@ -281,38 +261,10 @@ export async function updateCore(
 		downloadVersion = remoteVersions.latest[core]
 		downloadUrl = remoteVersions.downloads[core]
 	}
-
-	await downloadCore(core, downloadVersion, downloadUrl)
-}
-
-/**
- * 一键更新所有内核
- * @param isMember
- * @returns
- */
-export async function updateCores(isMember: boolean) {
-	const mainWindow = windowManager.getWindow()
-	// 让前端进入loading的状态
-	mainWindow?.webContents.send("client-global-loading", true, "success")
-	const premium_cores = ["aqua", "rocket"]
-
-	await fetchRemoteVersions() // -- 确保远程版本是最新的
-
-	for (const core of ["fuel", ...premium_cores, "zeus"]) {
-		try {
-			if (!isMember && premium_cores.includes(core)) continue // -- 非会员不更新 premium 内核
-			logger.info(`[一键更新] 开始更新 ${core} 内核...`)
-			await updateCore(core as "aqua" | "rocket" | "zeus" | "fuel")
-		} catch (e) {
-			logger.error(JSON.stringify(e, null, 2))
-			mainWindow?.webContents.send("client-global-loading", false, "error")
-			// 在异常情况下，直接返回，不执行后续的操作
-			return await getCoreAndClientVersions()
-		}
+	// 如果是非Windows系统，在downloadUrl的文件名中加上-mac后缀
+	if (!platform.isWindows) {
+		downloadUrl = downloadUrl.replace(/(\.[^.]+)$/, "-mac$1")
+		logger.info(`[${core}] 非Windows系统，下载地址调整为: ${downloadUrl}`)
 	}
-
-	logger.info("内核更新执行完成")
-	mainWindow?.webContents.send("client-global-loading", false, "success")
-
-	return await getCoreAndClientVersions()
+	return await downloadCore(core, downloadVersion, downloadUrl)
 }

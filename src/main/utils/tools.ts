@@ -13,7 +13,6 @@ import fs, { promises as fsPromises, readdirSync, unlinkSync } from "node:fs"
 import net from "node:net"
 import path from "node:path"
 import util from "node:util"
-import { CONFIG } from "@/main/config.js"
 import store from "@/main/store/index.js"
 import logger from "@/main/utils/wiston.js"
 import { platform } from "@electron-toolkit/utils"
@@ -24,11 +23,9 @@ import iconv from "iconv-lite"
 
 /**
  * 删除指定的锁文件
- * @param lockName - 要删除的锁文件名,默认为 CONFIG.LOCK_FILE_NAME
+ * @param lockName - 要删除的锁文件名
  */
-export async function removeLockFile(
-	lockName = CONFIG.LOCK_FILE_NAME,
-): Promise<void> {
+export async function removeLockFile(lockName: string): Promise<void> {
 	const userDataPath = getUserDataPath()
 	const lockFilePath = path.join(userDataPath, lockName)
 
@@ -47,19 +44,34 @@ export async function removeLockFile(
 }
 
 export async function cleanLockFiles() {
-	await removeLockFile(CONFIG.LOCK_FILE_NAME)
-	await removeLockFile(CONFIG.UPDATE_FUEL_LOCK_FILE_NAME)
-	await removeLockFile(CONFIG.UPDATE_AQUA_LOCK_FILE_NAME)
-	await removeLockFile(CONFIG.UPDATE_ROCKET_LOCK_FILE_NAME)
+	// 查找并删除所有 *.app.lock 文件
+	const userDataPath = getUserDataPath()
+
+	try {
+		const files = await fsPromises.readdir(userDataPath)
+		const lockFiles = files.filter((file) => file.endsWith(".app.lock"))
+
+		for (const lockFile of lockFiles) {
+			const lockFilePath = path.join(userDataPath, lockFile)
+			try {
+				await fsPromises.unlink(lockFilePath)
+				logger.info(`[LOCK] #### del ${lockFile}`)
+			} catch (error) {
+				logger.error(`[LOCK] #### del ${lockFile} failed`)
+				logger.error(error)
+			}
+		}
+	} catch (error) {
+		logger.error("[LOCK] #### 读取用户数据目录失败")
+		logger.error(error)
+	}
 }
 
 /**
  * 创建指定的锁文件
- * @param lockName - 要创建的锁文件名,默认为 CONFIG.LOCK_FILE_NAME
+ * @param lockName - 要创建的锁文件名
  */
-export async function createLockFile(
-	lockName = CONFIG.LOCK_FILE_NAME,
-): Promise<void> {
+export async function createLockFile(lockName: string): Promise<void> {
 	const userDataPath = getUserDataPath()
 	const lockFilePath = path.join(userDataPath, lockName)
 
@@ -250,7 +262,7 @@ export const isRocketCoreRunning = async () => {
 export const isCoreUpdating = async (
 	core: "fuel" | "aqua" | "rocket" | "zeus",
 ) => {
-	return checkLock(CONFIG[`UPDATE_${core.toUpperCase()}_LOCK_FILE_NAME`])
+	return checkLock(`update_${core.toLowerCase()}.app.lock`)
 }
 
 /**

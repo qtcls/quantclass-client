@@ -62,13 +62,6 @@ export const isAutoLaunchUpdateAtom = atomWithStorage<boolean>(
 	{ getOnInit: true },
 )
 
-export const userChoiceAtom = atomWithStorage<boolean>(
-	"userChoice",
-	false,
-	undefined,
-	{ getOnInit: true },
-)
-
 // 策略选择，疑似为是否之前是否实盘的逻辑，目前已经废弃，需要逐步替换。2025-02-25 14:46:16
 export const stgSelectionAtom = atomWithStorage<Record<string, boolean>>(
 	"strategySelection",
@@ -165,19 +158,6 @@ export const realMarketConfigSchemaAtom = atomWithStorage<
 	undefined,
 	{ getOnInit: true },
 )
-
-export const versionAtom = atomWithStorage<
-	Partial<{
-		clientVersion: string
-		coreVersion: string
-		aquaVersion: string
-		zeusVersion: string
-		rocketVersion: string
-		coreVersionStatus: boolean
-	}>
->("versions", { clientVersion: "1.1.5", coreVersionStatus: false }, undefined, {
-	getOnInit: true,
-})
 
 export const showMoneyAtom = atomWithStorage<boolean>(
 	"showMoney",

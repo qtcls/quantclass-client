@@ -20,92 +20,231 @@ import { Separator } from "@/renderer/components/ui/separator"
 import { Switch } from "@/renderer/components/ui/switch"
 import { Tabs, TabsList, TabsTrigger } from "@/renderer/components/ui/tabs"
 import { useAlertDialog } from "@/renderer/context/alert-dialog"
-import { usePermissionCheck, useQueryVersion } from "@/renderer/hooks"
+import { usePermissionCheck } from "@/renderer/hooks"
 import { useRealTradingRole } from "@/renderer/hooks/useRealTradingRole"
 import { useSettings } from "@/renderer/hooks/useSettings"
 import Contributors from "@/renderer/page/settings/contributors"
-import {
-	isAutoLoginAtom,
-	userChoiceAtom,
-	versionAtom,
-} from "@/renderer/store/storage"
+import { isAutoLoginAtom, versionListAtom } from "@/renderer/store/storage"
+import { useLocalVersions, versionsAtom } from "@/renderer/store/versions"
 import { userAtom } from "@/renderer/store/user"
-import { useAtom, useAtomValue } from "jotai"
+import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import {
 	Blocks,
+	CheckCircle2,
 	ChevronDown,
 	ChevronUp,
+	Circle,
 	CircleArrowUp,
 	DatabaseZap,
+	FolderCode,
 	LucideIcon,
 	RefreshCcw,
 	SquareFunction,
+	Gift,
 } from "lucide-react"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import Img from "../../../../build/icon.ico"
+import { cn } from "@/renderer/lib/utils"
+import { useAppVersions } from "@/renderer/hooks/useAppVersion"
+import { AppVersions, CoreVersionType } from "@/shared/types/version"
 
-const { setStoreValue, setAutoLaunch } = window.electronAPI
+const useInvokeUpdateCore = () => {
+	const { updateCore } = window.electronAPI
+	const { refetchLocalVersions } = useLocalVersions()
+	return async (
+		core: "fuel" | "aqua" | "rocket" | "zeus",
+		targetVersion?: string,
+	) => {
+		const toastId = toast.loading(`更新 ${core} 内核到版本 ${targetVersion}...`)
+		console.log(`Updating ${core} to version ${targetVersion}`)
+
+		try {
+			const res = await updateCore(
+				core as "fuel" | "aqua" | "rocket" | "zeus",
+				targetVersion,
+			)
+			console.log(res)
+			toast.success(`${core} 内核更新成功`, { id: toastId })
+		} catch (error) {
+			toast.error(`${core} 内核更新失败`, { id: toastId })
+		} finally {
+			await refetchLocalVersions() // -- 更新后重新请求本地版本
+		}
+		return true
+	}
+}
+
+const CoreVersionSelect = ({
+	name,
+	title,
+	versionKey,
+	versions = [],
+	onVersionSelect,
+}: {
+	name: string
+	title: string
+	versionKey: string
+	versions: CoreVersionType[]
+	onVersionSelect?: (targetVersion: string, name: string) => void
+}) => {
+	const version = useAtomValue(versionsAtom)[versionKey]
+	const useAlert = useAlertDialog()
+	return (
+		<span
+			className="text-xs text-muted-foreground cursor-pointer"
+			onClick={() => {
+				useAlert.open({
+					title: `更换${title}(${name})内核？`,
+					content: (
+						<div className="space-y-3 leading-relaxed">
+							{versions.map((remoteVersion) => (
+								<div
+									key={remoteVersion.version}
+									className={cn(
+										"border border-1.5 rounded-lg px-3 py-2 cursor-pointer space-y-1",
+										version === remoteVersion.version
+											? "border-primary cursor-not-allowed"
+											: "border-muted hover:bg-primary/10",
+									)}
+									onClick={() => {
+										if (version !== remoteVersion.version && onVersionSelect) {
+											onVersionSelect?.(remoteVersion.version, name)
+										}
+									}}
+								>
+									<div className="font-medium flex items-center gap-1">
+										{version === remoteVersion.version ? (
+											<CheckCircle2 className="size-4" />
+										) : (
+											<Circle className="size-4" />
+										)}
+										{remoteVersion.version}
+									</div>
+									<div className="text-sm text-muted-foreground">
+										<p>{remoteVersion.description}</p>
+										<p>发布日期：{remoteVersion.release}</p>
+									</div>
+								</div>
+							))}
+						</div>
+					),
+					isContentLong: true,
+				})
+			}}
+		>
+			更换
+		</span>
+	)
+}
 
 const CoreVersion = ({
 	name,
 	title,
 	Icon,
 	versionKey,
-}: { name: string; title: string; Icon: LucideIcon; versionKey: string }) => {
-	const version = useAtomValue(versionAtom)
+	appVersions,
+	disabled = false,
+}: {
+	name: string
+	title: string
+	Icon: LucideIcon
+	versionKey: string
+	appVersions: AppVersions | undefined
+	disabled?: boolean
+}) => {
+	const version = useAtomValue(versionsAtom)
 	const useAlert = useAlertDialog()
+	const invokeUpdateCore = useInvokeUpdateCore()
+
+	const handleCoreUpdate = (targetVersion?: string, kernelName?: string) => {
+		if (disabled) {
+			toast.error(`当前操作系统不支持更新${title}内核`)
+			return
+		}
+		const currentVersion = version[versionKey]
+		const displayTargetVersion = targetVersion || "最新版本"
+		const displayKernelName = kernelName || name
+
+		useAlert.open({
+			title: `更新${title}(${displayKernelName})内核？`,
+			content: (
+				<div className="space-y-3 leading-relaxed">
+					<div className="bg-blue-50 dark:bg-blue-500/20 border border-blue-200 dark:border-blue-500/20 rounded-lg px-3 py-2.5">
+						<div className="flex items-center gap-2 text-blue-500">
+							<CircleArrowUp className="size-4" />
+							<span className="font-medium">版本更新提醒</span>
+						</div>
+						<p className="text-sm text-blue-500 mt-1">
+							即将
+							{currentVersion !== "暂无内核" && (
+								<>
+									从版本{" "}
+									<span className="font-mono bg-blue-200 text-blue-600 px-1 py-0.5 rounded">
+										{currentVersion}
+									</span>{" "}
+								</>
+							)}
+							更新到版本{" "}
+							<span className="font-mono bg-blue-200 text-blue-600 px-1 py-0.5 rounded">
+								{displayTargetVersion}
+							</span>
+						</p>
+					</div>
+					<p>
+						🛑 下载内核前，会自动停止自动数据更新和实盘功能。完成后，需要
+						<span className="text-warning">手动开启</span>。
+					</p>
+					<p>
+						🔥 下载内核的时候，会强制退出运行中的{displayKernelName}
+						进程，建议手动停止数据更新以及实盘功能后更新。
+					</p>
+					<p>⏩ 内核下载立即生效，建议盘后下载较为稳妥。</p>
+					<p>💬 如果遇到问题，可以私信林奇或者夏普助教帮助。</p>
+				</div>
+			),
+			okText: "立即更新",
+			okDelay: 5,
+			isContentLong: true,
+			onOk: async () => {
+				await invokeUpdateCore(
+					kernelName as "aqua" | "rocket" | "zeus" | "fuel",
+					targetVersion,
+				)
+			},
+		})
+	}
 	return (
 		<div className="space-y-1">
 			<h3 className="font-medium text-sm flex items-center gap-1">
 				<Icon className="size-4" />
 				{title}
-				<span
-					className="text-xs text-blue-500 dark:text-blue-400 cursor-pointer"
-					onClick={() => {
-						useAlert.open({
-							title: `更新${title}(${name})内核？`,
-							content: (
-								<div className="space-y-3 leading-relaxed">
-									<div className="bg-warning-50 dark:bg-warning/20 border border-warning rounded-lg px-3 py-2.5">
-										<div className="flex items-center gap-2 text-warning">
-											<span className="text-lg">⚠️</span>
-											<span className="font-medium">版本更新提醒</span>
-										</div>
-										<p className="text-sm text-warning mt-1">
-											即将从版本{" "}
-											<span className="font-mono bg-warning-200 text-warning-600 px-1 py-0.5 rounded">
-												{version[versionKey]}
-											</span>{" "}
-											更新到最新版本
-										</p>
-									</div>
-									<Separator />
-									<p>
-										🛑
-										更新前，会自动停止自动数据更新和实盘功能。在完成更新后，需要
-										<span className="text-warning">手动开启</span>。
-									</p>
-									<p>
-										🔥 更新内核的时候，会强制退出运行中的{name}
-										进程，建议手动停止数据更新以及实盘功能后更新。
-									</p>
-									<p>⏩ 内核更新立即生效，建议盘后更新较为稳妥。</p>
-									<p>💬 如果遇到问题，可以私信林奇或者夏普助教帮助。</p>
-								</div>
-							),
-							okText: "立即更新",
-							okDelay: 5,
-						})
-					}}
-				>
-					更新
-				</span>
-				<span className="text-xs text-muted-foreground cursor-pointer">
-					更换
-				</span>
+				{appVersions?.latest[name] !== version[versionKey] ? (
+					<span
+						className="text-xs text-blue-500 dark:text-blue-400 cursor-pointer"
+						onClick={() => handleCoreUpdate(appVersions?.latest[name], name)}
+					>
+						{version[versionKey] === "暂无内核" ? "下载" : "更新"}
+					</span>
+				) : (
+					<CoreVersionSelect
+						name={name}
+						title={title}
+						versionKey={versionKey}
+						versions={appVersions?.[name] ?? []}
+						onVersionSelect={handleCoreUpdate}
+					/>
+				)}
 			</h3>
-			<Badge className="font-mono">{version[versionKey]}</Badge>
+			{disabled ? (
+				<Badge variant="secondary" className="font-mono">
+					{window.electron?.process?.platform === "darwin"
+						? "macOS 不支持"
+						: "当前操作系统不支持"}
+				</Badge>
+			) : (
+				<Badge className="font-mono">{version[versionKey]}</Badge>
+			)}
 		</div>
 	)
 }
@@ -116,13 +255,11 @@ export default function SettingsPage() {
 	const { check } = usePermissionCheck()
 	const hasRealTradingAccess = useRealTradingRole()
 	const [isAutoLogin, setIsAutoLogin] = useAtom(isAutoLoginAtom)
-	const version = useAtomValue(versionAtom)
+	const version = useAtomValue(versionsAtom)
+	const setVersionList = useSetAtom(versionListAtom)
+	const { setAutoLaunch } = window.electronAPI
 
-	const [userChoice, setUserChoice] = useAtom(userChoiceAtom)
-	const { runAsync: updateKernels, loading: isUpdatingKernels } =
-		useQueryVersion()
 	const { settings, updateSettings } = useSettings()
-
 	const isAutoLaunchRealTrading = useMemo(() => {
 		return settings.is_auto_launch_real_trading
 	}, [settings.is_auto_launch_real_trading])
@@ -152,8 +289,7 @@ export default function SettingsPage() {
 	}
 
 	const handleSetUserChoice = async (value: boolean) => {
-		setUserChoice(value)
-		setStoreValue("settings.user_choice", value)
+		updateSettings({ user_choice: value })
 		toast.dismiss()
 		toast.success(
 			value ? "退出时最小化到系统托盘已开启" : "退出时最小化到系统托盘已关闭",
@@ -165,6 +301,73 @@ export default function SettingsPage() {
 		setIsAutoLogin(value)
 		toast.dismiss()
 		toast.success(value ? "开机自启动已开启" : "开机自启动已关闭")
+	}
+
+	const { appVersions, isCheckingAppVersions, refetchAppVersions } =
+		useAppVersions()
+
+	const { refetchLocalVersions, isLoadingLocalVersions } = useLocalVersions()
+
+	const useAlert = useAlertDialog()
+	const invokeUpdateCore = useInvokeUpdateCore()
+
+	const handleUpdateCores = async () => {
+		useAlert.open({
+			title: "一键更新内核",
+			content: (
+				<div className="space-y-3 leading-relaxed">
+					<div className="relative overflow-hidden bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 dark:from-blue-900/20 dark:via-purple-900/40 dark:to-pink-900/50 border border-blue-300 dark:border-blue-700 rounded-lg px-4 py-3">
+						<div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 dark:via-white/10 to-transparent w-1/3 h-full animate-[shimmer_2s_ease-in-out_infinite] transform -skew-x-12"></div>
+						<div className="relative flex items-center gap-2">
+							<span className="text-2xl">✨</span>
+							<span className="font-medium text-blue-900 dark:text-blue-200">
+								内核更新提示
+							</span>
+						</div>
+						<p className="text-sm text-blue-800 dark:text-blue-300 mt-1 relative">
+							即将为您更新所有内核到最新版本，请仔细阅读以下注意事项
+						</p>
+						<style>{`
+							@keyframes shimmer {
+								0% {
+									transform: translateX(-100%) skewX(-12deg);
+								}
+								100% {
+									transform: translateX(300%) skewX(-12deg);
+								}
+							}
+						`}</style>
+					</div>
+					<Separator />
+					<p>
+						🛑 更新前，会自动停止自动数据更新和实盘功能。在完成更新后，需要
+						<span className="text-warning">手动开启</span>。
+					</p>
+					<p>
+						🔥 更新内核的时候，会强制退出运行中的
+						<span className="text-danger">所有内核</span>
+						进程，建议手动停止数据更新以及实盘功能后更新。
+					</p>
+					<p>⏩ 内核更新立即生效，建议盘后更新较为稳妥。</p>
+					<p>💬 如果遇到问题，可以私信林奇或者夏普助教帮助。</p>
+				</div>
+			),
+			okText: "立即更新",
+			okDelay: 10,
+			onOk: async () => {
+				for (const core of [
+					"fuel",
+					settings.libraryType === "select" ? "aqua" : "zeus",
+					"rocket",
+				]) {
+					await invokeUpdateCore(core as "fuel" | "aqua" | "rocket" | "zeus")
+				}
+				await refetchLocalVersions()
+				toast.success("内核更新完成", {
+					duration: 4 * 1000,
+				})
+			},
+		})
 	}
 
 	return (
@@ -180,8 +383,17 @@ export default function SettingsPage() {
 
 					<div className="">
 						<div className="font-semibold">量化小讲堂</div>
-						<div className="text-sm text-muted-foreground">
-							v{version.clientVersion}
+						<div className="text-sm flex items-center gap-1">
+							<Badge>v{version.clientVersion}</Badge>
+							<span>｜</span>
+							<span
+								className="cursor-pointer text-muted-foreground"
+								onClick={() => {
+									setVersionList([])
+								}}
+							>
+								客户端更新日志
+							</span>
 						</div>
 					</div>
 				</div>
@@ -192,6 +404,7 @@ export default function SettingsPage() {
 						title="数据内核"
 						Icon={DatabaseZap}
 						versionKey="coreVersion"
+						appVersions={appVersions}
 					/>
 
 					{hasRealTradingAccess && user?.isMember && (
@@ -202,6 +415,7 @@ export default function SettingsPage() {
 									title="选股内核"
 									Icon={SquareFunction}
 									versionKey="aquaVersion"
+									appVersions={appVersions}
 								/>
 							) : (
 								<CoreVersion
@@ -209,6 +423,7 @@ export default function SettingsPage() {
 									title="高级选股内核"
 									Icon={SquareFunction}
 									versionKey="zeusVersion"
+									appVersions={appVersions}
 								/>
 							)}
 
@@ -217,6 +432,8 @@ export default function SettingsPage() {
 								title="下单内核"
 								Icon={Blocks}
 								versionKey="rocketVersion"
+								appVersions={appVersions}
+								disabled={window.electron?.process?.platform === "darwin"}
 							/>
 						</>
 					)}
@@ -224,8 +441,25 @@ export default function SettingsPage() {
 			</div>
 
 			<div className="flex items-center gap-2">
-				<Button variant="outline" size="sm">
-					<RefreshCcw className="size-4 mr-2" />
+				<Button
+					variant="outline"
+					size="sm"
+					disabled={isCheckingAppVersions || isLoadingLocalVersions}
+					onClick={async () => {
+						await refetchAppVersions()
+						await refetchLocalVersions()
+						toast.success("版本检查更新完成", {
+							duration: 4 * 1000,
+						})
+					}}
+				>
+					<RefreshCcw
+						className={cn(
+							"size-4 mr-2",
+							isCheckingAppVersions ||
+								(isLoadingLocalVersions && "animate-spin"),
+						)}
+					/>
 					检查更新
 				</Button>
 				<Button
@@ -237,12 +471,21 @@ export default function SettingsPage() {
 							toast.error("请先登录")
 							return
 						}
-						// await fetchFuel()
-						await updateKernels()
+						await handleUpdateCores()
 					}}
 				>
 					<CircleArrowUp className="size-4 mr-2" />
 					一键更新内核
+				</Button>
+				<Button
+					variant="outline"
+					size="sm"
+					onClick={async () => {
+						await openDataDirectory("code")
+					}}
+				>
+					<FolderCode className="size-4 mr-2" />
+					打开文件夹
 				</Button>
 			</div>
 
@@ -396,7 +639,7 @@ export default function SettingsPage() {
 
 					<Switch
 						id="user_choice"
-						checked={userChoice}
+						checked={settings.user_choice}
 						onCheckedChange={handleSetUserChoice}
 					/>
 				</div>
@@ -406,7 +649,12 @@ export default function SettingsPage() {
 
 			<div>
 				<div className="flex items-center justify-between">
-					<Label className="font-medium text-sm hover:cursor-pointer">
+					<Label
+						htmlFor="show_contributors"
+						className="font-medium text-sm hover:cursor-pointer flex items-center gap-1"
+						onClick={() => setShowContributors(!showContributors)}
+					>
+						<Gift className="size-4" />
 						特别鸣谢贡献者
 					</Label>
 					<Button

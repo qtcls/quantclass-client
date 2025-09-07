@@ -35,7 +35,6 @@ export const fileSysIPC = {
 	selectFile: (opts: OpenDialogOptions = {}) =>
 		ipcRenderer.invoke("open-directory-select", ["openFile"], opts),
 	// 判断是否在进行core的更新，如果更新就锁住
-	checkFuelUpdateLockFile: () => ipcRenderer.invoke("check-fuel-update-lock"),
 	forceKillAllProcesses: () => ipcRenderer.invoke("force-kill-all-processes"),
 	importSelectStock: (configFilePath: string) =>
 		ipcRenderer.invoke("import-select-stock", configFilePath),

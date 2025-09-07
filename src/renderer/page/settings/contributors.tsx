@@ -56,7 +56,7 @@ const ContributorCard = ({
 const Contributors = () => {
 	return (
 		<div className="flex flex-col gap-4">
-			<div className="text-muted-foreground">
+			<div className="text-muted-foreground text-sm">
 				感谢以下同学参与到客户端的开发、测试中来 (以下排名不分先后)
 			</div>
 

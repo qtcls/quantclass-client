@@ -41,7 +41,6 @@ import {
 import { InlineCode } from "@/renderer/components/ui/typography"
 import { SETTINGS_PAGE, isWindows } from "@/renderer/constant"
 import { UpdateStatus } from "@/renderer/context/update-context"
-import { useQueryVersion } from "@/renderer/hooks"
 import { useAppUpdate } from "@/renderer/hooks/useAppUpdate"
 import { useHotkeys } from "@/renderer/hooks/useHotkeys"
 import { useRealTradingRole } from "@/renderer/hooks/useRealTradingRole"
@@ -49,11 +48,8 @@ import { SettingsGearIcon } from "@/renderer/icons/SettingsGearIcon"
 
 import { CoreVersionDes } from "@/renderer/page/home"
 import { isShowMonitorPanelAtom } from "@/renderer/store"
-import {
-	libraryTypeAtom,
-	versionAtom,
-	versionListAtom,
-} from "@/renderer/store/storage"
+import { libraryTypeAtom, versionListAtom } from "@/renderer/store/storage"
+import { useLocalVersions, versionsAtom } from "@/renderer/store/versions"
 import { userAtom } from "@/renderer/store/user"
 import { formatBytes } from "@/renderer/utils/formatBytes"
 import { useMutation } from "@tanstack/react-query"
@@ -169,9 +165,9 @@ export const _SiderFooter = () => {
 		aquaVersion,
 		zeusVersion,
 		rocketVersion,
-	} = useAtomValue(versionAtom) ?? {}
+	} = useAtomValue(versionsAtom) ?? {}
 	const libraryType = useAtomValue(libraryTypeAtom)
-	const { runAsync, loading } = useQueryVersion()
+	const { refetchLocalVersions, isLoadingLocalVersions } = useLocalVersions()
 	const { mutateAsync: fetchFuel, isPending } = useMutation({
 		mutationKey: ["fetch-kernel-version"],
 		mutationFn: async () => {
@@ -268,7 +264,7 @@ export const _SiderFooter = () => {
 												return
 											}
 											await fetchFuel()
-											await runAsync()
+											await refetchLocalVersions()
 										}}
 									>
 										<RefreshCw className="h-3 w-3" />
@@ -340,7 +336,10 @@ export const _SiderFooter = () => {
 								</div>
 							</div>
 
-							<LoadingAnime loading={isPending || loading} type="coreUpdate" />
+							<LoadingAnime
+								loading={isPending || isLoadingLocalVersions}
+								type="coreUpdate"
+							/>
 						</HoverCardContent>
 					</HoverCard>
 				</SidebarMenuItem>

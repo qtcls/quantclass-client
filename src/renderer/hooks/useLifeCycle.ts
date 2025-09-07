@@ -11,7 +11,6 @@
 import { isWindows } from "@/renderer/constant"
 import { useConfig } from "@/renderer/hooks/useConfig"
 import { useHandleTimeTask } from "@/renderer/hooks/useHandleTimeTask"
-import { useQueryVersion } from "@/renderer/hooks/useQueryVersion"
 import { useToggleAutoRealTrading } from "@/renderer/hooks/useToggleAutoRealTrading"
 import { onPowerStatus, unPowerStatusListener } from "@/renderer/ipc/listener"
 
@@ -24,10 +23,9 @@ import {
 	accountKeyAtom,
 	isAutoLoginAtom,
 	realMarketConfigSchemaAtom,
-	userChoiceAtom,
 } from "@/renderer/store/storage"
 import { macAddressAtom } from "@/renderer/store/user"
-import { versionEffectAtom } from "@/renderer/store/versions"
+import { useLocalVersions, versionsEffectAtom } from "@/renderer/store/versions"
 import { scheduleDailyTask } from "@/renderer/utils"
 import { useMount, useUnmount, useUpdateEffect } from "etc-hooks"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
@@ -38,8 +36,7 @@ import { useFusionManager } from "./useFusionManager"
 import { useSettings } from "./useSettings"
 import { useStrategyManager } from "./useStrategyManager"
 import { useUserInfoSync } from "./useUserInfoSync"
-// import { useVersionCheck } from "./useVersionCheck"
-
+import { useAppVersions } from "./useAppVersion"
 const {
 	fetchFullscreenState,
 	subscribePowerMonitor,
@@ -63,14 +60,14 @@ const {
 export const useLifeCycle = () => {
 	// -- 状态管理
 	const [config] = useConfig()
-	const { run } = useQueryVersion()
+	const { refetchLocalVersions } = useLocalVersions()
 	const isUpdating = useAtomValue(isUpdatingAtom)
 	const isAutoLogin = useAtomValue(isAutoLoginAtom)
 	const { settings } = useSettings()
-	useAtom(versionEffectAtom)
+	useAtom(versionsEffectAtom) // -- 监听版本更新
+	useAppVersions() // -- 检查远程版本
 
 	// -- 自定义 Hooks
-	// const versionCheck = useVersionCheck()
 	const { user, isLoggedIn } = useUserInfoSync()
 	const { syncSelectStgList } = useStrategyManager()
 	const { syncFusion } = useFusionManager()
@@ -81,7 +78,6 @@ export const useLifeCycle = () => {
 	// -- Setters
 	const setters = {
 		// setExtraWorkStatus: useSetAtom(extraWorkStatusAtom),
-		setUserChoice: useSetAtom(userChoiceAtom),
 		setMacAddress: useSetAtom(macAddressAtom),
 		setLoading: useSetAtom(loadingAnimeAtom),
 		setIsFullscreen: useSetAtom(isFullscreenAtom),
@@ -140,11 +136,10 @@ export const useLifeCycle = () => {
 	 * -- 初始化账户信息
 	 */
 	const initAccountInfo = async () => {
-		const [apiKey, uuid, macAddress, userChoice] = await Promise.all([
+		const [apiKey, uuid, macAddress] = await Promise.all([
 			getStoreValue("settings.api_key", ""),
 			getStoreValue("settings.hid", ""),
 			getMacAddress(),
-			getStoreValue("settings.user_choice", false),
 		])
 
 		setters.setMacAddress((prevMacAddress) => {
@@ -153,7 +148,6 @@ export const useLifeCycle = () => {
 			}
 			return macAddress
 		})
-		setters.setUserChoice(userChoice as boolean)
 		setters.setAccountKey({
 			apiKey: apiKey as string,
 			uuid: uuid as string,
@@ -214,7 +208,9 @@ export const useLifeCycle = () => {
 		// -- 初始化监听器
 		onPowerStatus(handlePowerStatusChange)
 		subscribePowerMonitor((_event, status) => handlePowerStatusChange(status))
-		subscribeScheduleStatus((_event, status) => status === "done" && run())
+		subscribeScheduleStatus(
+			(_event, status) => status === "done" && refetchLocalVersions(),
+		)
 
 		// -- 初始化其他状态
 		const initialFullscreenState = await fetchFullscreenState()

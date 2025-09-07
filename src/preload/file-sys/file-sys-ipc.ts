@@ -205,16 +205,6 @@ function openFileHandler() {
 // 	})
 // }
 
-async function checkFuelUpdateLockHandler(): Promise<void> {
-	ipcMain.handle("check-fuel-update-lock", async () => {
-		const isFuelUpdating = await checkLock(CONFIG.UPDATE_FUEL_LOCK_FILE_NAME)
-
-		return {
-			pending: isFuelUpdating,
-		}
-	})
-}
-
 function openUrlHandler() {
 	ipcMain.handle("open-url", async (_, url: string) => {
 		await shell.openExternal(url)
@@ -682,7 +672,6 @@ export const regFileSysIPC = () => {
 	saveRealMarketDataHandler()
 	cleanRealMarketDataHandler()
 	clearRealMarketDataHandler()
-	checkFuelUpdateLockHandler()
 	deleteRealMarketDataHandler()
 	createRealTradingDirHandler()
 	forceKillAllProcessesHandler()

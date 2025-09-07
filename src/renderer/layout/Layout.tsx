@@ -17,7 +17,6 @@ import {
 	useLifeCycle,
 	useNetInterval,
 	useNetworkToast,
-	useQueryVersion,
 	useRouterGuard,
 } from "@/renderer/hooks"
 
@@ -49,6 +48,7 @@ import { useReportErr } from "./hooks/useReportErr"
 import { AlertDialogProvider } from "@/renderer/context/alert-dialog"
 import VersionUpgrade from "@/renderer/layout/version-upgrade"
 import { cn } from "@/renderer/lib/utils"
+import { useLocalVersions } from "../store/versions"
 
 const { handleToggleFullscreen } = window.electronAPI
 
@@ -77,11 +77,11 @@ const Layout: FC = () => {
 	const { content } = useReportErr()
 
 	// -- Hooks
-	const { run: queryVersion } = useQueryVersion()
+	const { refetchLocalVersions } = useLocalVersions()
 
 	// -- Effects
 	useEffect(() => {
-		queryVersion()
+		refetchLocalVersions()
 	}, [pathname])
 
 	// -- Handlers

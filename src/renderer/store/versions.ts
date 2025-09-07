@@ -9,25 +9,52 @@
  */
 
 import { atomEffect } from "jotai-effect"
+import { useAtom } from "jotai"
 import { atomWithQuery } from "jotai-tanstack-query"
-import { versionAtom } from "./storage"
+import { atomWithStorage } from "jotai/utils"
 
-const { getCoreAndClientVersions: getCoreAndClientVersionWithLoop } =
-	window.electronAPI
+const { getCoreAndClientVersions } = window.electronAPI
 
-// -- 版本查询 atom
-export const versionQueryAtom = atomWithQuery(() => ({
-	queryKey: ["version"],
-	queryFn: () => getCoreAndClientVersionWithLoop(),
+export const versionsAtom = atomWithStorage<
+	Partial<{
+		clientVersion: string // 客户端
+		coreVersion: string // 数据内核
+		coreVersionStatus: boolean
+		aquaVersion: string // 选股内核
+		zeusVersion: string // 高级选股内核
+		rocketVersion: string // 下单内核
+	}>
+>("versions", { clientVersion: "1.1.5", coreVersionStatus: false }, undefined, {
+	getOnInit: true,
+})
+
+/**
+ * 检查本地版本信息
+ * @returns 本地版本信息和相关状态
+ */
+export const versionsQueryAtom = atomWithQuery(() => ({
+	queryKey: ["local-versions"],
+	queryFn: () => getCoreAndClientVersions(), // -- 获取本地版本信息
+	enabled: true, // -- 挂载后立即请求
+	refetchInterval: 1000 * 60 * 2, // -- 2分钟重新请求一次
+	staleTime: 1000 * 60, // -- 1分钟内数据被认为是新鲜的，不会重新请求
+	retry: 2, // -- 失败重试2次
+	retryDelay: 1000, // -- 重试延迟1秒
 }))
 
 // -- 使用 atomEffect 处理版本更新
-export const versionEffectAtom = atomEffect((get, set) => {
+export const versionsEffectAtom = atomEffect((get, set) => {
 	// -- 监听 versionQueryAtom 的变化
-	const { data, isSuccess } = get(versionQueryAtom)
+	const { data, isSuccess } = get(versionsQueryAtom)
 
 	if (isSuccess && data) {
 		// -- 更新版本信息
-		set(versionAtom, data)
+		set(versionsAtom, data)
 	}
 })
+
+export const useLocalVersions = () => {
+	const [{ isLoading, refetch }] = useAtom(versionsQueryAtom)
+
+	return { refetchLocalVersions: refetch, isLoadingLocalVersions: isLoading }
+}
