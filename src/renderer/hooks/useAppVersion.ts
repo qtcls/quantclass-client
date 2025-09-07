@@ -1,5 +1,5 @@
-import { useQuery, type UseQueryOptions } from "@tanstack/react-query"
 import type { AppVersions } from "@/shared/types/version"
+import { type UseQueryOptions, useQuery } from "@tanstack/react-query"
 
 const { checkUpdate } = window.electronAPI
 

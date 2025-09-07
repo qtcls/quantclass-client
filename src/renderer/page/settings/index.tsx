@@ -21,12 +21,15 @@ import { Switch } from "@/renderer/components/ui/switch"
 import { Tabs, TabsList, TabsTrigger } from "@/renderer/components/ui/tabs"
 import { useAlertDialog } from "@/renderer/context/alert-dialog"
 import { usePermissionCheck } from "@/renderer/hooks"
+import { useAppVersions } from "@/renderer/hooks/useAppVersion"
 import { useRealTradingRole } from "@/renderer/hooks/useRealTradingRole"
 import { useSettings } from "@/renderer/hooks/useSettings"
+import { cn } from "@/renderer/lib/utils"
 import Contributors from "@/renderer/page/settings/contributors"
 import { isAutoLoginAtom, versionListAtom } from "@/renderer/store/storage"
-import { useLocalVersions, versionsAtom } from "@/renderer/store/versions"
 import { userAtom } from "@/renderer/store/user"
+import { useLocalVersions, versionsAtom } from "@/renderer/store/versions"
+import { AppVersions, CoreVersionType } from "@/shared/types/version"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import {
 	Blocks,
@@ -37,17 +40,14 @@ import {
 	CircleArrowUp,
 	DatabaseZap,
 	FolderCode,
+	Gift,
 	LucideIcon,
 	RefreshCcw,
 	SquareFunction,
-	Gift,
 } from "lucide-react"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import Img from "../../../../build/icon.ico"
-import { cn } from "@/renderer/lib/utils"
-import { useAppVersions } from "@/renderer/hooks/useAppVersion"
-import { AppVersions, CoreVersionType } from "@/shared/types/version"
 
 const useInvokeUpdateCore = () => {
 	const { updateCore } = window.electronAPI

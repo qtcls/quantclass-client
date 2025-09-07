@@ -11,7 +11,6 @@
 import fs from "node:fs"
 import os from "node:os"
 import path from "node:path"
-import { CONFIG } from "@/main/config.js"
 import { getJsonDataFromFile } from "@/main/core/dataList.js"
 // @ts-ignore
 import {
@@ -19,11 +18,7 @@ import {
 	// deleteLineComments,
 } from "@/main/pythonToJson.js"
 import store, { rStore } from "@/main/store/index.js"
-import {
-	checkLock,
-	killCoreByForce,
-	sendErrorToClient,
-} from "@/main/utils/tools.js"
+import { killCoreByForce, sendErrorToClient } from "@/main/utils/tools.js"
 import logger from "@/main/utils/wiston.js"
 import { parse } from "csv-parse/sync"
 import {

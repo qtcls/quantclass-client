@@ -8,8 +8,8 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
-import { atomEffect } from "jotai-effect"
 import { useAtom } from "jotai"
+import { atomEffect } from "jotai-effect"
 import { atomWithQuery } from "jotai-tanstack-query"
 import { atomWithStorage } from "jotai/utils"
 

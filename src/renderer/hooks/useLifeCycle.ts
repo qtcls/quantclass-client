@@ -32,11 +32,11 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { isEmpty } from "lodash-es"
 import { toast } from "sonner"
 import { syncUserState } from "../ipc/userInfo"
+import { useAppVersions } from "./useAppVersion"
 import { useFusionManager } from "./useFusionManager"
 import { useSettings } from "./useSettings"
 import { useStrategyManager } from "./useStrategyManager"
 import { useUserInfoSync } from "./useUserInfoSync"
-import { useAppVersions } from "./useAppVersion"
 const {
 	fetchFullscreenState,
 	subscribePowerMonitor,

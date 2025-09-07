@@ -10,8 +10,8 @@
 
 import { postUserAction } from "@/renderer/request"
 import { accountKeyAtom } from "@/renderer/store/storage"
-import { versionsAtom } from "@/renderer/store/versions"
 import { userAtom } from "@/renderer/store/user"
+import { versionsAtom } from "@/renderer/store/versions"
 import { atomWithMutation } from "jotai-tanstack-query"
 import { syncUserState } from "../ipc/userInfo"
 import type { UserInfo } from "../types"
