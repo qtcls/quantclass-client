@@ -27,6 +27,7 @@ import {
 	useRef,
 	useState,
 } from "react"
+import { cn } from "../lib/utils"
 
 interface AlertDialogState {
 	isOpen: boolean
@@ -38,6 +39,7 @@ interface AlertDialogState {
 	okDelay?: number // 延迟时间，单位为秒
 	onOk?: () => void | Promise<void>
 	onCancel?: () => void | Promise<void>
+	isContentLong?: boolean
 }
 
 interface AlertDialogContextType {
@@ -117,32 +119,35 @@ export function AlertDialogProvider({ children }: { children: ReactNode }) {
 		<AlertDialogContext.Provider value={{ open, close }}>
 			{children}
 			<Dialog open={state.isOpen} onOpenChange={close}>
-				<DialogContent className="p-4" disableClose={loading}>
-					<DialogHeader>
+				<DialogContent className="p-0 space-y-0 gap-0" disableClose={loading}>
+					<DialogHeader className="p-4">
 						<DialogTitle>{state.title}</DialogTitle>
 						<DialogDescription className={state.description ? "" : "hidden"}>
 							{state.description}
 						</DialogDescription>
 					</DialogHeader>
-					{typeof state.content === "string" ? null : state.content}
-					<DialogFooter>
-						{state.cancelText ? (
-							<Button
-								variant="outline"
-								disabled={loading}
-								onClick={() => {
-									state.onCancel ? state.onCancel() : close()
-								}}
-							>
-								{state.cancelText}
-							</Button>
-						) : (
-							<Button variant="outline" disabled={loading} onClick={close}>
-								取消
-							</Button>
+					<div
+						className={cn(
+							"max-h-[75vh] overflow-y-auto py-3 px-4",
+							state.isContentLong && "border-y",
 						)}
+					>
+						{state.content}
+					</div>
+					<DialogFooter className="p-4">
+						<Button
+							variant="outline"
+							disabled={loading}
+							size="sm"
+							onClick={() => {
+								state.onCancel ? state.onCancel() : close()
+							}}
+						>
+							{state.cancelText || "取消"}
+						</Button>
 						<Button
 							disabled={loading || seconds > 0}
+							size="sm"
 							onClick={async () => {
 								setLoading(true)
 								if (state.onOk) {
@@ -154,7 +159,7 @@ export function AlertDialogProvider({ children }: { children: ReactNode }) {
 							}}
 						>
 							{loading ? (
-								<Loader2 className="animate-spin mr-2" />
+								<Loader2 className="animate-spin" />
 							) : (
 								<span className="flex items-center gap-2">
 									{state.okText || "确定"}
