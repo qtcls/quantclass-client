@@ -39,6 +39,8 @@ import { useAppUpdate } from "@/renderer/hooks/useAppUpdate"
 import { useHotkeys } from "@/renderer/hooks/useHotkeys"
 import { SettingsGearIcon } from "@/renderer/icons/SettingsGearIcon"
 
+import { GlowDot } from "@/renderer/components/ui/glow-dot"
+import { useVersionCheck } from "@/renderer/hooks/useVersionCheck"
 import { KernalVersionDes } from "@/renderer/page/home"
 import { isShowMonitorPanelAtom } from "@/renderer/store"
 import { versionsAtom } from "@/renderer/store/versions"
@@ -50,8 +52,6 @@ import Markdown from "react-markdown"
 import { useLocation, useNavigate } from "react-router"
 import Img from "../../../build/icon.ico"
 import { Badge } from "../components/ui/badge"
-import { GlowDot } from "@/renderer/components/ui/glow-dot"
-import { useVersionCheck } from "@/renderer/hooks/useVersionCheck"
 
 const { createTerminalWindow, openUserDirectory } = window.electronAPI
 

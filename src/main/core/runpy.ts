@@ -12,9 +12,11 @@ import fs from "node:fs"
 import { writeFile } from "node:fs/promises"
 import { createRequire } from "node:module"
 import path from "node:path"
+import { getKernelVersion } from "@/main/core/lib.js"
 import windowManager from "@/main/lib/WindowManager.js"
 import { postUserMainAction } from "@/main/request/index.js"
 import store from "@/main/store/index.js"
+import logger from "@/main/utils/wiston.js"
 import { BASE_URL, CLIENT_VERSION } from "@/main/vars.js"
 import type { AppVersions } from "@/shared/types/index.js"
 import { platform } from "@electron-toolkit/utils"
@@ -25,8 +27,6 @@ import {
 	createLockFile,
 	removeLockFile,
 } from "../utils/tools.js"
-import logger from "@/main/utils/wiston.js"
-import { getKernelVersion } from "@/main/core/lib.js"
 
 const require = createRequire(import.meta.url)
 const AdmZip = require("adm-zip")

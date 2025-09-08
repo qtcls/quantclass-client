@@ -15,9 +15,9 @@ import { process_manager } from "@/main/lib/process.js"
 import { setupScheduler } from "@/main/lib/scheduler.js"
 import { killAllKernalByForce, killKernalByForce } from "@/main/utils/tools.js"
 import { log } from "@/main/utils/wiston.js"
+import type { KernalType } from "@/shared/types/index.js"
 import { electronApp, platform } from "@electron-toolkit/utils"
 import { app, ipcMain } from "electron"
-import type { KernalType } from "@/shared/types/index.js"
 
 async function handleToggleFullscreen() {
 	ipcMain.handle("toggle-fullscreen", async (_event, key = "main") => {

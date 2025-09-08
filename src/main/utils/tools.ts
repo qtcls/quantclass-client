@@ -15,12 +15,12 @@ import path from "node:path"
 import util from "node:util"
 import store from "@/main/store/index.js"
 import logger from "@/main/utils/wiston.js"
+import type { KernalType } from "@/shared/types/kernal.js"
 import { platform } from "@electron-toolkit/utils"
 import { serve } from "@hono/node-server"
 import dayjs from "dayjs"
 import { app } from "electron"
 import iconv from "iconv-lite"
-import type { KernalType } from "@/shared/types/kernal.js"
 
 /**
  * 删除指定的锁文件

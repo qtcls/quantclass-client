@@ -8,8 +8,8 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
-import { ipcRenderer } from "electron"
 import type { KernalType } from "@/shared/types/kernal.js"
+import { ipcRenderer } from "electron"
 
 export const systemIPC = {
 	// 进程控制
