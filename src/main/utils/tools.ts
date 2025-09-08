@@ -20,6 +20,7 @@ import { serve } from "@hono/node-server"
 import dayjs from "dayjs"
 import { app } from "electron"
 import iconv from "iconv-lite"
+import type { KernalType } from "@/shared/types/kernal.js"
 
 /**
  * 删除指定的锁文件
@@ -163,8 +164,8 @@ const PID_LOCK_PATH = {
 	rocket: ["real_trading", "rocket", "data"],
 }
 
-export const isCoreRunning = async (
-	core: "fuel" | "aqua" | "rocket" | "zeus",
+export const isKernalRunning = async (
+	kernal: KernalType,
 	strictMode = false,
 ) => {
 	let isRunning = false
@@ -172,32 +173,32 @@ export const isCoreRunning = async (
 	// -- 严格模式下额外检查进程名
 	if (strictMode && platform.isWindows) {
 		try {
-			const result = execSync(`tasklist /FI "IMAGENAME eq ${core}.exe" /NH`, {
+			const result = execSync(`tasklist /FI "IMAGENAME eq ${kernal}.exe" /NH`, {
 				stdio: ["pipe", "pipe", "pipe"],
 				encoding: "utf-8",
 			})
-			logger.info(`[${core}] 检查进程: ${result}`)
-			if (result.includes(`${core}.exe`)) {
+			logger.info(`[${kernal}] 检查进程: ${result}`)
+			if (result.includes(`${kernal}.exe`)) {
 				isRunning = true
 			}
 		} catch (e) {
 			const error = e as Error & { stderr?: Buffer }
 			if (error.stderr) {
 				const err = iconv.decode(error.stderr, "gbk")
-				logger.error(`[${core}] 检查进程失败: ${err}`)
+				logger.error(`[${kernal}] 检查进程失败: ${err}`)
 			}
 		}
 	}
 
 	const pidLockPath: string = await store.getAllDataPath(
-		PID_LOCK_PATH[core],
+		PID_LOCK_PATH[kernal],
 		true,
 	)
-	logger.info(`[${core}] 检查运行中的进程: ${pidLockPath}`)
+	logger.info(`[${kernal}] 检查运行中的进程: ${pidLockPath}`)
 
 	// -- 检查文件夹是否存在
 	if (!fs.existsSync(pidLockPath)) {
-		logger.info(`[${core}] 进程锁文件夹不存在，运行中: ${isRunning}`)
+		logger.info(`[${kernal}] 进程锁文件夹不存在，运行中: ${isRunning}`)
 		return isRunning
 	}
 
@@ -205,12 +206,14 @@ export const isCoreRunning = async (
 		.readdirSync(pidLockPath)
 		.filter((file) => file.endsWith(".py.lock"))
 
-	logger.info(`[${core}] 进程锁文件数量: ${lockFiles.length}`)
+	logger.info(`[${kernal}] 进程锁文件数量: ${lockFiles.length}`)
 
 	for (const lockFile of lockFiles) {
 		const pid = lockFile.split(".")[0]
 		const _isRunning = isPidRunning(pid)
-		logger.info(`[${core}] ${pid} running: ${_isRunning}, path: (${lockFile})`)
+		logger.info(
+			`[${kernal}] ${pid} running: ${_isRunning}, path: (${lockFile})`,
+		)
 
 		if (!_isRunning) {
 			// -- 进程不存在,删除锁文件
@@ -219,89 +222,59 @@ export const isCoreRunning = async (
 				// -- 先检查文件是否存在
 				if (fs.existsSync(lockFilePath)) {
 					unlinkSync(lockFilePath)
-					logger.info(`[${core}] 清理历史 lock 文件: ${lockFile}`)
+					logger.info(`[${kernal}] 清理历史 lock 文件: ${lockFile}`)
 				}
 			} catch (e) {
-				logger.error(`[${core}] 清理历史 lock 文件失败: ${e}`)
+				logger.error(`[${kernal}] 清理历史 lock 文件失败: ${e}`)
 			}
 		} else {
 			isRunning = true // -- 有一个进程在运行
 		}
 	}
 
-	logger.info(`[${core}] 运行中: ${isRunning}`)
+	logger.info(`[${kernal}] 运行中: ${isRunning}`)
 
 	return isRunning
 }
 
-/**
- * 检查 Fuel 二进制文件是否正在运行
- * @returns Promise<boolean> 表示是否有 Fuel 进程正在运行
- */
-export const isFuelCoreRunning = async () => {
-	return isCoreRunning("fuel")
-}
-
-/**
- * 检查 Real Trading 二进制文件是否正在运行
- * @returns Promise<boolean> 表示是否有 Real Trading 进程正在运行
- */
-export const isAquaCoreRunning = async () => {
-	return isCoreRunning("aqua")
-}
-
-export const isZeusCoreRunning = async () => {
-	return isCoreRunning("zeus")
-}
-
-/**
- * 检查 Rocket 二进制文件是否正在运行
- * @returns Promise<boolean> 表示是否有 Rocket 进程正在运行
- */
-export const isRocketCoreRunning = async () => {
-	return isCoreRunning("rocket", true) // -- rocket 仅在 Windows 下运行，且需要严格模式
-}
-
-export const isCoreUpdating = async (
-	core: "fuel" | "aqua" | "rocket" | "zeus",
-) => {
-	return checkLock(`update_${core.toLowerCase()}.app.lock`)
+export const isKernalUpdating = async (kernal: KernalType) => {
+	return checkLock(`update_${kernal.toLowerCase()}.app.lock`)
 }
 
 /**
  * 检查内核是否正忙，会包含 updating 和 running 两个状态
- * @param {String} name - 内核名称
+ * @param {String} kernal - 内核名称
  * @returns {Boolean} - 是否正忙
  */
-export async function isCoreBusy(name: string): Promise<boolean> {
+export async function isKernalBusy(kernal: KernalType): Promise<boolean> {
 	let isRunning = false
 	let isUpdating = false
-	switch (name) {
+	switch (kernal) {
 		case "aqua":
-			isRunning = await isCoreRunning("aqua")
-			isUpdating = await isCoreUpdating("aqua")
+			isRunning = await isKernalRunning("aqua")
+			isUpdating = await isKernalUpdating("aqua")
 			break
 		case "zeus":
-			isRunning = await isCoreRunning("zeus")
-			isUpdating = await isCoreUpdating("zeus")
+			isRunning = await isKernalRunning("zeus")
+			isUpdating = await isKernalUpdating("zeus")
 			break
 		case "rocket":
-			isRunning = await isCoreRunning("rocket", true) // -- rocket 仅在 Windows 下运行，且需要严格模式
-			isUpdating = await isCoreUpdating("rocket")
+			isRunning = await isKernalRunning("rocket", true) // -- rocket 仅在 Windows 下运行，且需要严格模式
+			isUpdating = await isKernalUpdating("rocket")
 			break
 		case "fuel":
-			isRunning = await isCoreRunning("fuel")
-			isUpdating = await isCoreUpdating("fuel")
+			isRunning = await isKernalRunning("fuel")
+			isUpdating = await isKernalUpdating("fuel")
 			break
 	}
 
 	if (isUpdating) {
-		logger.info(`[${name}] 内核正在更新`)
+		logger.info(`[${kernal}] 内核正在更新`)
 		return true
 	}
 
 	if (isRunning) {
-		logger.info(`[${name}] 内核正在运行`)
+		logger.info(`[${kernal}] 内核正在运行`)
 		return true
 	}
 
@@ -310,14 +283,14 @@ export async function isCoreBusy(name: string): Promise<boolean> {
 
 /**
  * 检查多个内核是否有一个正忙
- * @param cores 需要检查的核心
+ * @param kernals 需要检查的核心
  * @returns 这些核心中是否有一个核心正忙
  */
-export async function isAnyCoreBusy(
-	cores = ["aqua", "fuel", "zeus"],
+export async function isAnyKernalBusy(
+	kernals = ["aqua", "fuel", "zeus"],
 ): Promise<boolean> {
-	for (const core of cores) {
-		if (await isCoreBusy(core)) {
+	for (const kernal of kernals) {
+		if (await isKernalBusy(kernal as KernalType)) {
 			return true
 		}
 	}
@@ -328,17 +301,17 @@ export async function isAnyCoreBusy(
  * 强制结束所有 Fuel 进程
  * @param isManual - 是否为手动调用,默认为 false
  */
-export const killCoreByForce = async (
-	core: "fuel" | "aqua" | "rocket" | "zeus",
+export const killKernalByForce = async (
+	kernal: KernalType,
 	strictMode = false,
 ) => {
 	const pidLockFilePath: string = await store.getAllDataPath(
-		PID_LOCK_PATH[core],
+		PID_LOCK_PATH[kernal],
 		true, // -- 自动创建文件夹
 	)
 
 	if (!fs.existsSync(pidLockFilePath)) {
-		logger.info(`[${core}] 进程锁文件夹不存在，运行中: ${strictMode}`)
+		logger.info(`[${kernal}] 进程锁文件夹不存在，运行中: ${strictMode}`)
 		return
 	}
 
@@ -354,15 +327,15 @@ export const killCoreByForce = async (
 	const killCommand = (pid: string) => {
 		return platform.isWindows ? `taskkill /PID ${pid} /T /F` : `kill -9 ${pid}`
 	}
-	logger.info(`[${core}] 运行中的进程数量: ${lockFiles}`)
+	logger.info(`[${kernal}] 运行中的进程数量: ${lockFiles}`)
 	for (const lockFile of lockFiles) {
 		const pid = lockFile.split(".")[0]
-		logger.info(`[${core}] kill ${pid}`)
+		logger.info(`[${kernal}] kill ${pid}`)
 		try {
 			execSync(killCommand(pid), { stdio: "ignore" })
 		} catch (e) {
 			// -- 忽略错误,因为进程可能已经不存在
-			logger.error(`[${core}] 清理 ${lockFile} 进程失败: ${e}`)
+			logger.error(`[${kernal}] 清理 ${lockFile} 进程失败: ${e}`)
 		} finally {
 			unlinkSync(`${pidLockFilePath}/${lockFile}`)
 		}
@@ -370,30 +343,25 @@ export const killCoreByForce = async (
 	// console.log("33333")
 	if (strictMode) {
 		const killCommandByName = platform.isWindows
-			? `taskkill /IM ${core}.exe /T /F`
-			: `pkill -f ${core}`
+			? `taskkill /IM ${kernal}.exe /T /F`
+			: `pkill -f ${kernal}`
 		try {
 			execSync(killCommandByName, { stdio: "ignore" })
-			logger.info(`[${core}] 所有 ${core} 进程已被强制终止`)
+			logger.info(`[${kernal}] 所有 ${kernal} 进程已被强制终止`)
 		} catch (e) {
-			logger.error(`[${core}] 强制终止 ${core} 进程失败: ${e}`)
+			logger.error(`[${kernal}] 强制终止 ${kernal} 进程失败: ${e}`)
 		}
 	}
 }
 
-export const killAllCoreByForce = async (
+export const killAllKernalByForce = async (
 	strictMode = false,
-	cores: ("fuel" | "aqua" | "rocket" | "zeus")[] = [
-		"fuel",
-		"aqua",
-		"rocket",
-		"zeus",
-	],
+	kernals: KernalType[] = ["fuel", "aqua", "rocket", "zeus"],
 ) => {
-	logger.info(`[kill] ${cores.join(", ")} ${strictMode}`)
-	for (const core of cores) {
-		if (!platform.isWindows && core === "rocket") continue
-		await killCoreByForce(core, core === "rocket" || strictMode) // -- rocket 仅在 Windows 下运行，杀死时候做强杀
+	logger.info(`[kill] ${kernals.join(", ")} ${strictMode}`)
+	for (const kernal of kernals) {
+		if (!platform.isWindows && kernal === "rocket") continue
+		await killKernalByForce(kernal, kernal === "rocket" || strictMode) // -- rocket 仅在 Windows 下运行，杀死时候做强杀
 	}
 }
 

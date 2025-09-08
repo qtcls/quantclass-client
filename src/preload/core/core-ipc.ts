@@ -9,7 +9,6 @@
  */
 
 import { networkInterfaces } from "node:os"
-import { getCoreAndClientVersions } from "@/main/core/lib.js"
 import {
 	setAutoTrading,
 	setAutoUpdate,
@@ -31,12 +30,6 @@ async function setAutoTradingHandler(): Promise<void> {
 			setAutoTrading(isOn)
 		},
 	)
-}
-
-async function handleGetCoreAndClientVersion(): Promise<void> {
-	ipcMain.handle("get-core-and-client-version", async (_event) => {
-		return await getCoreAndClientVersions()
-	})
 }
 
 async function syncNetworkStatusHandler() {
@@ -68,7 +61,6 @@ export const regCoreIPC = () => {
 	toggleHandler()
 	setAutoTradingHandler()
 	getMacAddressHandler()
-	handleGetCoreAndClientVersion()
 	syncNetworkStatusHandler()
 	console.log("[reg] core-ipc")
 }

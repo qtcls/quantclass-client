@@ -39,7 +39,7 @@ import { useAppUpdate } from "@/renderer/hooks/useAppUpdate"
 import { useHotkeys } from "@/renderer/hooks/useHotkeys"
 import { SettingsGearIcon } from "@/renderer/icons/SettingsGearIcon"
 
-import { CoreVersionDes } from "@/renderer/page/home"
+import { KernalVersionDes } from "@/renderer/page/home"
 import { isShowMonitorPanelAtom } from "@/renderer/store"
 import { versionsAtom } from "@/renderer/store/versions"
 import { formatBytes } from "@/renderer/utils/formatBytes"
@@ -65,7 +65,7 @@ export const Footer: FC = () => {
 
 	return (
 		<div className="flex h-10 items-center justify-between pl-4 text-foreground border-t">
-			<CoreVersionDes
+			<KernalVersionDes
 				textSize="base"
 				layout="horizontal"
 				className="gap-4 text-xs text-muted-foreground h-full items-center"

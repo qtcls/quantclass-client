@@ -18,7 +18,7 @@ import { cn } from "@/renderer/lib/utils"
 import { DataKanban } from "@/renderer/page/home/DataKanban"
 import { ProcessCard, ProcessKanban } from "@/renderer/page/home/ProcessKanban"
 import { RealMarketKanban } from "@/renderer/page/home/RealMarketKanban"
-import { CoreUpdateStatus } from "@/renderer/page/home/coreUpdateStatus"
+import { KernalUpdateStatus } from "@/renderer/page/home/kernal-update-status"
 import { SelfStarting } from "@/renderer/page/settings/preview"
 import { isAutoRocketAtom, isUpdatingAtom } from "@/renderer/store"
 import { monitorProcessesQueryAtom } from "@/renderer/store/query"
@@ -48,7 +48,7 @@ const Home: FC = () => {
 	)
 }
 
-export const CoreVersionDes = ({
+export const KernalVersionDes = ({
 	className,
 	layout = "vertical",
 }: {
@@ -113,7 +113,7 @@ export const CoreVersionDes = ({
 							</ProcessHoverCardContent>
 						</ProcessHoverCard>
 					))}
-					{isUpdating && <CoreUpdateStatus />}
+					{isUpdating && <KernalUpdateStatus />}
 				</div>
 			</div>
 		</>

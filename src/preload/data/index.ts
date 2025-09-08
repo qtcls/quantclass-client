@@ -36,7 +36,6 @@ export const dataIPC = {
 		kernel: string,
 		extraEnv?: string,
 	) => ipcRenderer.invoke("exec-fuel-with-env", args, action, kernel, extraEnv),
-	calcTradingPlan: () => ipcRenderer.invoke("calc-trading-plan"),
 	rocketExecute: () => ipcRenderer.invoke("rocket-execute"),
 	// TODO: 需要迁移到trading.ts
 

@@ -16,16 +16,13 @@ import {
 	spawn,
 } from "node:child_process"
 import fs from "node:fs"
-import { updateCore } from "@/main/core/runpy.js"
+import { updateKernal } from "@/main/core/runpy.js"
 import { userStore } from "@/main/lib/userStore.js"
 import store, { CONFIG_PATH, ROCKET_STR_INFO_PATH } from "@/main/store/index.js"
 import {
-	isAquaCoreRunning,
-	isFuelCoreRunning,
+	isKernalRunning,
 	isPidRunning,
-	isRocketCoreRunning,
-	isZeusCoreRunning,
-	killCoreByForce,
+	killKernalByForce,
 } from "@/main/utils/tools.js"
 import logger from "@/main/utils/wiston.js"
 import { platform } from "@electron-toolkit/utils"
@@ -141,16 +138,16 @@ export class ProcessManage {
 			console.log("1111111")
 
 			if (action.action === "自动更新所有数据") {
-				await killCoreByForce("fuel")
+				await killKernalByForce("fuel")
 			}
 			if (action.kernel === "aqua") {
-				await killCoreByForce("aqua")
+				await killKernalByForce("aqua")
 			}
 			if (action.kernel === "zeus") {
-				await killCoreByForce("zeus")
+				await killKernalByForce("zeus")
 			}
 			if (action.action === "启动 rocket") {
-				await killCoreByForce("rocket")
+				await killKernalByForce("rocket")
 			}
 
 			console.log("22222")
@@ -227,7 +224,7 @@ export const execBin = async (
 		if (!isBinExist) {
 			logger.warn(`[exec-${kernel}] 内核不存在，下载中`)
 			try {
-				await updateCore(kernel, true)
+				await updateKernal(kernel, true)
 			} catch (e) {
 				logger.error(
 					`[exec-${kernel}] 内核更新失败: ${JSON.stringify(e, null, 2)}`,
@@ -235,10 +232,10 @@ export const execBin = async (
 			}
 		}
 
-		const fuelRunning = await isFuelCoreRunning()
-		const aquaRunning = await isAquaCoreRunning()
-		const rocketRunning = await isRocketCoreRunning()
-		const zeusRunning = await isZeusCoreRunning()
+		const fuelRunning = await isKernalRunning("fuel")
+		const aquaRunning = await isKernalRunning("aqua")
+		const zeusRunning = await isKernalRunning("zeus")
+		const rocketRunning = await isKernalRunning("rocket", true)
 		if (platform.isMacOS) exec(`chmod +x ${binPath}`)
 
 		logger.info(`[exec-${kernel}] 内核路径: ${binPath}`)

@@ -13,7 +13,7 @@ import windowManager from "@/main/lib/WindowManager.js"
 import { createMenu } from "@/main/lib/menu.js"
 import { postUserMainAction } from "@/main/request/index.js"
 import { stopHeartbeatCheck } from "@/main/server/heartbeat.js"
-import { cleanLockFiles, killAllCoreByForce } from "@/main/utils/tools.js"
+import { cleanLockFiles, killAllKernalByForce } from "@/main/utils/tools.js"
 import logger from "@/main/utils/wiston.js"
 import { is } from "@electron-toolkit/utils"
 import dayjs from "dayjs"
@@ -141,7 +141,7 @@ export const createWindow = async (tray?: Tray): Promise<void> => {
 		}
 
 		// -- 强制杀掉所有相关的进程
-		await killAllCoreByForce()
+		await killAllKernalByForce()
 
 		// -- 删除内核更新锁文件
 		await cleanLockFiles()

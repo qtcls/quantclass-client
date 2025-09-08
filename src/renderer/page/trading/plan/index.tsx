@@ -8,57 +8,23 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
-import LoadingAnime from "@/renderer/components/LoadingAnime"
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from "@/renderer/components/ui/alert-dialog"
 import { Button } from "@/renderer/components/ui/button"
 import ButtonTooltip from "@/renderer/components/ui/button-tooltip"
 import { DataTableToolbar } from "@/renderer/components/ui/data-table-toolbar"
 import { ScrollArea } from "@/renderer/components/ui/scroll-area"
 import { Tabs, TabsList, TabsTrigger } from "@/renderer/components/ui/tabs"
-import { RENDERER_MSG_CODE } from "@/renderer/constant"
 import { DataTableActionOptionsProps } from "@/renderer/page/data/table/options"
 import BuyTable from "@/renderer/page/trading/plan/tables/BuyTable"
 import SellTable from "@/renderer/page/trading/plan/tables/SellTable"
 import { BuyTableRef, SellTableRef } from "@/renderer/page/trading/plan/types"
 import { ReloadIcon } from "@radix-ui/react-icons"
-import { useMutation } from "@tanstack/react-query"
 import { CircleHelpIcon } from "lucide-react"
-import { useCallback, useRef, useState } from "react"
-import { toast } from "sonner"
+import { useRef, useState } from "react"
 
 export default function TradingPlan() {
 	const [tab, setTab] = useState<"buy" | "sell">("buy")
-	const [open, setOpen] = useState(false)
 	const buyTableRef = useRef<BuyTableRef>(null)
 	const sellTableRef = useRef<SellTableRef>(null)
-
-	const refresh = useCallback(() => {
-		buyTableRef.current?.refresh()
-		sellTableRef.current?.refresh()
-	}, [])
-
-	const { mutate: handleCalcTradingPlan, isPending: loading } = useMutation({
-		mutationKey: ["calc-trading-plan"],
-		mutationFn: calcTradingPlan,
-		onSuccess: (data) => {
-			if (data.code === RENDERER_MSG_CODE.REAL_TRADING_RUNNING) {
-				toast.warning(data.message)
-				refresh()
-				return
-			}
-			toast.success("生成交易计划成功")
-			refresh()
-		},
-	})
 
 	return (
 		<div className="flex flex-col h-full">
@@ -75,31 +41,6 @@ export default function TradingPlan() {
 						<TabsTrigger value="sell">卖出计划</TabsTrigger>
 					</TabsList>
 				</Tabs>
-
-				<LoadingAnime loading={loading} content={"生成交易计划中..."} />
-
-				<AlertDialog open={open} onOpenChange={setOpen}>
-					<AlertDialogContent>
-						<AlertDialogHeader>
-							<AlertDialogTitle>确定要生成交易计划吗？</AlertDialogTitle>
-						</AlertDialogHeader>
-						<AlertDialogDescription>
-							本次运行的结果将会直接同步给实盘，请确定后再点击运行
-						</AlertDialogDescription>
-						<AlertDialogFooter>
-							<AlertDialogCancel>取消</AlertDialogCancel>
-							<AlertDialogAction
-								onClick={async (e) => {
-									e.preventDefault()
-									handleCalcTradingPlan()
-									setOpen(false)
-								}}
-							>
-								确定
-							</AlertDialogAction>
-						</AlertDialogFooter>
-					</AlertDialogContent>
-				</AlertDialog>
 
 				<div className="flex items-center gap-2">
 					<Button
@@ -162,8 +103,6 @@ export default function TradingPlan() {
 		</div>
 	)
 }
-
-const { calcTradingPlan } = window.electronAPI
 
 export function TradingPlanTableToolbar<T>(
 	props: DataTableActionOptionsProps<T>,

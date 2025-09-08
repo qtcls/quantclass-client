@@ -7,21 +7,24 @@
 ### 在 Main 进程中使用
 
 ```typescript
-import type { AppVersions, CoreVersionType } from "@/shared/types/index.js";
+import type { AppVersions, KernalVersionType } from "@/shared/types/index.js";
 ```
 
 ### 在 Preload 进程中使用
 
 ```typescript
-import type { AppVersions, CoreVersionType } from "@/shared/types/index.js";
+import type { AppVersions, KernalVersionType } from "@/shared/types/index.js";
 ```
 
 ### 在 Renderer 进程中使用
 
 ```typescript
-import type { AppVersions, CoreVersionType } from "@/renderer/types/index.js";
+import type { AppVersions, KernalVersionType } from "@/renderer/types/index.js";
 // 或者直接从共享类型导入
-import type { AppVersions, CoreVersionType } from "../../shared/types/index.js";
+import type {
+  AppVersions,
+  KernalVersionType,
+} from "../../shared/types/index.js";
 ```
 
 ## 注意事项

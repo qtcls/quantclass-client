@@ -44,10 +44,10 @@ const LoadingAnime: FC<ILoadingAnimeProps> = ({
 					<RefreshCcw className="animate-spin" />
 					<h2 className="text-lg">{content}</h2>
 					<p className="text-xs text-muted-foreground">
-						{type === "coreUpdate" ? "正在检查并更新内核" : "正在计算中"}
+						{type === "kernalUpdate" ? "正在检查并更新内核" : "正在计算中"}
 						...可能会花费几分钟时间，完成后会自动关闭返回上次操作页面，请耐心等待
 					</p>
-					{type !== "coreUpdate" && (
+					{type !== "kernalUpdate" && (
 						<Button size="sm" onClick={() => createTerminalWindow()}>
 							显示运行详情
 						</Button>

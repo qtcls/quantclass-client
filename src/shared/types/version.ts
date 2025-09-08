@@ -11,7 +11,7 @@
 /**
  * 核心版本信息类型
  */
-export interface CoreVersionType {
+export interface KernalVersionType {
 	description: string
 	download: string
 	version: string
@@ -25,9 +25,9 @@ export interface AppVersions {
 	client: string
 	latest: Record<string, string>
 	downloads: Record<string, string>
-	app: CoreVersionType
-	fuel: CoreVersionType[]
-	aqua: CoreVersionType[]
-	zeus: CoreVersionType[]
-	rocket: CoreVersionType[]
+	app: KernalVersionType
+	fuel: KernalVersionType[]
+	aqua: KernalVersionType[]
+	zeus: KernalVersionType[]
+	rocket: KernalVersionType[]
 }

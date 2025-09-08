@@ -12,7 +12,7 @@ import fs from "node:fs/promises"
 import store from "../store/index.js"
 import { PACKAGE_INFO } from "../vars.js"
 
-export async function getCoreVersion(coreName = "fuel") {
+export async function getKernelVersion(kernal = "fuel") {
 	try {
 		const codePath = await store.getAllDataPath(["code"])
 		// 读取该目录下的所有 .yml 文件
@@ -23,7 +23,7 @@ export async function getCoreVersion(coreName = "fuel") {
 		if (ymlFiles.length === 0) return "暂无内核"
 
 		// 获取yml文件的文件名（假设只有一个 yml 文件）
-		const ymlFile = ymlFiles.find((file: string) => file.startsWith(coreName))!
+		const ymlFile = ymlFiles.find((file: string) => file.startsWith(kernal))!
 		return ymlFile.replace(".yml", "")
 	} catch (error) {
 		return "暂无内核"
@@ -31,27 +31,21 @@ export async function getCoreVersion(coreName = "fuel") {
 }
 
 /**
- * 检查本地的客户端版本，包括 Python Core 和客户端版本
+ * 检查本地的客户端版本，包括 Python Kernal 和客户端版本
  */
-export async function getCoreAndClientVersions() {
+export async function getAppAndKernalVersions() {
+	const defaultVersion = "暂无内核"
 	try {
 		const { version } = PACKAGE_INFO
-		const fuelVersion = await getCoreVersion("fuel")
-		const aquaVersion = await getCoreVersion("aqua")
-		const rocketVersion = await getCoreVersion("rocket")
-		const zeusVersion = await getCoreVersion("zeus")
-		let coreVersionStatus = false
-
-		if (fuelVersion !== "暂无内核") {
-			coreVersionStatus = true
-		}
-
+		const fuelVersion = await getKernelVersion("fuel")
+		const aquaVersion = await getKernelVersion("aqua")
+		const rocketVersion = await getKernelVersion("rocket")
+		const zeusVersion = await getKernelVersion("zeus")
 		const clientVersion = version
 
 		return {
-			coreVersion: fuelVersion,
+			fuelVersion,
 			clientVersion,
-			coreVersionStatus,
 			aquaVersion,
 			zeusVersion,
 			rocketVersion,
@@ -60,12 +54,11 @@ export async function getCoreAndClientVersions() {
 		const { version } = PACKAGE_INFO
 
 		return {
-			coreVersion: "未配置内核路径",
 			clientVersion: version,
-			coreVersionStatus: false,
-			aquaVersion: "未配置内核路径",
-			zeusVersion: "未配置内核路径",
-			rocketVersion: "未配置内核路径",
+			fuelVersion: defaultVersion,
+			aquaVersion: defaultVersion,
+			zeusVersion: defaultVersion,
+			rocketVersion: defaultVersion,
 		}
 	}
 }

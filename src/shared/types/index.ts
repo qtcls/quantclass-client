@@ -9,4 +9,10 @@
  */
 
 // 版本相关类型
-export type { CoreVersionType, AppVersions } from "./version.js"
+export type {
+	KernalVersionType,
+	AppVersions,
+} from "./version.js"
+
+// 内核相关类型
+export type { KernalType } from "./kernal.js"

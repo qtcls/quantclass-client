@@ -35,7 +35,7 @@ import Contributors from "@/renderer/page/settings/contributors"
 import { isAutoLoginAtom, versionListAtom } from "@/renderer/store/storage"
 import { userAtom } from "@/renderer/store/user"
 import { useLocalVersions, versionsAtom } from "@/renderer/store/versions"
-import { AppVersions, CoreVersionType } from "@/shared/types/version"
+import { AppVersions, KernalType, KernalVersionType } from "@/shared/types"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import {
 	Blocks,
@@ -55,31 +55,27 @@ import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import Img from "../../../../build/icon.ico"
 
-const useInvokeUpdateCore = () => {
-	const { updateCore } = window.electronAPI
+const useInvokeUpdateKernal = () => {
+	const { updateKernal } = window.electronAPI
 	const { refetchLocalVersions } = useLocalVersions()
-	return async (
-		core: "fuel" | "aqua" | "rocket" | "zeus",
-		targetVersion?: string,
-	) => {
-		const toastId = toast.loading(`更新 ${core} 内核到版本 ${targetVersion}...`)
-		console.log(`Updating ${core} to version ${targetVersion}`)
+	return async (kernal: KernalType, targetVersion?: string) => {
+		const toastId = toast.loading(
+			`更新 ${kernal} 内核到版本 ${targetVersion}...`,
+		)
+		console.log(`Updating ${kernal} to version ${targetVersion}`)
 
 		try {
-			const res = await updateCore(
-				core as "fuel" | "aqua" | "rocket" | "zeus",
-				targetVersion,
-			)
+			const res = await updateKernal(kernal, targetVersion)
 			if (res.success) {
-				toast.success(`${core} 内核更新成功`, { id: toastId })
+				toast.success(`${kernal} 内核更新成功`, { id: toastId })
 			} else {
-				toast.warning(`${core} 内核更新异常`, {
+				toast.warning(`${kernal} 内核更新异常`, {
 					id: toastId,
 					description: res.error,
 				})
 			}
 		} catch (error) {
-			toast.error(`${core} 内核更新失败`, { id: toastId })
+			toast.error(`${kernal} 内核更新失败`, { id: toastId })
 		} finally {
 			await refetchLocalVersions() // -- 更新后重新请求本地版本
 		}
@@ -87,7 +83,7 @@ const useInvokeUpdateCore = () => {
 	}
 }
 
-const CoreVersionSelect = ({
+const KernalVersionSelect = ({
 	name,
 	title,
 	versionKey,
@@ -97,7 +93,7 @@ const CoreVersionSelect = ({
 	name: string
 	title: string
 	versionKey: string
-	versions: CoreVersionType[]
+	versions: KernalVersionType[]
 	onVersionSelect?: (targetVersion: string, name: string) => void
 }) => {
 	const version = useAtomValue(versionsAtom)[versionKey]
@@ -150,7 +146,7 @@ const CoreVersionSelect = ({
 	)
 }
 
-const CoreVersion = ({
+const KernalVersion = ({
 	name,
 	title,
 	Icon,
@@ -167,10 +163,10 @@ const CoreVersion = ({
 }) => {
 	const version = useAtomValue(versionsAtom)
 	const useAlert = useAlertDialog()
-	const invokeUpdateCore = useInvokeUpdateCore()
+	const invokeUpdateKernal = useInvokeUpdateKernal()
 	const handleTimeTask = useHandleTimeTask()
 	const { isAutoRocket, handleToggleAutoRocket } = useToggleAutoRealTrading()
-	const { killCore } = window.electronAPI
+	const { killKernal } = window.electronAPI
 
 	const latestVersion = useMemo(() => {
 		return appVersions?.latest?.[name]
@@ -184,7 +180,7 @@ const CoreVersion = ({
 		return appVersions?.[name] ?? []
 	}, [appVersions?.[name]])
 
-	const handleCoreUpdate = (targetVersion?: string, kernelName?: string) => {
+	const handleKernalUpdate = (targetVersion?: string, kernelName?: string) => {
 		if (disabled) {
 			toast.error(`当前操作系统不支持更新${title}内核`)
 			return
@@ -239,12 +235,9 @@ const CoreVersion = ({
 					await handleToggleAutoRocket(false, false)
 				}
 
-				await killCore(kernelName as "aqua" | "rocket" | "zeus" | "fuel", true)
+				await killKernal(kernelName as KernalType, true)
 
-				await invokeUpdateCore(
-					kernelName as "aqua" | "rocket" | "zeus" | "fuel",
-					targetVersion,
-				)
+				await invokeUpdateKernal(kernelName as KernalType, targetVersion)
 			},
 		})
 	}
@@ -256,19 +249,19 @@ const CoreVersion = ({
 				{latestVersion !== currentVersion && (
 					<span
 						className="text-xs text-blue-500 dark:text-blue-400 cursor-pointer"
-						onClick={() => handleCoreUpdate(latestVersion, name)}
+						onClick={() => handleKernalUpdate(latestVersion, name)}
 						title={`更新${title}(${name})内核到版本 ${latestVersion}`}
 					>
 						{currentVersion === "暂无内核" ? "下载" : "更新"}
 					</span>
 				)}
 				{versionList.length > 0 && (
-					<CoreVersionSelect
+					<KernalVersionSelect
 						name={name}
 						title={title}
 						versionKey={versionKey}
 						versions={versionList}
-						onVersionSelect={handleCoreUpdate}
+						onVersionSelect={handleKernalUpdate}
 					/>
 				)}
 			</h3>
@@ -293,7 +286,8 @@ export default function SettingsPage() {
 	const [isAutoLogin, setIsAutoLogin] = useAtom(isAutoLoginAtom)
 	const version = useAtomValue(versionsAtom)
 	const setVersionList = useSetAtom(versionListAtom)
-	const { setAutoLaunch, openDataDirectory, killAllCores } = window.electronAPI
+	const { setAutoLaunch, openDataDirectory, killAllKernals } =
+		window.electronAPI
 	const handleTimeTask = useHandleTimeTask() // 数据任务控制
 	const { isAutoRocket, handleToggleAutoRocket } = useToggleAutoRealTrading() // 自动交易控制
 
@@ -347,10 +341,10 @@ export default function SettingsPage() {
 	const { refetchLocalVersions, isLoadingLocalVersions } = useLocalVersions()
 
 	const useAlert = useAlertDialog()
-	const invokeUpdateCore = useInvokeUpdateCore()
+	const invokeUpdateKernal = useInvokeUpdateKernal()
 	const { getUpdateMessage, hasAnyUpdate } = useVersionCheck()
 
-	const handleUpdateCores = async () => {
+	const handleUpdateKernals = async () => {
 		useAlert.open({
 			title: "一键更新内核",
 			content: (
@@ -382,13 +376,13 @@ export default function SettingsPage() {
 					await handleToggleAutoRocket(false, false)
 				}
 
-				await killAllCores(true) // 强制杀死所有内核
-				for (const core of [
+				await killAllKernals(true) // 强制杀死所有内核
+				for (const kernal of [
 					"fuel",
 					settings.libraryType === "select" ? "aqua" : "zeus",
 					"rocket",
 				]) {
-					await invokeUpdateCore(core as "fuel" | "aqua" | "rocket" | "zeus")
+					await invokeUpdateKernal(kernal as KernalType)
 				}
 				await refetchLocalVersions()
 				toast.success("内核更新完成", {
@@ -432,18 +426,18 @@ export default function SettingsPage() {
 				</div>
 
 				<div className="grid grid-cols-3">
-					<CoreVersion
+					<KernalVersion
 						name="fuel"
 						title="数据内核"
 						Icon={DatabaseZap}
-						versionKey="coreVersion"
+						versionKey="fuelVersion"
 						appVersions={appVersions}
 					/>
 
 					{hasRealTradingAccess && user?.isMember && (
 						<>
 							{settings.libraryType === "select" ? (
-								<CoreVersion
+								<KernalVersion
 									name="aqua"
 									title="选股内核"
 									Icon={SquareFunction}
@@ -451,7 +445,7 @@ export default function SettingsPage() {
 									appVersions={appVersions}
 								/>
 							) : (
-								<CoreVersion
+								<KernalVersion
 									name="zeus"
 									title="高级选股内核"
 									Icon={SquareFunction}
@@ -460,7 +454,7 @@ export default function SettingsPage() {
 								/>
 							)}
 
-							<CoreVersion
+							<KernalVersion
 								name="rocket"
 								title="下单内核"
 								Icon={Blocks}
@@ -504,7 +498,7 @@ export default function SettingsPage() {
 							toast.error("请先登录")
 							return
 						}
-						await handleUpdateCores()
+						await handleUpdateKernals()
 					}}
 				>
 					<CircleArrowUp className="size-4 mr-2" />

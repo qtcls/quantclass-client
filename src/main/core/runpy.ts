@@ -25,8 +25,8 @@ import {
 	createLockFile,
 	removeLockFile,
 } from "../utils/tools.js"
-import logger from "../utils/wiston.js"
-import { getCoreVersion } from "./lib.js"
+import logger from "@/main/utils/wiston.js"
+import { getKernelVersion } from "@/main/core/lib.js"
 
 const require = createRequire(import.meta.url)
 const AdmZip = require("adm-zip")
@@ -105,22 +105,22 @@ export async function checkRemoteVersions(now = true): Promise<AppVersions> {
 
 /**
  * 下载内核，从2025年5月27日开始，所有内核采用onedir的打包方式，所以需要替换exe为zip
- * @param core 内核名称
+ * @param kernal 内核名称
  * @returns
  */
-export async function downloadCore(
-	core: "fuel" | "aqua" | "rocket" | "zeus",
+export async function downloadKernal(
+	kernal: "fuel" | "aqua" | "rocket" | "zeus",
 	version: string,
 	downloadUrl: string,
 ) {
-	const lockFileName = `update_${core.toLowerCase()}.app.lock`
+	const lockFileName = `update_${kernal.toLowerCase()}.app.lock`
 
 	if (await checkLock(lockFileName)) {
-		logger.info(`[${core}] 正在下载中，退出`)
+		logger.info(`[${kernal}] 正在下载中，退出`)
 		return
 	}
 
-	logger.info(`[${core}] 更新开始...`)
+	logger.info(`[${kernal}] 更新开始...`)
 	await createLockFile(lockFileName)
 	const mainWindow = windowManager.getWindow()
 
@@ -128,50 +128,22 @@ export async function downloadCore(
 		const codeFolder = await store.getAllDataPath(["code"])
 
 		if (!downloadUrl) {
-			logger.error(`[${core}] 下载链接为空`)
+			logger.error(`[${kernal}] 下载链接为空`)
 			return
 		}
 
 		logger.info(
-			`[${core}] 版本: ${version}，使用远程链接: ${downloadUrl}，保存路径: ${codeFolder}`,
+			`[${kernal}] 版本: ${version}，使用远程链接: ${downloadUrl}，保存路径: ${codeFolder}`,
 		)
 
 		const fileName = downloadUrl.split("/").pop() as string
 		const versionFileName = path.join(codeFolder, `${version}.yml`)
-		const coreZipPath = path.join(codeFolder, fileName)
-
-		// -- 检查文件写入权限
-		try {
-			// -- 删除对应内核的旧版本 yml 文件
-			const prefix = core.toLowerCase()
-			const oldVersionFiles = await fs.promises
-				.readdir(codeFolder)
-				.then((files) =>
-					files.filter(
-						(file) => file.startsWith(`${prefix}_`) && file.endsWith(".yml"),
-					),
-				)
-			for (const file of oldVersionFiles) {
-				await fs.promises.unlink(path.join(codeFolder, file))
-				logger.info(`[${core}] 删除旧的内核版本文件: ${file}`)
-			}
-
-			// -- 测试文件写入权限
-			await writeFile(versionFileName, version)
-			await fs.promises.unlink(versionFileName)
-		} catch (error) {
-			logger.error(`[${core}] 文件系统权限错误: ${error}`)
-			mainWindow?.webContents.send("report-msg", {
-				code: 400,
-				message: `文件系统权限错误，内核下载失败: ${error}`,
-			})
-			return { success: false, error: "文件系统权限错误，内核下载失败" }
-		}
+		const kernalZipPath = path.join(codeFolder, fileName)
 
 		// -- 检查下载次数限制
-		const canDownload = await checkDownloadLimit(core.toLowerCase())
+		const canDownload = await checkDownloadLimit(kernal.toLowerCase())
 		if (!canDownload) {
-			logger.warn(`[${core}] 内核今日下载次数已达上限`)
+			logger.warn(`[${kernal}] 内核今日下载次数已达上限`)
 			mainWindow?.webContents.send("report-msg", {
 				code: 400,
 				message: "今日内核下载次数已达上限，请联系助教再试",
@@ -185,16 +157,55 @@ export async function downloadCore(
 		// -- 开始下载
 		const res = await fetch(downloadUrl)
 		if (!res.ok) {
-			logger.error(`[${core}] 获取内核失败: ${res.status}`)
-			throw new Error(`获取 ${core} Core 失败: ${res.status}`)
+			logger.error(`[${kernal}] 获取内核失败: ${res.status}`)
+			throw new Error(`获取 ${kernal} 内核失败: ${res.status}`)
 		}
 
 		const buffer = Buffer.from(await res.arrayBuffer())
 
-		await Promise.all([
-			writeFile(versionFileName, version),
-			writeFile(coreZipPath, buffer),
-		])
+		// await Promise.all([
+		// 	writeFile(versionFileName, version),
+		// 	writeFile(kernalZipPath, buffer),
+		// ])
+
+		// 下载内核文件
+		await writeFile(kernalZipPath, buffer)
+
+		logger.info(`[${kernal}] 内核文件已下载到 ${kernalZipPath}`)
+
+		// 解压zip文件，从2025年5月27日开始，所有内核采用onedir的打包方式，所以需要解压zip文件
+		const zip = new AdmZip(kernalZipPath)
+		zip.extractAllTo(codeFolder, true)
+		await fs.promises.unlink(kernalZipPath) // 删除zip文件
+
+		logger.info(`[${kernal}] 内核文件已解压到 ${codeFolder}`)
+
+		// 更新版本信息文件，删除旧的版本文件
+		try {
+			// -- 删除对应内核的旧版本 yml 文件
+			const prefix = kernal.toLowerCase()
+			const oldVersionFiles = await fs.promises
+				.readdir(codeFolder)
+				.then((files) =>
+					files.filter(
+						(file) => file.startsWith(`${prefix}_`) && file.endsWith(".yml"),
+					),
+				)
+			for (const file of oldVersionFiles) {
+				await fs.promises.unlink(path.join(codeFolder, file))
+				logger.info(`[${kernal}] 删除旧的内核版本文件: ${file}`)
+			}
+
+			// 更新版本信息文件
+			await writeFile(versionFileName, version)
+		} catch (error) {
+			logger.error(`[${kernal}] 文件系统权限错误: ${error}`)
+			mainWindow?.webContents.send("report-msg", {
+				code: 400,
+				message: `文件系统权限错误，内核下载失败: ${error}`,
+			})
+			return { success: false, error: "文件系统权限错误，内核下载失败" }
+		}
 
 		// -- 下载成功后发送埋点请求
 		try {
@@ -204,72 +215,63 @@ export async function downloadCore(
 				await postUserMainAction(api_key, {
 					uuid,
 					role: "client",
-					action: `下载 ${core} 内核成功: ${version}`,
+					action: `下载 ${kernal} 内核成功: ${version}`,
 				})
 			}
 		} catch (error) {
-			logger.error(`[${core}] 请求点失败: ${error}`)
+			logger.error(`[${kernal}] 请求点失败: ${error}`)
 		}
-
-		logger.info(`[${core}] 内核文件已下载到 ${coreZipPath}`)
-
-		// 解压zip文件，从2025年5月27日开始，所有内核采用onedir的打包方式，所以需要解压zip文件
-		const zip = new AdmZip(coreZipPath)
-		zip.extractAllTo(codeFolder, true)
-		await fs.promises.unlink(coreZipPath) // 删除zip文件
-
-		logger.info(`[${core}] 内核文件已解压到 ${codeFolder}`)
 
 		return { success: true, data: { version, downloadUrl } }
 	} catch (error) {
-		logger.error(`[${core}] 更新/下载内核失败: ${error}`)
+		logger.error(`[${kernal}] 更新/下载内核失败: ${error}`)
 		return { success: false, error: "更新/下载内核失败" }
 	} finally {
 		await removeLockFile(lockFileName)
 	}
 }
 
-export async function updateCore(
-	core: "aqua" | "rocket" | "zeus" | "fuel",
+export async function updateKernal(
+	kernal: "aqua" | "rocket" | "zeus" | "fuel",
 	now = false,
 	targetVersion?: string,
 ) {
-	const windows_cores = ["rocket"]
+	const winKernals = ["rocket"]
 	// -- 如果需要立即检查版本，并且没有指定版本，则立即检查版本
 	const remoteVersions = await checkRemoteVersions(now && !targetVersion)
-	const localVersion = await getCoreVersion(core)
+	const localVersion = await getKernelVersion(kernal)
 
 	let downloadVersion = ""
 	let downloadUrl = ""
 
 	// -- 非Windows系统，跳过更新
-	if (!platform.isWindows && windows_cores.includes(core)) {
-		logger.info(`[${core}] 非Windows系统，跳过更新`)
+	if (!platform.isWindows && winKernals.includes(kernal)) {
+		logger.info(`[${kernal}] 非Windows系统，跳过更新`)
 		return { success: true, data: localVersion }
 	}
 
 	if (targetVersion) {
 		if (localVersion === targetVersion) {
-			logger.info(`[${core}] 版本一致，跳过更新`)
+			logger.info(`[${kernal}] 版本一致，跳过更新`)
 			return { success: true, data: localVersion }
 		}
 		downloadVersion = targetVersion
-		downloadUrl = remoteVersions.downloads[core].replace(
-			`${remoteVersions.latest[core]}`,
+		downloadUrl = remoteVersions.downloads[kernal].replace(
+			`${remoteVersions.latest[kernal]}`,
 			targetVersion,
 		)
 	} else {
-		if (remoteVersions.latest[core] === localVersion) {
-			logger.info(`[${core}] 与远程版本一致`)
+		if (remoteVersions.latest[kernal] === localVersion) {
+			logger.info(`[${kernal}] 与远程版本一致`)
 			return { success: true, data: localVersion }
 		}
-		downloadVersion = remoteVersions.latest[core]
-		downloadUrl = remoteVersions.downloads[core]
+		downloadVersion = remoteVersions.latest[kernal]
+		downloadUrl = remoteVersions.downloads[kernal]
 	}
 	// 如果是非Windows系统，在downloadUrl的文件名中加上-mac后缀
 	if (!platform.isWindows) {
 		downloadUrl = downloadUrl.replace(/(\.[^.]+)$/, "-mac$1")
-		logger.info(`[${core}] 非Windows系统，下载地址调整为: ${downloadUrl}`)
+		logger.info(`[${kernal}] 非Windows系统，下载地址调整为: ${downloadUrl}`)
 	}
-	return await downloadCore(core, downloadVersion, downloadUrl)
+	return await downloadKernal(kernal, downloadVersion, downloadUrl)
 }

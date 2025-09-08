@@ -33,7 +33,7 @@ export const useVersionCheck = () => {
 	}, [appVersions?.app?.version, localVersions?.clientVersion])
 
 	// 检查是否有内核版本更新
-	const hasCoreUpdates = useMemo(() => {
+	const hasKernalUpdates = useMemo(() => {
 		const latestRemoteVersions = appVersions?.latest
 		if (!latestRemoteVersions || !localVersions) {
 			return {
@@ -45,7 +45,7 @@ export const useVersionCheck = () => {
 		}
 
 		return {
-			fuel: latestRemoteVersions?.fuel !== localVersions.coreVersion,
+			fuel: latestRemoteVersions?.fuel !== localVersions.fuelVersion,
 			aqua:
 				settings.libraryType === "select"
 					? latestRemoteVersions?.aqua !== localVersions.aquaVersion
@@ -60,8 +60,8 @@ export const useVersionCheck = () => {
 
 	// 检查是否有任何更新
 	const hasAnyUpdate = useMemo(() => {
-		return hasClientUpdate || Object.values(hasCoreUpdates).some(Boolean)
-	}, [hasClientUpdate, hasCoreUpdates])
+		return hasClientUpdate || Object.values(hasKernalUpdates).some(Boolean)
+	}, [hasClientUpdate, hasKernalUpdates])
 
 	// 生成更新消息
 	const getUpdateMessage = useMemo(() => {
@@ -75,25 +75,25 @@ export const useVersionCheck = () => {
 			)
 		}
 
-		if (hasCoreUpdates.fuel) {
+		if (hasKernalUpdates.fuel) {
 			updates.push(
-				`数据内核: ${localVersions?.coreVersion} → ${appVersions?.latest?.fuel}`,
+				`数据内核: ${localVersions?.fuelVersion} → ${appVersions?.latest?.fuel}`,
 			)
 		}
 
-		if (hasCoreUpdates.aqua && settings.libraryType === "select") {
+		if (hasKernalUpdates.aqua && settings.libraryType === "select") {
 			updates.push(
 				`选股内核: ${localVersions?.aquaVersion} → ${appVersions?.latest?.aqua}`,
 			)
 		}
 
-		if (hasCoreUpdates.zeus && settings.libraryType === "pos") {
+		if (hasKernalUpdates.zeus && settings.libraryType === "pos") {
 			updates.push(
 				`高级选股内核: ${localVersions?.zeusVersion} → ${appVersions?.latest?.zeus}`,
 			)
 		}
 
-		if (hasCoreUpdates.rocket) {
+		if (hasKernalUpdates.rocket) {
 			updates.push(
 				`下单内核: ${localVersions?.rocketVersion} → ${appVersions?.latest?.rocket}`,
 			)
@@ -103,7 +103,7 @@ export const useVersionCheck = () => {
 	}, [
 		hasAnyUpdate,
 		hasClientUpdate,
-		hasCoreUpdates,
+		hasKernalUpdates,
 		localVersions,
 		appVersions,
 		settings.libraryType,
@@ -111,7 +111,7 @@ export const useVersionCheck = () => {
 
 	return {
 		hasClientUpdate,
-		hasCoreUpdates,
+		hasKernalUpdates,
 		hasAnyUpdate,
 		isCheckingVersions: isCheckingAppVersions,
 		appVersions,

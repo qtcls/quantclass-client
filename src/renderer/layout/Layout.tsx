@@ -136,7 +136,7 @@ const MainLayout: FC<MainLayoutProps> = ({
 					<UserMenu />
 				</div>
 			</header>
-			<LoadingAnime loading={loading} content={content} type="coreUpdate" />
+			<LoadingAnime loading={loading} content={content} type="kernalUpdate" />
 			<AlertDialogProvider>
 				<div
 					className={cn(

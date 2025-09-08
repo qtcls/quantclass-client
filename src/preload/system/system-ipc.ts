@@ -8,15 +8,16 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
-import { getCoreAndClientVersions } from "@/main/core/lib.js"
-import { checkRemoteVersions, updateCore } from "@/main/core/runpy.js"
+import { getAppAndKernalVersions } from "@/main/core/lib.js"
+import { checkRemoteVersions, updateKernal } from "@/main/core/runpy.js"
 import windowManager from "@/main/lib/WindowManager.js"
 import { process_manager } from "@/main/lib/process.js"
 import { setupScheduler } from "@/main/lib/scheduler.js"
-import { killAllCoreByForce, killCoreByForce } from "@/main/utils/tools.js"
+import { killAllKernalByForce, killKernalByForce } from "@/main/utils/tools.js"
 import { log } from "@/main/utils/wiston.js"
 import { electronApp, platform } from "@electron-toolkit/utils"
 import { app, ipcMain } from "electron"
+import type { KernalType } from "@/shared/types/index.js"
 
 async function handleToggleFullscreen() {
 	ipcMain.handle("toggle-fullscreen", async (_event, key = "main") => {
@@ -82,21 +83,17 @@ function handleKillProcess() {
 	})
 }
 
-function handleKillAllCores() {
-	ipcMain.handle("kill-all-cores", async (_event, byForce = false) => {
-		return await killAllCoreByForce(byForce)
+function handleKillAllKernals() {
+	ipcMain.handle("kill-all-kernals", async (_event, byForce = false) => {
+		return await killAllKernalByForce(byForce)
 	})
 }
 
-function handleKillCore() {
+function handleKillKernal() {
 	ipcMain.handle(
-		"kill-core",
-		async (
-			_event,
-			core: "fuel" | "rocket" | "aqua" | "zeus",
-			byForce = false,
-		) => {
-			return await killCoreByForce(core, byForce)
+		"kill-kernal",
+		async (_event, kernal: KernalType, byForce = false) => {
+			return await killKernalByForce(kernal, byForce)
 		},
 	)
 }
@@ -129,21 +126,17 @@ async function handleCheckUpdate(): Promise<void> {
 	})
 }
 
-async function handleGetCoreAndClientVersions(): Promise<void> {
-	ipcMain.handle("get-core-and-client-versions", async () => {
-		return await getCoreAndClientVersions()
+async function handleGetAppAndKernalVersions(): Promise<void> {
+	ipcMain.handle("get-app-and-kernal-versions", async () => {
+		return await getAppAndKernalVersions()
 	})
 }
 
-async function handleUpdateCore(): Promise<void> {
+async function handleUpdateKernal(): Promise<void> {
 	ipcMain.handle(
-		"update-core",
-		async (_event, name: string, targetVersion?: string) => {
-			return await updateCore(
-				name as "aqua" | "rocket" | "zeus" | "fuel",
-				true,
-				targetVersion,
-			)
+		"update-kernal",
+		async (_event, name: KernalType, targetVersion?: string) => {
+			return await updateKernal(name as KernalType, true, targetVersion)
 		},
 	)
 }
@@ -153,16 +146,16 @@ export const regSystemIPC = () => {
 	handleMinimize()
 	handleRendererLog()
 	handleKillProcess()
-	handleKillAllCores()
-	handleKillCore()
+	handleKillAllKernals()
+	handleKillKernal()
 	handleSetAutoLogin()
 	handleSetAutoUpdate()
 	fetchFullscreenState()
 	handleMonitorProcess()
 	handleToggleFullscreen()
 	handleRestartApp()
-	handleGetCoreAndClientVersions()
-	handleUpdateCore()
+	handleGetAppAndKernalVersions()
+	handleUpdateKernal()
 	handleCheckUpdate()
 	console.log("[reg] system-ipc")
 }

@@ -18,7 +18,7 @@ import {
 	// deleteLineComments,
 } from "@/main/pythonToJson.js"
 import store, { rStore } from "@/main/store/index.js"
-import { killCoreByForce, sendErrorToClient } from "@/main/utils/tools.js"
+import { killKernalByForce, sendErrorToClient } from "@/main/utils/tools.js"
 import logger from "@/main/utils/wiston.js"
 import { parse } from "csv-parse/sync"
 import {
@@ -206,12 +206,6 @@ function openUrlHandler() {
 	})
 }
 
-async function forceKillAllProcessesHandler(): Promise<void> {
-	ipcMain.handle("force-kill-all-processes", async () => {
-		await killCoreByForce("fuel")
-	})
-}
-
 async function deleteRealMarketDataHandler(): Promise<void> {
 	ipcMain.handle("delete-real-market-data", async (_, key: string) => {
 		rStore.delete(key)
@@ -249,7 +243,7 @@ async function clearRealMarketDataHandler(): Promise<void> {
 
 async function killRocketHandler(): Promise<void> {
 	ipcMain.handle("kill-rocket", async () => {
-		await killCoreByForce("rocket")
+		await killKernalByForce("rocket")
 	})
 }
 
@@ -669,7 +663,6 @@ export const regFileSysIPC = () => {
 	clearRealMarketDataHandler()
 	deleteRealMarketDataHandler()
 	createRealTradingDirHandler()
-	forceKillAllProcessesHandler()
 	strategyResultPathHandler()
 	importPositionHandler()
 	console.log("[reg] file-sys-ipc")

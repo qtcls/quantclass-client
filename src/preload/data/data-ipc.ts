@@ -23,12 +23,7 @@ import {
 } from "@/main/core/product.js"
 import { updateStrategies } from "@/main/core/strategy.js"
 import { execBin } from "@/main/lib/process.js"
-import { MAIN_MSG_CODE } from "@/main/utils/common.js"
-import {
-	isAquaCoreRunning,
-	isFuelCoreRunning,
-	isRocketCoreRunning,
-} from "@/main/utils/tools.js"
+import { isKernalRunning } from "@/main/utils/tools.js"
 import logger from "@/main/utils/wiston.js"
 import { ipcMain } from "electron"
 
@@ -168,73 +163,10 @@ async function handleExecBinWithEnv() {
 	)
 }
 
-async function handleCalcTradingPlan() {
-	ipcMain.handle("calc-trading-plan", async () => {
-		try {
-			const isRealTradingRunning = await isAquaCoreRunning()
-
-			if (isRealTradingRunning) {
-				logger.warn("手动运行，但 Real Trading 正在运行中，跳出操作")
-				return {
-					code: MAIN_MSG_CODE.REAL_TRADING_RUNNING,
-					message: "交易计划正在自动计算中，请稍候尝试手动运行",
-				}
-			}
-
-			await execBin(["select", "trading"], "计算交易计划", "aqua")
-			return await getJsonDataFromFile(
-				["real_trading", "msg.json"],
-				"交易计划计算失败",
-				{},
-			)
-		} catch (error) {
-			logger.error(`交易计划计算失败: ${error}`)
-			return {
-				code: 400,
-				message: "交易计划计算失败",
-			}
-		}
-	})
-}
-
-async function handleTestStrategy() {
-	ipcMain.handle(
-		"test-strategy",
-		async (_, selectValue: string | undefined) => {
-			const aquaRunning = await isAquaCoreRunning()
-			logger.info(
-				`[aqua] test-strategy. ${selectValue}, isAquaRunning: ${aquaRunning}`,
-			)
-
-			if (aquaRunning) {
-				logger.warn("[aqua] 手动运行，但 Aqua 正在运行中，跳出操作")
-				return {
-					code: MAIN_MSG_CODE.REAL_TRADING_RUNNING,
-					message: "交易计划正在自动计算中，请稍候尝试手动运行",
-				}
-			}
-
-			try {
-				await execBin(["select", "backtest"], "回测策略", "aqua")
-				return {
-					code: 200,
-					message: "试运行策略成功",
-				}
-			} catch (error) {
-				logger.error(`测试策略失败: ${error}`)
-				return {
-					code: 400,
-					message: "测试策略失败",
-				}
-			}
-		},
-	)
-}
-
 async function handleRocketExecute() {
 	ipcMain.handle("rocket-execute", async () => {
 		try {
-			const is_rocket_running = await isRocketCoreRunning()
+			const is_rocket_running = await isKernalRunning("rocket", true)
 			if (is_rocket_running) {
 				logger.warn("手动运行，但 Rocket 正在运行中，跳出操作")
 				return { code: 300, message: "Rocket 正在运行中，请勿重复点击运行" }
@@ -284,13 +216,13 @@ async function handleLoadRunResult() {
 
 async function handleFetchRocketStatus() {
 	ipcMain.handle("fetch-rocket-status", async () => {
-		return await isRocketCoreRunning()
+		return await isKernalRunning("rocket", true)
 	})
 }
 
 async function handleFuelStatus() {
 	ipcMain.handle("fuel-status", async () => {
-		return await isFuelCoreRunning()
+		return await isKernalRunning("fuel")
 	})
 }
 
@@ -306,13 +238,11 @@ async function handleLoadAquaTradingInfo() {
 export const regDataIPC = () => {
 	handleFuelStatus()
 	handleLoadAccount()
-	handleTestStrategy()
 	handleLoadPosition()
 	handleLoadRunResult()
 	handleRocketExecute()
 	queryDataListHandler()
 	handleExecBinWithEnv()
-	handleCalcTradingPlan()
 	handleExecDownloadZip()
 	getStrategySelectData()
 	getBuyInfoListHandler()

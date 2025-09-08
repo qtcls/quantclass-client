@@ -13,18 +13,17 @@ import { atomEffect } from "jotai-effect"
 import { atomWithQuery } from "jotai-tanstack-query"
 import { atomWithStorage } from "jotai/utils"
 
-const { getCoreAndClientVersions } = window.electronAPI
+const { getAppAndKernalVersions } = window.electronAPI
 
 export const versionsAtom = atomWithStorage<
 	Partial<{
 		clientVersion: string // 客户端
-		coreVersion: string // 数据内核
-		coreVersionStatus: boolean
+		fuelVersion: string // 数据内核
 		aquaVersion: string // 选股内核
 		zeusVersion: string // 高级选股内核
 		rocketVersion: string // 下单内核
 	}>
->("versions", { clientVersion: "1.1.5", coreVersionStatus: false }, undefined, {
+>("versions", { clientVersion: "1.1.5" }, undefined, {
 	getOnInit: true,
 })
 
@@ -34,7 +33,7 @@ export const versionsAtom = atomWithStorage<
  */
 export const versionsQueryAtom = atomWithQuery(() => ({
 	queryKey: ["local-versions"],
-	queryFn: () => getCoreAndClientVersions(), // -- 获取本地版本信息
+	queryFn: () => getAppAndKernalVersions(), // -- 获取本地版本信息
 	enabled: true, // -- 挂载后立即请求
 	refetchInterval: 1000 * 60 * 2, // -- 2分钟重新请求一次
 	staleTime: 1000 * 60, // -- 1分钟内数据被认为是新鲜的，不会重新请求

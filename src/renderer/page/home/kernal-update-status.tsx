@@ -15,7 +15,7 @@ import { isUpdatingAtom } from "@/renderer/store"
 import { libraryTypeAtom } from "@/renderer/store/storage"
 import { useAtomValue } from "jotai"
 import "./index.css"
-export function CoreUpdateStatus() {
+export function KernalUpdateStatus() {
 	const [currentStatus, setCurrentStatus] = useState("") // 用于记录当前正在进行的状态
 	const currentStatusRef = useRef(currentStatus)
 	const isUpdating = useAtomValue(isUpdatingAtom)
@@ -37,7 +37,7 @@ export function CoreUpdateStatus() {
 		done: "",
 	}
 
-	const getCoreStatus = (status: string) => {
+	const getKernalStatus = (status: string) => {
 		const statusList = Object.keys(data)
 
 		const currentIndex = statusList.indexOf(currentStatusRef.current)
@@ -65,7 +65,7 @@ export function CoreUpdateStatus() {
 	useEffect(() => {
 		subscribeScheduleStatus((_event, status) => {
 			// 判断是否需要更新状态
-			getCoreStatus(status)
+			getKernalStatus(status)
 		})
 	}, [])
 	useEffect(() => {
