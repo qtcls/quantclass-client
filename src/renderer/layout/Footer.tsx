@@ -59,8 +59,8 @@ import Img from "../../../build/icon.ico"
 import { Badge } from "../components/ui/badge"
 import {
 	Popover,
-	PopoverTrigger,
 	PopoverContent,
+	PopoverTrigger,
 } from "../components/ui/popover"
 
 const { createTerminalWindow, openUserDirectory } = window.electronAPI
