@@ -8,12 +8,12 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
+import { AnimatedRainbowCard } from "@/renderer/components/ui/animated-rainbow-card"
 import {
 	Avatar,
 	AvatarFallback,
 	AvatarImage,
 } from "@/renderer/components/ui/avatar"
-import { AnimatedRainbowCard } from "@/renderer/components/ui/animated-rainbow-card"
 import { Badge } from "@/renderer/components/ui/badge"
 import { Button } from "@/renderer/components/ui/button"
 import { Label } from "@/renderer/components/ui/label"
@@ -29,6 +29,7 @@ import {
 import { useAppVersions } from "@/renderer/hooks/useAppVersion"
 import { useRealTradingRole } from "@/renderer/hooks/useRealTradingRole"
 import { useSettings } from "@/renderer/hooks/useSettings"
+import { useVersionCheck } from "@/renderer/hooks/useVersionCheck"
 import { cn } from "@/renderer/lib/utils"
 import Contributors from "@/renderer/page/settings/contributors"
 import { isAutoLoginAtom, versionListAtom } from "@/renderer/store/storage"
@@ -53,7 +54,6 @@ import {
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import Img from "../../../../build/icon.ico"
-import { useVersionCheck } from "@/renderer/hooks/useVersionCheck"
 
 const useInvokeUpdateCore = () => {
 	const { updateCore } = window.electronAPI

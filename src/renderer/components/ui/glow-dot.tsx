@@ -8,13 +8,13 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
-import { cn } from "@/renderer/lib/utils"
-import { forwardRef, useState } from "react"
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
 } from "@/renderer/components/ui/popover"
+import { cn } from "@/renderer/lib/utils"
+import { forwardRef, useState } from "react"
 
 interface GlowDotProps {
 	className?: string
