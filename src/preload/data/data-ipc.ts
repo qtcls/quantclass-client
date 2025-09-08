@@ -325,5 +325,5 @@ export const regDataIPC = () => {
 	getTradingPlanListHandler()
 	fetchSelectedStrategiesList()
 	handleLoadAquaTradingInfo()
-	console.log("[ok] data-ipc")
+	console.log("[reg] data-ipc")
 }

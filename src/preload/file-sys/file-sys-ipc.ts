@@ -672,5 +672,5 @@ export const regFileSysIPC = () => {
 	forceKillAllProcessesHandler()
 	strategyResultPathHandler()
 	importPositionHandler()
-	console.log("[ok] file-sys-ipc")
+	console.log("[reg] file-sys-ipc")
 }

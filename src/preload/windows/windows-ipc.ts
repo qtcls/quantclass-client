@@ -60,5 +60,5 @@ const focusMainWindow = () => {
 export const regWindowsIPC = () => {
 	focusMainWindow()
 	createTerminalWindow()
-	console.log("[ok] windows-ipc")
+	console.log("[reg] windows-ipc")
 }

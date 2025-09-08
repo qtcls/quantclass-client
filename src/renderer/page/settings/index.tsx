@@ -172,12 +172,23 @@ const CoreVersion = ({
 	const { isAutoRocket, handleToggleAutoRocket } = useToggleAutoRealTrading()
 	const { killCore } = window.electronAPI
 
+	const latestVersion = useMemo(() => {
+		return appVersions?.latest?.[name]
+	}, [appVersions?.latest])
+
+	const currentVersion = useMemo(() => {
+		return version[versionKey]
+	}, [version])
+
+	const versionList = useMemo(() => {
+		return appVersions?.[name] ?? []
+	}, [appVersions?.[name]])
+
 	const handleCoreUpdate = (targetVersion?: string, kernelName?: string) => {
 		if (disabled) {
 			toast.error(`当前操作系统不支持更新${title}内核`)
 			return
 		}
-		const currentVersion = version[versionKey]
 		const displayTargetVersion = targetVersion || "最新版本"
 		const displayKernelName = kernelName || name
 
@@ -242,20 +253,21 @@ const CoreVersion = ({
 			<h3 className="font-medium text-sm flex items-center gap-1">
 				<Icon className="size-4" />
 				{title}
-				{appVersions?.latest[name] !== version[versionKey] && (
+				{latestVersion !== currentVersion && (
 					<span
 						className="text-xs text-blue-500 dark:text-blue-400 cursor-pointer"
-						onClick={() => handleCoreUpdate(appVersions?.latest[name], name)}
+						onClick={() => handleCoreUpdate(latestVersion, name)}
+						title={`更新${title}(${name})内核到版本 ${latestVersion}`}
 					>
-						{version[versionKey] === "暂无内核" ? "下载" : "更新"}
+						{currentVersion === "暂无内核" ? "下载" : "更新"}
 					</span>
 				)}
-				{appVersions?.[name] && (
+				{versionList.length > 0 && (
 					<CoreVersionSelect
 						name={name}
 						title={title}
 						versionKey={versionKey}
-						versions={appVersions?.[name] ?? []}
+						versions={versionList}
 						onVersionSelect={handleCoreUpdate}
 					/>
 				)}
@@ -267,7 +279,7 @@ const CoreVersion = ({
 						: "当前操作系统不支持"}
 				</Badge>
 			) : (
-				<Badge className="font-mono">{version[versionKey]}</Badge>
+				<Badge className="font-mono">{currentVersion}</Badge>
 			)}
 		</div>
 	)

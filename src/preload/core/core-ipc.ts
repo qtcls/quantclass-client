@@ -70,5 +70,5 @@ export const regCoreIPC = () => {
 	getMacAddressHandler()
 	handleGetCoreAndClientVersion()
 	syncNetworkStatusHandler()
-	console.log("[ok] core-ipc")
+	console.log("[reg] core-ipc")
 }

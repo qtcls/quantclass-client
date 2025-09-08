@@ -34,7 +34,8 @@ export const useVersionCheck = () => {
 
 	// 检查是否有内核版本更新
 	const hasCoreUpdates = useMemo(() => {
-		if (!appVersions?.latest || !localVersions) {
+		const latestRemoteVersions = appVersions?.latest
+		if (!latestRemoteVersions || !localVersions) {
 			return {
 				fuel: false,
 				aqua: false,
@@ -44,16 +45,16 @@ export const useVersionCheck = () => {
 		}
 
 		return {
-			fuel: appVersions.latest.fuel !== localVersions.coreVersion,
+			fuel: latestRemoteVersions?.fuel !== localVersions.coreVersion,
 			aqua:
 				settings.libraryType === "select"
-					? appVersions.latest.aqua !== localVersions.aquaVersion
+					? latestRemoteVersions?.aqua !== localVersions.aquaVersion
 					: false,
 			zeus:
 				settings.libraryType === "pos"
-					? appVersions.latest.zeus !== localVersions.zeusVersion
+					? latestRemoteVersions?.zeus !== localVersions.zeusVersion
 					: false,
-			rocket: appVersions.latest.rocket !== localVersions.rocketVersion,
+			rocket: latestRemoteVersions?.rocket !== localVersions.rocketVersion,
 		}
 	}, [appVersions?.latest, localVersions, settings.libraryType])
 
