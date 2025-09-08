@@ -39,7 +39,7 @@ import { AppVersions, KernalType, KernalVersionType } from "@/shared/types"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import {
 	Blocks,
-	CheckCircle2,
+	Check,
 	ChevronDown,
 	ChevronUp,
 	Circle,
@@ -98,6 +98,20 @@ const KernalVersionSelect = ({
 }) => {
 	const version = useAtomValue(versionsAtom)[versionKey]
 	const useAlert = useAlertDialog()
+	const versionLabels = {
+		stable: {
+			title: "正式版",
+			badge: "outline",
+		},
+		beta: {
+			title: "测试版",
+			badge: "info",
+		},
+		pulled: {
+			title: "已下线",
+			badge: "destructive",
+		},
+	}
 	return (
 		<span
 			className="text-xs text-muted-foreground cursor-pointer"
@@ -123,11 +137,28 @@ const KernalVersionSelect = ({
 								>
 									<div className="font-medium flex items-center gap-1">
 										{version === remoteVersion.version ? (
-											<CheckCircle2 className="size-4" />
+											<Check className="size-4 bg-primary text-primary-foreground rounded-full border-2 border-primary" />
 										) : (
 											<Circle className="size-4" />
 										)}
-										{remoteVersion.version}
+										<span
+											className={
+												version === remoteVersion.version
+													? "font-bold font-mono"
+													: "font-mono"
+											}
+										>
+											{remoteVersion.version}
+										</span>
+
+										{remoteVersion.label &&
+											versionLabels[remoteVersion.label] && (
+												<Badge
+													variant={versionLabels[remoteVersion.label].badge}
+												>
+													{versionLabels[remoteVersion.label].title}
+												</Badge>
+											)}
 									</div>
 									<div className="text-sm text-muted-foreground">
 										<p>{remoteVersion.description}</p>
@@ -408,10 +439,10 @@ export default function SettingsPage() {
 						<AvatarFallback>QC</AvatarFallback>
 					</Avatar>
 
-					<div className="">
+					<div className="space-y-1">
 						<div className="font-semibold">量化小讲堂</div>
 						<div className="text-sm flex items-center gap-1">
-							<Badge>v{version.clientVersion}</Badge>
+							<Badge className="font-mono h-5">v{version.clientVersion}</Badge>
 							<span>｜</span>
 							<span
 								className="cursor-pointer text-muted-foreground"

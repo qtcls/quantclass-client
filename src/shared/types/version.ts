@@ -16,6 +16,7 @@ export interface KernalVersionType {
 	download: string
 	version: string
 	release: string
+	label?: string
 }
 
 /**
