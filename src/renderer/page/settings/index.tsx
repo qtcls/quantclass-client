@@ -13,6 +13,7 @@ import {
 	AvatarFallback,
 	AvatarImage,
 } from "@/renderer/components/ui/avatar"
+import { AnimatedRainbowCard } from "@/renderer/components/ui/animated-rainbow-card"
 import { Badge } from "@/renderer/components/ui/badge"
 import { Button } from "@/renderer/components/ui/button"
 import { Label } from "@/renderer/components/ui/label"
@@ -52,6 +53,7 @@ import {
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import Img from "../../../../build/icon.ico"
+import { useVersionCheck } from "@/renderer/hooks/useVersionCheck"
 
 const useInvokeUpdateCore = () => {
 	const { updateCore } = window.electronAPI
@@ -105,14 +107,14 @@ const CoreVersionSelect = ({
 			className="text-xs text-muted-foreground cursor-pointer"
 			onClick={() => {
 				useAlert.open({
-					title: `更换${title}(${name})内核？`,
+					title: `切换${title}(${name})内核？`,
 					content: (
 						<div className="space-y-3 leading-relaxed">
 							{versions.map((remoteVersion) => (
 								<div
 									key={remoteVersion.version}
 									className={cn(
-										"border border-1.5 rounded-lg px-3 py-2 cursor-pointer space-y-1",
+										"border-1.5 rounded-lg px-3 py-2 cursor-pointer space-y-1",
 										version === remoteVersion.version
 											? "border-primary cursor-not-allowed"
 											: "border-muted hover:bg-primary/10",
@@ -143,7 +145,7 @@ const CoreVersionSelect = ({
 				})
 			}}
 		>
-			更换
+			切换
 		</span>
 	)
 }
@@ -240,14 +242,15 @@ const CoreVersion = ({
 			<h3 className="font-medium text-sm flex items-center gap-1">
 				<Icon className="size-4" />
 				{title}
-				{appVersions?.latest[name] !== version[versionKey] ? (
+				{appVersions?.latest[name] !== version[versionKey] && (
 					<span
 						className="text-xs text-blue-500 dark:text-blue-400 cursor-pointer"
 						onClick={() => handleCoreUpdate(appVersions?.latest[name], name)}
 					>
 						{version[versionKey] === "暂无内核" ? "下载" : "更新"}
 					</span>
-				) : (
+				)}
+				{appVersions?.[name] && (
 					<CoreVersionSelect
 						name={name}
 						title={title}
@@ -333,34 +336,18 @@ export default function SettingsPage() {
 
 	const useAlert = useAlertDialog()
 	const invokeUpdateCore = useInvokeUpdateCore()
+	const { getUpdateMessage, hasAnyUpdate } = useVersionCheck()
 
 	const handleUpdateCores = async () => {
 		useAlert.open({
 			title: "一键更新内核",
 			content: (
 				<div className="space-y-3 leading-relaxed">
-					<div className="relative overflow-hidden bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 dark:from-blue-900/20 dark:via-purple-900/40 dark:to-pink-900/50 border border-blue-300 dark:border-blue-700 rounded-lg px-4 py-3">
-						<div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 dark:via-white/10 to-transparent w-1/3 h-full animate-[shimmer_2s_ease-in-out_infinite] transform -skew-x-12"></div>
-						<div className="relative flex items-center gap-2">
-							<span className="text-2xl">✨</span>
-							<span className="font-medium text-blue-900 dark:text-blue-200">
-								内核更新提示
-							</span>
-						</div>
-						<p className="text-sm text-blue-800 dark:text-blue-300 mt-1 relative">
-							即将为您更新所有内核到最新版本，请仔细阅读以下注意事项
-						</p>
-						<style>{`
-							@keyframes shimmer {
-								0% {
-									transform: translateX(-100%) skewX(-12deg);
-								}
-								100% {
-									transform: translateX(300%) skewX(-12deg);
-								}
-							}
-						`}</style>
-					</div>
+					<AnimatedRainbowCard
+						icon="✨"
+						title="内核更新提示"
+						description="即将为您更新所有内核到最新版本，请仔细阅读以下注意事项"
+					/>
 					<Separator />
 					<p>
 						🛑 更新前，会自动停止自动数据更新和实盘功能。在完成更新后，需要
@@ -401,9 +388,14 @@ export default function SettingsPage() {
 
 	return (
 		<div className="space-y-4 py-4">
+			{hasAnyUpdate && (
+				<AnimatedRainbowCard
+					icon={<CircleArrowUp size={22} />}
+					title="有可用更新"
+					description={getUpdateMessage}
+				/>
+			)}
 			<div className="space-y-4">
-				{/* <div className="text-sm text-muted-foreground">版本</div> */}
-
 				<div className="flex items-center gap-3">
 					<Avatar className="border bg-white dark:border-white ">
 						<AvatarImage src={Img} alt="@shadcn" />

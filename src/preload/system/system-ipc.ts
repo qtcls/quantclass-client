@@ -125,7 +125,12 @@ function handleRestartApp() {
 
 async function handleCheckUpdate(): Promise<void> {
 	ipcMain.handle("check-update", async (_event, now = true) => {
-		return await checkRemoteVersions(now)
+		try {
+			return { success: true, data: await checkRemoteVersions(now) }
+		} catch (error) {
+			console.error("检查远程版本失败:", error)
+			return { success: false, data: error }
+		}
 	})
 }
 

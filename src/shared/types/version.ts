@@ -25,7 +25,9 @@ export interface AppVersions {
 	client: string
 	latest: Record<string, string>
 	downloads: Record<string, string>
+	app: CoreVersionType
+	fuel: CoreVersionType[]
 	aqua: CoreVersionType[]
-	rocket: CoreVersionType[]
 	zeus: CoreVersionType[]
+	rocket: CoreVersionType[]
 }

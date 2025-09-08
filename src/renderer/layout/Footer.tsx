@@ -50,6 +50,8 @@ import Markdown from "react-markdown"
 import { useLocation, useNavigate } from "react-router"
 import Img from "../../../build/icon.ico"
 import { Badge } from "../components/ui/badge"
+import { GlowDot } from "@/renderer/components/ui/glow-dot"
+import { useVersionCheck } from "@/renderer/hooks/useVersionCheck"
 
 const { createTerminalWindow, openUserDirectory } = window.electronAPI
 
@@ -138,6 +140,7 @@ export const Footer: FC = () => {
 export const _SiderFooter = () => {
 	const { status, progress, updateInfo, confirmCallback } = useAppUpdate()
 	const { clientVersion } = useAtomValue(versionsAtom) ?? {}
+	const { hasAnyUpdate, getUpdateMessage } = useVersionCheck()
 	const navigate = useNavigate()
 	const { pathname } = useLocation()
 	return (
@@ -198,6 +201,7 @@ export const _SiderFooter = () => {
 						<SidebarMenuButton
 							size="lg"
 							onClick={() => navigate(SETTINGS_PAGE)}
+							className="overflow-visible"
 						>
 							<div className="flex items-center gap-2.5">
 								<Avatar className="size-10 border bg-white dark:border-white ">
@@ -205,7 +209,16 @@ export const _SiderFooter = () => {
 									<AvatarFallback>Q</AvatarFallback>
 								</Avatar>
 								<div className="flex flex-col gap-1 leading-none">
-									<span className="font-semibold">量化小讲堂</span>
+									<div className="relative">
+										<span className="font-semibold">量化小讲堂</span>
+										<GlowDot
+											visible={hasAnyUpdate}
+											size="sm"
+											color="blue"
+											message={getUpdateMessage}
+											className="absolute -top-0.5 -right-3"
+										/>
+									</div>
 									<Badge>v{clientVersion}</Badge>
 								</div>
 							</div>
