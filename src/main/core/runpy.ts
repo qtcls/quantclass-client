@@ -65,7 +65,12 @@ export async function fetchRemoteVersions(): Promise<AppVersions> {
 export async function getRemoteVersions(): Promise<AppVersions> {
 	const versions = (await store.getValue("app.versions", {})) as AppVersions
 	if (!versions.latest) {
-		return await fetchRemoteVersions()
+		try {
+			return await fetchRemoteVersions()
+		} catch (error) {
+			logger.error(`[app] 获取远程版本失败: ${error}`)
+			return versions
+		}
 	}
 	return versions
 }
@@ -96,7 +101,12 @@ export async function checkRemoteVersions(now = true): Promise<AppVersions> {
 	}
 
 	if (needFetchRemoteVersion) {
-		remoteVersions = await fetchRemoteVersions()
+		try {
+			remoteVersions = await fetchRemoteVersions()
+		} catch (error) {
+			logger.error(`[app] 获取远程版本失败: ${error}`)
+			return remoteVersions
+		}
 	}
 	store.setValue("lastUpdateCheck.app", current.toISOString())
 
