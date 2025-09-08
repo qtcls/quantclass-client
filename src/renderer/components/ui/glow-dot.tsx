@@ -8,29 +8,18 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@/renderer/components/ui/popover"
 import { cn } from "@/renderer/lib/utils"
-import { forwardRef, useState } from "react"
+import { forwardRef } from "react"
 
 interface GlowDotProps {
 	className?: string
 	size?: "sm" | "md" | "lg"
 	color?: "blue" | "red" | "green" | "yellow"
 	visible?: boolean
-	message?: string
 }
 
 const GlowDot = forwardRef<HTMLDivElement, GlowDotProps>(
-	(
-		{ className, size = "sm", color = "blue", visible = true, message },
-		ref,
-	) => {
-		const [isOpen, setIsOpen] = useState(false)
-
+	({ className, size = "sm", color = "blue", visible = true }, ref) => {
 		if (!visible) return null
 
 		const sizeClasses = {
@@ -78,35 +67,7 @@ const GlowDot = forwardRef<HTMLDivElement, GlowDotProps>(
 			/>
 		)
 
-		if (message) {
-			return (
-				<div
-					onMouseEnter={() => setIsOpen(true)}
-					onMouseLeave={() => setIsOpen(false)}
-				>
-					<Popover open={isOpen} onOpenChange={setIsOpen}>
-						<PopoverTrigger asChild>{dot}</PopoverTrigger>
-						<PopoverContent className="w-80 p-3" sideOffset={0}>
-							<div className="space-y-2">
-								<h4 className="font-medium text-sm">版本更新提醒</h4>
-								<div className="text-xs text-muted-foreground whitespace-pre-line">
-									{message}
-								</div>
-							</div>
-						</PopoverContent>
-					</Popover>
-				</div>
-			)
-		}
-
-		return (
-			<div
-				onMouseEnter={() => setIsOpen(true)}
-				onMouseLeave={() => setIsOpen(false)}
-			>
-				{dot}
-			</div>
-		)
+		return dot
 	},
 )
 

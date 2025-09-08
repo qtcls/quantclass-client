@@ -46,12 +46,22 @@ import { isShowMonitorPanelAtom } from "@/renderer/store"
 import { versionsAtom } from "@/renderer/store/versions"
 import { formatBytes } from "@/renderer/utils/formatBytes"
 import { useAtomValue, useSetAtom } from "jotai"
-import { FolderClock, Monitor, SquareTerminal } from "lucide-react"
-import { FC } from "react"
+import {
+	CircleArrowUp,
+	FolderClock,
+	Monitor,
+	SquareTerminal,
+} from "lucide-react"
+import { FC, useState } from "react"
 import Markdown from "react-markdown"
-import { useLocation, useNavigate } from "react-router"
+import { useNavigate } from "react-router"
 import Img from "../../../build/icon.ico"
 import { Badge } from "../components/ui/badge"
+import {
+	Popover,
+	PopoverTrigger,
+	PopoverContent,
+} from "../components/ui/popover"
 
 const { createTerminalWindow, openUserDirectory } = window.electronAPI
 
@@ -142,7 +152,7 @@ export const _SiderFooter = () => {
 	const { clientVersion } = useAtomValue(versionsAtom) ?? {}
 	const { hasAnyUpdate, getUpdateMessage } = useVersionCheck()
 	const navigate = useNavigate()
-	const { pathname } = useLocation()
+	const [showVersionUpdate, setShowVersionUpdate] = useState(false)
 	return (
 		<SidebarFooter>
 			<SidebarMenu>
@@ -197,33 +207,52 @@ export const _SiderFooter = () => {
 				)}
 
 				<SidebarMenuItem>
-					{!pathname.includes(SETTINGS_PAGE) && (
-						<SidebarMenuButton
-							size="lg"
-							onClick={() => navigate(SETTINGS_PAGE)}
-							className="overflow-visible"
+					<SidebarMenuButton
+						size="lg"
+						onClick={() => {
+							setShowVersionUpdate(false)
+							navigate(SETTINGS_PAGE)
+						}}
+						className="overflow-visible"
+						onMouseEnter={() => setShowVersionUpdate(hasAnyUpdate && true)}
+						onMouseLeave={() => setShowVersionUpdate(false)}
+					>
+						<Popover
+							open={showVersionUpdate}
+							onOpenChange={setShowVersionUpdate}
 						>
-							<div className="flex items-center gap-2.5">
-								<Avatar className="size-10 border bg-white dark:border-white ">
-									<AvatarImage src={Img} alt="quantclass" />
-									<AvatarFallback>Q</AvatarFallback>
-								</Avatar>
-								<div className="flex flex-col gap-1 leading-none">
-									<div className="relative">
-										<span className="font-semibold">量化小讲堂</span>
-										<GlowDot
-											visible={hasAnyUpdate}
-											size="sm"
-											color="blue"
-											message={getUpdateMessage}
-											className="absolute -top-0.5 -right-3"
-										/>
+							<PopoverTrigger asChild>
+								<div className="flex items-center gap-2.5">
+									<Avatar className="size-10 border bg-white dark:border-white ">
+										<AvatarImage src={Img} alt="quantclass" />
+										<AvatarFallback>Q</AvatarFallback>
+									</Avatar>
+									<div className="flex flex-col gap-1 leading-none">
+										<div className="relative">
+											<span className="font-semibold">量化小讲堂</span>
+											<GlowDot
+												visible={hasAnyUpdate}
+												size="sm"
+												color="blue"
+												className="absolute -top-0.5 -right-3"
+											/>
+										</div>
+										<Badge>v{clientVersion}</Badge>
 									</div>
-									<Badge>v{clientVersion}</Badge>
 								</div>
-							</div>
-						</SidebarMenuButton>
-					)}
+							</PopoverTrigger>
+							<PopoverContent className="w-80 p-3" sideOffset={4}>
+								<div className="space-y-2">
+									<h4 className="font-medium text-sm flex items-center gap-1.5">
+										<CircleArrowUp size={18} /> 版本更新提醒
+									</h4>
+									<div className="text-xs text-muted-foreground whitespace-pre-line">
+										{getUpdateMessage}
+									</div>
+								</div>
+							</PopoverContent>
+						</Popover>
+					</SidebarMenuButton>
 				</SidebarMenuItem>
 			</SidebarMenu>
 		</SidebarFooter>
