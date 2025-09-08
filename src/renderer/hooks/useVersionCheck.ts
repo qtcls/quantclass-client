@@ -25,11 +25,12 @@ export const useVersionCheck = () => {
 
 	// 检查是否有客户端版本更新
 	const hasClientUpdate = useMemo(() => {
-		if (!appVersions?.app.version || !localVersions?.clientVersion) {
+		const remoteVersion = appVersions?.app?.version
+		if (!remoteVersion || !localVersions?.clientVersion) {
 			return false
 		}
-		return appVersions.app.version !== localVersions.clientVersion
-	}, [appVersions?.app.version, localVersions?.clientVersion])
+		return remoteVersion !== localVersions.clientVersion
+	}, [appVersions?.app?.version, localVersions?.clientVersion])
 
 	// 检查是否有内核版本更新
 	const hasCoreUpdates = useMemo(() => {
