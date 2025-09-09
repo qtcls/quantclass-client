@@ -233,8 +233,8 @@ export const _SiderFooter = () => {
 											<GlowDot
 												visible={hasAnyUpdate}
 												size="sm"
-												color="blue"
-												className="absolute -top-0.5 -right-3"
+												color="red"
+												className="absolute -top-0.5 -right-4"
 											/>
 										</div>
 										<Badge>v{clientVersion}</Badge>

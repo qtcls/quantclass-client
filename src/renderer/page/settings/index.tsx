@@ -54,6 +54,8 @@ import {
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import Img from "../../../../build/icon.ico"
+import { PerformanceModeSelectTabs } from "@/renderer/components/select-tabs"
+import { useRealMarketConfig } from "@/renderer/hooks/useRealMarketConfig"
 
 const useInvokeUpdateKernal = () => {
 	const { updateKernal } = window.electronAPI
@@ -100,16 +102,16 @@ const KernalVersionSelect = ({
 	const useAlert = useAlertDialog()
 	const versionLabels = {
 		stable: {
-			title: "正式版",
+			title: "稳定版",
 			badge: "outline",
 		},
 		beta: {
 			title: "测试版",
-			badge: "info",
+			badge: "outline-info",
 		},
 		pulled: {
 			title: "已下线",
-			badge: "destructive",
+			badge: "secondary",
 		},
 	}
 	return (
@@ -128,9 +130,15 @@ const KernalVersionSelect = ({
 										version === remoteVersion.version
 											? "border-primary cursor-not-allowed"
 											: "border-muted hover:bg-primary/10",
+										"pulled" === remoteVersion.label &&
+											"text-muted-foreground hover:bg-transparent",
 									)}
 									onClick={() => {
-										if (version !== remoteVersion.version && onVersionSelect) {
+										if (
+											version !== remoteVersion.version &&
+											remoteVersion.label !== "pulled" &&
+											onVersionSelect
+										) {
 											onVersionSelect?.(remoteVersion.version, name)
 										}
 									}}
@@ -142,11 +150,10 @@ const KernalVersionSelect = ({
 											<Circle className="size-4" />
 										)}
 										<span
-											className={
-												version === remoteVersion.version
-													? "font-bold font-mono"
-													: "font-mono"
-											}
+											className={cn(
+												"text-mono",
+												version === remoteVersion.version && "font-bold",
+											)}
 										>
 											{remoteVersion.version}
 										</span>
@@ -155,6 +162,9 @@ const KernalVersionSelect = ({
 											versionLabels[remoteVersion.label] && (
 												<Badge
 													variant={versionLabels[remoteVersion.label].badge}
+													className={cn(
+														remoteVersion.label === "pulled" && "text-danger",
+													)}
 												>
 													{versionLabels[remoteVersion.label].title}
 												</Badge>
@@ -323,6 +333,7 @@ export default function SettingsPage() {
 	const { isAutoRocket, handleToggleAutoRocket } = useToggleAutoRealTrading() // 自动交易控制
 
 	const { settings, updateSettings } = useSettings()
+	const { realMarketConfig, setPerformanceMode } = useRealMarketConfig()
 	const isAutoLaunchRealTrading = useMemo(() => {
 		return settings.is_auto_launch_real_trading
 	}, [settings.is_auto_launch_real_trading])
@@ -572,23 +583,13 @@ export default function SettingsPage() {
 							数据更新性能，性能越高，数据更新速度越快，但会占用更多性能。
 						</p>
 					</div>
-					<Tabs
+					<PerformanceModeSelectTabs
+						name="数据更新"
 						defaultValue={settings.performance_mode || "EQUAL"}
 						onValueChange={(value) => {
-							updateSettings({
-								performance_mode: value as "ECONOMY" | "EQUAL" | "PERFORMANCE",
-							})
-							toast.success(
-								`数据更新性能模式设置为${value === "ECONOMY" ? "经济模式" : value === "EQUAL" ? "均衡模式" : "性能模式"}`,
-							)
+							updateSettings({ performance_mode: value })
 						}}
-					>
-						<TabsList>
-							<TabsTrigger value="ECONOMY">经济</TabsTrigger>
-							<TabsTrigger value="EQUAL">均衡</TabsTrigger>
-							<TabsTrigger value="PERFORMANCE">性能</TabsTrigger>
-						</TabsList>
-					</Tabs>
+					/>
 				</div>
 
 				<div className="flex items-center justify-between">
@@ -601,23 +602,13 @@ export default function SettingsPage() {
 							选股性能模式，性能越高，选股速度越快，但会占用更多性能。
 						</p>
 					</div>
-					<Tabs
-						defaultValue={settings.performance_mode || "EQUAL"}
+					<PerformanceModeSelectTabs
+						name="选股"
+						defaultValue={realMarketConfig.performance_mode || "EQUAL"}
 						onValueChange={(value) => {
-							updateSettings({
-								performance_mode: value as "ECONOMY" | "EQUAL" | "PERFORMANCE",
-							})
-							toast.success(
-								`数据更新性能模式设置为${value === "ECONOMY" ? "经济模式" : value === "EQUAL" ? "均衡模式" : "性能模式"}`,
-							)
+							setPerformanceMode(value)
 						}}
-					>
-						<TabsList>
-							<TabsTrigger value="ECONOMY">经济</TabsTrigger>
-							<TabsTrigger value="EQUAL">均衡</TabsTrigger>
-							<TabsTrigger value="PERFORMANCE">性能</TabsTrigger>
-						</TabsList>
-					</Tabs>
+					/>
 				</div>
 			</div>
 

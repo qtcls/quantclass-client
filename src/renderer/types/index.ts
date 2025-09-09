@@ -9,6 +9,7 @@
  */
 
 export type { SettingsType } from "./settings.js"
+export type { RealMarketConfigType } from "./trading.js"
 
 export interface UserInfo {
 	id: string

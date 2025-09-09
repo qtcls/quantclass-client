@@ -9,12 +9,9 @@
  */
 
 import { DataLocationCtrl } from "@/renderer/components/data-location-ctrl"
+import { PerformanceModeSelectTabs } from "@/renderer/components/select-tabs"
 import { Button } from "@/renderer/components/ui/button"
 import ButtonTooltip from "@/renderer/components/ui/button-tooltip"
-import {
-	RadioGroup,
-	RadioGroupItem,
-} from "@/renderer/components/ui/radio-group"
 import { H2 } from "@/renderer/components/ui/typography"
 import {
 	useAuthUpdate,
@@ -36,7 +33,6 @@ import {
 	Server,
 } from "lucide-react"
 import { FC } from "react"
-import { toast } from "sonner"
 
 const Data: FC = () => {
 	const disabled = useAuthUpdate()
@@ -45,20 +41,6 @@ const Data: FC = () => {
 	const { performanceMode, setPerformanceMode } = useSettings()
 	const { dataScheduleTimes } = useScheduleTimes()
 	const { dataSubscribed } = useDataSubscribed()
-	const radioList = [
-		{
-			label: "节能",
-			value: "ECONOMY",
-		},
-		{
-			label: "均衡",
-			value: "EQUAL",
-		},
-		{
-			label: "性能",
-			value: "PERFORMANCE",
-		},
-	]
 
 	return (
 		<div className="h-full flex-1 flex-col space-y-4 md:flex pt-3">
@@ -117,7 +99,7 @@ const Data: FC = () => {
 					</div>
 					<DataLocationCtrl className="w-72" />
 				</div>
-				<div className="flex items-center space-x-4 min-w-80">
+				<div className="flex items-center space-x-4">
 					<div className="flex items-center space-x-1">
 						<span className="font-semibold">性能模式</span>{" "}
 						<span className="text-destructive">*</span>
@@ -136,51 +118,11 @@ const Data: FC = () => {
 							/>
 						</ButtonTooltip>
 					</div>
-					<RadioGroup
-						value={performanceMode}
-						onValueChange={(e) => {
-							const index = radioList.findIndex((item) => item.value === e)
-							toast.success(
-								`数据更新性能模式修改为 ${radioList[index].label}`,
-								{
-									description: `更新时使用「${
-										radioList[index].value === "ECONOMY"
-											? "1/3的系统核心数"
-											: radioList[index].value === "EQUAL"
-												? "1/2的系统核心数"
-												: "系统核心数 - 1"
-									}」并行计算`,
-								},
-							)
-							setPerformanceMode(e)
-						}}
-						className="flex space-x-2 font-normal"
-					>
-						<div className="flex items-center space-x-1">
-							<span
-								className={`${performanceMode === "ECONOMY" ? "font-bold" : "font-normal"}`}
-							>
-								节能
-							</span>
-							<RadioGroupItem value="ECONOMY" />
-						</div>
-						<div className="flex items-center space-x-1">
-							<span
-								className={`${performanceMode === "EQUAL" ? "font-bold" : "font-normal"}`}
-							>
-								均衡
-							</span>
-							<RadioGroupItem value="EQUAL" />
-						</div>
-						<div className="flex items-center space-x-1">
-							<span
-								className={`${performanceMode === "PERFORMANCE" ? "font-bold" : "font-normal"}`}
-							>
-								性能
-							</span>
-							<RadioGroupItem value="PERFORMANCE" />
-						</div>
-					</RadioGroup>
+					<PerformanceModeSelectTabs
+						name="数据"
+						defaultValue={performanceMode}
+						onValueChange={(value) => setPerformanceMode(value)}
+					/>
 				</div>
 			</div>
 
