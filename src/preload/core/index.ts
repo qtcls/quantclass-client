@@ -12,17 +12,6 @@ import type { IRes } from "@/main/server/types/index.js"
 import { ipcRenderer } from "electron"
 
 export const coreIPC = {
-	setPythonDependenceInstallClose: (
-		callback: (isOpen: boolean, status: "success" | "error") => void,
-	) =>
-		ipcRenderer.on(
-			"client-global-loading",
-			(_event, isOpen: boolean, status: "success" | "error") =>
-				callback(isOpen, status),
-		),
-	removePythonDependenceInstallCloseListener: () => {
-		ipcRenderer.removeAllListeners("client-global-loading")
-	},
 	reportError: (cb: (res: IRes) => void) =>
 		ipcRenderer.on("report-msg", (_event, res: IRes) => cb(res)),
 	removeReportErrorListener: () => {
