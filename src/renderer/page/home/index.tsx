@@ -90,7 +90,7 @@ export const KernalVersionDes = ({
 		if (isUpdating && key === "fuel") return "🟡"
 		if (isAutoRocket && (key === "aqua" || key === "zeus" || key === "rocket"))
 			return "🟡"
-		return "🚫" // 默认状态
+		return "⚪" // 默认状态
 	}
 
 	return (

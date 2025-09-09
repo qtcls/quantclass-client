@@ -95,15 +95,15 @@ export const DataKanban = () => {
 					</Button>
 				</div>
 
-				<div className="bg-card rounded-lg p-4 shadow-sm border max-w-3xl">
+				<div className="bg-card rounded-lg p-3 shadow-sm border max-w-3xl">
 					<H4 className="mb-4">
 						存储路径{" "}
 						<span className="text-muted-foreground text-sm">
 							建议预留最少 20GB 空间
 						</span>
 					</H4>
-					<div className="space-y-2">
-						<DataLocationCtrl />
+					<div className="flex items-center gap-2 w-full">
+						<DataLocationCtrl className="min-w-64" />
 					</div>
 				</div>
 			</div>

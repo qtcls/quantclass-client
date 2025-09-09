@@ -58,7 +58,7 @@ const GlowDot = forwardRef<HTMLDivElement, GlowDotProps>(
 			<div
 				ref={ref}
 				className={cn(
-					"rounded-full relative cursor-help",
+					"rounded-full relative",
 					sizeClasses[size],
 					colorClasses[color],
 					className,
