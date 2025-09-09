@@ -64,12 +64,12 @@ export const createWindow = async (tray?: Tray): Promise<void> => {
 				if (isMinimize === undefined) {
 					const { response, checkboxChecked } = await dialog.showMessageBox({
 						type: "question",
-						buttons: ["最小化到系统托盘", "直接退出", "取消"],
+						buttons: ["最小化", "退出程序", "取消"],
 						cancelId: 2, // 取消按钮的索引
 						defaultId: 2, // 默认选中的按钮
-						title: "确认退出客户端",
+						title: "确认退出量化小讲堂客户端",
 						message:
-							"你想要退出应用还是最小化到托盘？\n退出时会自动关闭以下联动模块：\n1. 数据更新模块 \n2. 自动选股模块 \n3. 自动下单模块",
+							"你想要退出应用还是最小化？退出会同时停止数据更新和自动实盘",
 						// checkboxLabel: "记住我的选择，不再提示",
 						// checkboxChecked: false,
 					})

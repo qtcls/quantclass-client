@@ -85,25 +85,27 @@ export function DataLocationCtrl({ className }: { className?: string }) {
 					</div>
 				)}
 			</div>
-			<ButtonTooltip content="打开数据文件夹" delayDuration={10}>
-				<Button
-					size="sm"
-					variant="outline"
-					className="h-10 text-foreground lg:flex gap-1"
-					onClick={async () => {
-						setPending(true)
-						await openDataDirectory()
-						setTimeout(() => setPending(false), 750)
-					}}
-					disabled={pending}
-				>
-					{pending ? (
-						<Loader2 size={16} className="animate-spin" />
-					) : (
-						<FolderOpen size={16} />
-					)}
-				</Button>
-			</ButtonTooltip>
+			{dataLocation && (
+				<ButtonTooltip content="打开数据文件夹" delayDuration={10}>
+					<Button
+						size="sm"
+						variant="outline"
+						className="h-10 text-foreground lg:flex gap-1"
+						onClick={async () => {
+							setPending(true)
+							await openDataDirectory()
+							setTimeout(() => setPending(false), 750)
+						}}
+						disabled={pending}
+					>
+						{pending ? (
+							<Loader2 size={16} className="animate-spin" />
+						) : (
+							<FolderOpen size={16} />
+						)}
+					</Button>
+				</ButtonTooltip>
+			)}
 		</>
 	)
 }
