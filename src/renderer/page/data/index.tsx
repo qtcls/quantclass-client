@@ -29,8 +29,8 @@ import {
 	Info,
 	Play,
 	RefreshCcwDot,
-	Server,
 	RefreshCw,
+	Server,
 } from "lucide-react"
 import { FC } from "react"
 
