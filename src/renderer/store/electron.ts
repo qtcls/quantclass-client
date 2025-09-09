@@ -10,7 +10,10 @@
 
 import type { IDataListType } from "@/renderer/schemas/data-schema"
 import type { SettingsType } from "@/renderer/types"
-import type { BlacklistItem } from "@/renderer/types/trading"
+import type {
+	BlacklistItem,
+	RealMarketConfigType,
+} from "@/renderer/types/trading"
 import { atomWithElectronStore } from "@/renderer/utils/store"
 
 /**
@@ -24,18 +27,22 @@ export const buyBlacklistAtom = atomWithElectronStore<BlacklistItem[]>(
 /**
  * 设置
  */
-export const settingsAtom = atomWithElectronStore<SettingsType>("settings", {
-	all_data_path: "",
-	strategy_result_path: "",
-	is_auto_launch_update: false,
-	is_auto_launch_real_trading: false,
-	data_white_list: [],
-	hid: "",
-	api_key: "",
-	libraryType: "",
-	performance_mode: "EQUAL",
-	user_choice: false,
-})
+export const settingsAtom = atomWithElectronStore<SettingsType>(
+	"settings",
+	{
+		all_data_path: "",
+		strategy_result_path: "",
+		is_auto_launch_update: false,
+		is_auto_launch_real_trading: false,
+		data_white_list: [],
+		hid: "",
+		api_key: "",
+		libraryType: "",
+		performance_mode: "EQUAL",
+		user_choice: false,
+	},
+	{ useLocalStorage: true, getOnInit: true },
+)
 
 export const dataSubscribedAtom = atomWithElectronStore<IDataListType[]>(
 	"data_map",
@@ -54,6 +61,26 @@ export const scheduleTimesAtom = atomWithElectronStore<{
 })
 
 /**
+ * 实盘配置
+ */
+export const realMarketConfigAtom = atomWithElectronStore<RealMarketConfigType>(
+	"real_market_config",
+	{
+		filter_kcb: true,
+		filter_cyb: true,
+		filter_bj: true,
+		performance_mode: "EQUAL",
+		date_start: new Date(new Date().setFullYear(new Date().getFullYear() - 3)),
+		qmt_path: "",
+		account_id: "",
+		qmt_port: "58610",
+		message_robot_url: "",
+		reverse_repo_keep: 1000,
+	},
+	{ useLocalStorage: true, getOnInit: true },
+)
+
+/**
  * 自动初始化
  * 配置在列表中后，会自动初始化
  */
@@ -62,4 +89,5 @@ export const autoInitAtoms = [
 	scheduleTimesAtom,
 	buyBlacklistAtom,
 	dataSubscribedAtom,
+	realMarketConfigAtom,
 ]
