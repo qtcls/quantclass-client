@@ -165,16 +165,7 @@ export const dataColumns = (
 	// },
 	{
 		id: "action",
-		header: () => (
-			<ButtonTooltip content="数据同步中，暂停数据同步后编辑" delayDuration={0}>
-				<div className="text-foreground flex items-center gap-1">
-					操作
-					{isUpdating && (
-						<Loader2 size={16} className="animate-spin text-success" />
-					)}
-				</div>
-			</ButtonTooltip>
-		),
+		header: "操作",
 		size: 60,
 		cell: ({ row }) => <DataTableRowActions row={row} refresh={refresh} />,
 	},

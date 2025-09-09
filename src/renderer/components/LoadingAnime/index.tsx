@@ -9,7 +9,7 @@
  */
 
 import { useSidebar } from "@/renderer/components/ui/sidebar"
-import { RefreshCcw } from "lucide-react"
+import { RefreshCw } from "lucide-react"
 import { type FC, type ReactNode, useEffect } from "react"
 import { Button } from "../ui/button"
 
@@ -41,7 +41,7 @@ const LoadingAnime: FC<ILoadingAnimeProps> = ({
 		<>
 			{loading && (
 				<div className="fixed inset-0 z-[9] flex h-[calc(100vh-2.5rem)] top-10 w-screen flex-col items-center justify-center gap-2 bg-background">
-					<RefreshCcw className="animate-spin" />
+					<RefreshCw className="animate-spin" />
 					<h2 className="text-lg">{content}</h2>
 					<p className="text-xs text-muted-foreground">
 						{type === "kernalUpdate" ? "正在检查并更新内核" : "正在计算中"}

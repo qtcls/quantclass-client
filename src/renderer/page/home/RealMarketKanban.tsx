@@ -36,7 +36,7 @@ import {
 	totalWeightAtom,
 } from "@/renderer/store/storage"
 import { useAtom, useAtomValue } from "jotai"
-import { Eye, EyeOff, Library, Play, RefreshCcw } from "lucide-react"
+import { Eye, EyeOff, Library, Play, RefreshCw } from "lucide-react"
 import { useEffect, useState } from "react"
 import TradeCtrlBtn from "../../components/trade-ctrl-btn"
 // import { useNavigate } from "react-router"
@@ -99,20 +99,20 @@ export const RealMarketKanban = () => {
 						<ButtonTooltip content="切换资金展示">
 							{showMoney ? (
 								<Eye
-									className="h-4 w-4 translate-y-[1px] text-muted-foreground hover:cursor-pointer"
+									className="size-4 translate-y-[1px] text-muted-foreground hover:cursor-pointer"
 									onClick={() => setShowMoney((prev) => !prev)}
 								/>
 							) : (
 								<EyeOff
-									className="h-4 w-4 translate-y-[1px] text-muted-foreground hover:cursor-pointer"
+									className="size-4 translate-y-[1px] text-muted-foreground hover:cursor-pointer"
 									onClick={() => setShowMoney((prev) => !prev)}
 								/>
 							)}
 						</ButtonTooltip>
 
 						<ButtonTooltip content="手动刷新资金信息">
-							<RefreshCcw
-								className="h-4 w-4 translate-y-[1px] text-muted-foreground hover:cursor-pointer"
+							<RefreshCw
+								className="size-4 translate-y-[1px] text-muted-foreground hover:cursor-pointer animate-spin"
 								onClick={() => refetch()}
 							/>
 						</ButtonTooltip>

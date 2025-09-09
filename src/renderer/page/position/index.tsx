@@ -21,7 +21,7 @@ import {
 	PositionStrategyInfoType,
 } from "@/renderer/page/position/types"
 import { useQuery } from "@tanstack/react-query"
-import { RefreshCcw } from "lucide-react"
+import { RefreshCw } from "lucide-react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
@@ -96,7 +96,7 @@ export default function PositionInfo() {
 						className="flex items-center gap-2 h-8"
 						disabled={loading}
 					>
-						<RefreshCcw className="w-4 h-4" />
+						<RefreshCw className="w-4 h-4" />
 						刷新
 					</Button>
 				</div>

@@ -29,7 +29,7 @@ import {
 } from "@/renderer/components/ui/dialog"
 import { useDataSubscribed } from "@/renderer/hooks/useDataSubscribed"
 import { useAtomValue } from "jotai"
-import { Database, Play, RefreshCcw } from "lucide-react"
+import { Database, Play, RefreshCw } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router"
 import { accountKeyAtom } from "../../store/storage"
@@ -61,12 +61,14 @@ export const DataKanban = () => {
 					{isUpdating ? (
 						<ButtonTooltip content="停止自动更新数据">
 							<Button
-								variant={dataScheduleTimes.length > 0 ? "warning" : "success"}
+								variant={
+									dataScheduleTimes.length > 0 ? "successOutline" : "success"
+								}
 								className="hover:cursor-pointer"
 								disabled={disabled}
 								onClick={() => handleTimeTask(true)}
 							>
-								<RefreshCcw className="size-4 animate-spin mr-2" />
+								<RefreshCw className="size-4 animate-spin mr-2" />
 								暂停
 							</Button>
 						</ButtonTooltip>

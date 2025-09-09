@@ -50,7 +50,11 @@ import {
 	FolderCode,
 	Gift,
 	LucideIcon,
-	RefreshCcw,
+	Minimize,
+	Power,
+	RefreshCw,
+	Rocket,
+	Rss,
 	SquareFunction,
 } from "lucide-react"
 import { useMemo, useState } from "react"
@@ -522,7 +526,7 @@ export default function SettingsPage() {
 						})
 					}}
 				>
-					<RefreshCcw
+					<RefreshCw
 						className={cn(
 							"size-4 mr-2",
 							isCheckingAppVersions ||
@@ -619,9 +623,10 @@ export default function SettingsPage() {
 					<div className="space-y-1">
 						<Label
 							htmlFor="startup"
-							className="font-medium text-sm hover:cursor-pointer"
+							className="font-medium text-sm hover:cursor-pointer flex items-center gap-1"
 						>
-							自动打开客户端
+							<Power className="size-4" />
+							开机打开客户端
 						</Label>
 						<p className="text-xs text-muted-foreground">
 							电脑开机时自动打开量化小讲堂客户端。
@@ -638,8 +643,9 @@ export default function SettingsPage() {
 					<div className="space-y-1">
 						<Label
 							htmlFor="is_auto_launch_update"
-							className="font-medium text-sm hover:cursor-pointer"
+							className="font-medium text-sm hover:cursor-pointer flex items-center gap-1"
 						>
+							<Rss className="size-4" />
 							自动更新数据
 						</Label>
 						<p className="text-xs text-muted-foreground">
@@ -658,8 +664,9 @@ export default function SettingsPage() {
 						<div className="space-y-1">
 							<Label
 								htmlFor="is_auto_launch_real_trading"
-								className="font-medium text-sm hover:cursor-pointer"
+								className="font-medium text-sm hover:cursor-pointer flex items-center gap-1"
 							>
+								<Rocket className="size-4" />
 								启动自动实盘
 							</Label>
 							<p className="text-xs text-muted-foreground">
@@ -678,8 +685,9 @@ export default function SettingsPage() {
 					<div className="space-y-1">
 						<Label
 							htmlFor="user_choice"
-							className="font-medium text-sm hover:cursor-pointer"
+							className="font-medium text-sm hover:cursor-pointer flex items-center gap-1"
 						>
+							<Minimize className="size-4" />
 							退出时最小化
 						</Label>
 						<p className="text-xs text-muted-foreground">

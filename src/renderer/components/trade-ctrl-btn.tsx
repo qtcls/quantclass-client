@@ -10,9 +10,9 @@
 
 import { Button } from "@/renderer/components/ui/button"
 import ButtonTooltip from "@/renderer/components/ui/button-tooltip"
+import { useScheduleTimes } from "@/renderer/hooks"
 import { useToggleAutoRealTrading } from "@/renderer/hooks/useToggleAutoRealTrading"
 import { Play, RefreshCw } from "lucide-react"
-import { useScheduleTimes } from "@/renderer/hooks"
 
 export default function TradeCtrlBtn({
 	onClick,

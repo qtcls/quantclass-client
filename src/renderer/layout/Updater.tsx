@@ -15,7 +15,7 @@ import { UpdateStatus } from "@/renderer/context/update-context"
 import { useAppUpdate } from "@/renderer/hooks/useAppUpdate"
 import { formatBytes } from "@/renderer/utils/formatBytes"
 import { UpdateInfo } from "electron-updater"
-import { Download, RefreshCcw } from "lucide-react"
+import { Download, Loader } from "lucide-react"
 import type { FC } from "react"
 import ReactMarkdown from "react-markdown"
 
@@ -30,7 +30,7 @@ const Updater: FC<IUpdaterProps> = ({ updateInfo }) => {
 		<>
 			{status === UpdateStatus.Downloading && (
 				<div className="fixed inset-0 z-[9] flex h-screen w-screen flex-col items-center justify-center gap-2 bg-background">
-					<RefreshCcw className="animate-spin w-12 h-12" />
+					<Loader className="animate-spin w-12 h-12" />
 					<h2 className="text-lg">下载安装包中...</h2>
 
 					<div className="flex items-center gap-2 w-2/3">

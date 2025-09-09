@@ -27,10 +27,10 @@ import {
 	CircleHelp,
 	HardDrive,
 	Info,
-	Pause,
 	Play,
 	RefreshCcwDot,
 	Server,
+	RefreshCw,
 } from "lucide-react"
 import { FC } from "react"
 
@@ -76,12 +76,15 @@ const Data: FC = () => {
 						{isUpdating ? (
 							<ButtonTooltip content="停止自动更新数据">
 								<Button
-									variant={dataScheduleTimes.length > 0 ? "warning" : "success"}
+									variant={
+										dataScheduleTimes.length > 0 ? "successOutline" : "success"
+									}
+									size="icon"
 									className="hover:cursor-pointer w-12 h-10 flex items-center justify-center"
 									disabled={disabled}
 									onClick={() => handleTimeTask(true)}
 								>
-									<Pause className="h-5 w-5 mr-0.5" />
+									<RefreshCw size={16} className="animate-spin" />
 								</Button>
 							</ButtonTooltip>
 						) : (
