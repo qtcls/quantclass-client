@@ -1,7 +1,7 @@
 import { Tabs } from "@radix-ui/react-tabs"
+import { toast } from "sonner"
 import { TabsList } from "./ui/tabs"
 import { TabsTrigger } from "./ui/tabs"
-import { toast } from "sonner"
 
 export const SelectTabs = ({
 	tabs,
