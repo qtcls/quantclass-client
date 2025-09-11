@@ -67,7 +67,7 @@ export default function SettingsPage() {
 	const [isAutoLogin, setIsAutoLogin] = useAtom(isAutoLoginAtom)
 	const version = useAtomValue(versionsAtom)
 	const setVersionList = useSetAtom(versionListAtom)
-	const { setAutoLaunch, openDataDirectory, killAllKernals } =
+	const { setAutoLaunch, openDataDirectory, killAllKernals, openUrl } =
 		window.electronAPI
 	const handleTimeTask = useHandleTimeTask() // 数据任务控制
 	const { isAutoRocket, handleToggleAutoRocket } = useToggleAutoRealTrading() // 自动交易控制
@@ -124,7 +124,7 @@ export default function SettingsPage() {
 
 	const useAlert = useAlertDialog()
 	const invokeUpdateKernal = useInvokeUpdateKernal() // 更新内核
-	const { getUpdateMessage, hasAnyUpdate } = useVersionCheck()
+	const { getUpdateMessage, hasAnyUpdate, hasClientUpdate } = useVersionCheck()
 
 	const handleUpdateKernals = async () => {
 		useAlert.open({
@@ -203,6 +203,19 @@ export default function SettingsPage() {
 							>
 								客户端更新日志
 							</span>
+							{hasClientUpdate && (
+								<>
+									<span>｜</span>
+									<span
+										className="cursor-pointer text-blue-500 dark:text-blue-400"
+										onClick={() => {
+											openUrl(appVersions?.app?.download as string)
+										}}
+									>
+										下载新版
+									</span>
+								</>
+							)}
 						</div>
 					</div>
 				</div>
