@@ -8,21 +8,21 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
-import { KernalVersionType } from "@/shared/types"
-import { useMemo } from "react"
-import { useAtomValue } from "jotai"
-import { versionsAtom } from "@/renderer/store/versions"
-import { cn } from "@/renderer/lib/utils"
-import { Check, Circle, CircleAlert, LucideIcon } from "lucide-react"
-import { useAlertDialog } from "@/renderer/context/alert-dialog"
-import { AppVersions } from "@/shared/types"
-import { useInvokeUpdateKernal } from "@/renderer/hooks/useInvokeUpdateKernal"
-import { useHandleTimeTask } from "@/renderer/hooks/useHandleTimeTask"
-import { useToggleAutoRealTrading } from "@/renderer/hooks/useToggleAutoRealTrading"
-import { toast } from "sonner"
-import { CircleArrowUp } from "lucide-react"
-import { KernalType } from "@/shared/types"
 import { Badge } from "@/renderer/components/ui/badge"
+import { useAlertDialog } from "@/renderer/context/alert-dialog"
+import { useHandleTimeTask } from "@/renderer/hooks/useHandleTimeTask"
+import { useInvokeUpdateKernal } from "@/renderer/hooks/useInvokeUpdateKernal"
+import { useToggleAutoRealTrading } from "@/renderer/hooks/useToggleAutoRealTrading"
+import { cn } from "@/renderer/lib/utils"
+import { versionsAtom } from "@/renderer/store/versions"
+import { KernalVersionType } from "@/shared/types"
+import { AppVersions } from "@/shared/types"
+import { KernalType } from "@/shared/types"
+import { useAtomValue } from "jotai"
+import { Check, Circle, CircleAlert, LucideIcon } from "lucide-react"
+import { CircleArrowUp } from "lucide-react"
+import { useMemo } from "react"
+import { toast } from "sonner"
 
 const KernalVersionSelectItem = ({
 	version,

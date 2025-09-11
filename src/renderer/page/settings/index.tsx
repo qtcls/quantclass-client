@@ -8,6 +8,7 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
+import { KernalVersion } from "@/renderer/components/kernal-version"
 import { PerformanceModeSelectTabs } from "@/renderer/components/select-tabs"
 import { AnimatedRainbowCard } from "@/renderer/components/ui/animated-rainbow-card"
 import {
@@ -27,6 +28,7 @@ import {
 	useToggleAutoRealTrading,
 } from "@/renderer/hooks"
 import { useAppVersions } from "@/renderer/hooks/useAppVersion"
+import { useInvokeUpdateKernal } from "@/renderer/hooks/useInvokeUpdateKernal"
 import { useRealMarketConfig } from "@/renderer/hooks/useRealMarketConfig"
 import { useRealTradingRole } from "@/renderer/hooks/useRealTradingRole"
 import { useSettings } from "@/renderer/hooks/useSettings"
@@ -56,8 +58,6 @@ import {
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import Img from "../../../../build/icon.ico"
-import { useInvokeUpdateKernal } from "@/renderer/hooks/useInvokeUpdateKernal"
-import { KernalVersion } from "@/renderer/components/kernal-version"
 
 export default function SettingsPage() {
 	const [showContributors, setShowContributors] = useState(false)
