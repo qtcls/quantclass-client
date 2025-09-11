@@ -284,6 +284,11 @@ async function wakeUpRocket(userState: UserState, mw) {
 		return
 	}
 
+	if (_store.get("real_market_config.account_id", "0") === "0") {
+		logger.info("[rocket] QMT账号为0，激活手动下单模式，不启动Rocket")
+		return
+	}
+
 	if (!userState?.user?.isMember) {
 		logger.info(`[trade] 非分享会状态，跳过Rocket，${userState?.user}`)
 		return

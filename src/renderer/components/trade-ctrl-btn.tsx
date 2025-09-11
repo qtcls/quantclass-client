@@ -13,6 +13,7 @@ import ButtonTooltip from "@/renderer/components/ui/button-tooltip"
 import { useScheduleTimes } from "@/renderer/hooks"
 import { useToggleAutoRealTrading } from "@/renderer/hooks/useToggleAutoRealTrading"
 import { Play, RefreshCw } from "lucide-react"
+import { cn } from "../lib/utils"
 
 export default function TradeCtrlBtn({
 	onClick,
@@ -38,9 +39,9 @@ export default function TradeCtrlBtn({
 				onClick={() => handleToggleAutoRocket(false)}
 				variant={selectScheduleTimes.length > 0 ? "successOutline" : "success"}
 				size={size as "sm" | "default" | "lg" | "icon"}
-				className={className}
+				className={cn(className, "flex items-center gap-1.5")}
 			>
-				<RefreshCw className="size-5 animate-spin mr-0.5" />
+				<RefreshCw className="size-4 animate-spin" />
 				暂停实盘
 			</Button>
 		</ButtonTooltip>
