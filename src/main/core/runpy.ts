@@ -243,16 +243,14 @@ export async function downloadKernal(
 
 export async function updateKernal(
 	kernal: "aqua" | "rocket" | "zeus" | "fuel",
-	now = false,
 	targetVersion?: string,
 ) {
 	const winKernals = ["rocket"]
 	// -- 如果需要立即检查版本，并且没有指定版本，则立即检查版本
-	const remoteVersions = await checkRemoteVersions(now && !targetVersion)
+	const remoteVersions = await checkRemoteVersions(!targetVersion)
 	const localVersion = await getKernelVersion(kernal)
 
 	let downloadVersion = ""
-	let downloadUrl = ""
 
 	// -- 非Windows系统，跳过更新
 	if (!platform.isWindows && winKernals.includes(kernal)) {
@@ -266,18 +264,20 @@ export async function updateKernal(
 			return { success: true, data: localVersion }
 		}
 		downloadVersion = targetVersion
-		downloadUrl = remoteVersions.downloads[kernal].replace(
-			`${remoteVersions.latest[kernal]}`,
-			targetVersion,
-		)
 	} else {
 		if (remoteVersions.latest[kernal] === localVersion) {
 			logger.info(`[${kernal}] 与远程版本一致`)
 			return { success: true, data: localVersion }
 		}
 		downloadVersion = remoteVersions.latest[kernal]
-		downloadUrl = remoteVersions.downloads[kernal]
 	}
+
+	let downloadUrl = remoteVersions[kernal].find(
+		(v) => v.version === downloadVersion,
+	)?.download as string
+
+	logger.info(`[${kernal}] ${downloadVersion} 下载地址: ${downloadUrl}`)
+
 	// 如果是非Windows系统，在downloadUrl的文件名中加上-mac后缀
 	if (!platform.isWindows) {
 		downloadUrl = downloadUrl.replace(/(\.[^.]+)$/, "-mac$1")

@@ -224,7 +224,7 @@ export const execBin = async (
 		if (!isBinExist) {
 			logger.warn(`[exec-${kernel}] 内核不存在，下载中`)
 			try {
-				await updateKernal(kernel, true)
+				await updateKernal(kernel)
 			} catch (e) {
 				logger.error(
 					`[exec-${kernel}] 内核更新失败: ${JSON.stringify(e, null, 2)}`,

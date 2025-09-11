@@ -136,7 +136,7 @@ async function handleUpdateKernal(): Promise<void> {
 	ipcMain.handle(
 		"update-kernal",
 		async (_event, name: KernalType, targetVersion?: string) => {
-			return await updateKernal(name as KernalType, true, targetVersion)
+			return await updateKernal(name as KernalType, targetVersion)
 		},
 	)
 }
