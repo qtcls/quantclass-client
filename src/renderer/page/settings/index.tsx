@@ -20,7 +20,6 @@ import { Button } from "@/renderer/components/ui/button"
 import { Label } from "@/renderer/components/ui/label"
 import { Separator } from "@/renderer/components/ui/separator"
 import { Switch } from "@/renderer/components/ui/switch"
-import { Tabs, TabsList, TabsTrigger } from "@/renderer/components/ui/tabs"
 import { useAlertDialog } from "@/renderer/context/alert-dialog"
 import {
 	useHandleTimeTask,
@@ -37,19 +36,16 @@ import Contributors from "@/renderer/page/settings/contributors"
 import { isAutoLoginAtom, versionListAtom } from "@/renderer/store/storage"
 import { userAtom } from "@/renderer/store/user"
 import { useLocalVersions, versionsAtom } from "@/renderer/store/versions"
-import { AppVersions, KernalType, KernalVersionType } from "@/shared/types"
+import { KernalType } from "@/shared/types"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import {
 	Blocks,
-	Check,
 	ChevronDown,
 	ChevronUp,
-	Circle,
 	CircleArrowUp,
 	DatabaseZap,
 	FolderCode,
 	Gift,
-	LucideIcon,
 	Minimize,
 	Power,
 	RefreshCw,
@@ -60,268 +56,8 @@ import {
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import Img from "../../../../build/icon.ico"
-
-const useInvokeUpdateKernal = () => {
-	const { updateKernal } = window.electronAPI
-	const { refetchLocalVersions } = useLocalVersions()
-	return async (kernal: KernalType, targetVersion?: string) => {
-		const toastId = toast.loading(
-			`更新 ${kernal} 内核到版本 ${targetVersion}...`,
-		)
-		console.log(`Updating ${kernal} to version ${targetVersion}`)
-
-		try {
-			const res = await updateKernal(kernal, targetVersion)
-			if (res.success) {
-				toast.success(`${kernal} 内核更新成功`, { id: toastId })
-			} else {
-				toast.warning(`${kernal} 内核更新异常`, {
-					id: toastId,
-					description: res.error,
-				})
-			}
-		} catch (error) {
-			toast.error(`${kernal} 内核更新失败`, { id: toastId })
-		} finally {
-			await refetchLocalVersions() // -- 更新后重新请求本地版本
-		}
-		return true
-	}
-}
-
-const KernalVersionSelect = ({
-	name,
-	title,
-	versionKey,
-	versions = [],
-	onVersionSelect,
-}: {
-	name: string
-	title: string
-	versionKey: string
-	versions: KernalVersionType[]
-	onVersionSelect?: (targetVersion: string, name: string) => void
-}) => {
-	const version = useAtomValue(versionsAtom)[versionKey]
-	const useAlert = useAlertDialog()
-	const versionLabels = {
-		stable: {
-			title: "稳定版",
-			badge: "outline",
-		},
-		beta: {
-			title: "测试版",
-			badge: "outline-info",
-		},
-		pulled: {
-			title: "已下线",
-			badge: "secondary",
-		},
-	}
-	return (
-		<span
-			className="text-xs text-muted-foreground cursor-pointer"
-			onClick={() => {
-				useAlert.open({
-					title: `切换${title}(${name})内核？`,
-					content: (
-						<div className="space-y-3 leading-relaxed">
-							{versions.map((remoteVersion) => (
-								<div
-									key={remoteVersion.version}
-									className={cn(
-										"border-1.5 rounded-lg px-3 py-2 cursor-pointer space-y-1",
-										version === remoteVersion.version
-											? "border-primary cursor-not-allowed"
-											: "border-muted hover:bg-primary/10",
-										"pulled" === remoteVersion.label &&
-											"text-muted-foreground hover:bg-transparent",
-									)}
-									onClick={() => {
-										if (
-											version !== remoteVersion.version &&
-											remoteVersion.label !== "pulled" &&
-											onVersionSelect
-										) {
-											onVersionSelect?.(remoteVersion.version, name)
-										}
-									}}
-								>
-									<div className="font-medium flex items-center gap-1">
-										{version === remoteVersion.version ? (
-											<Check className="size-4 bg-primary text-primary-foreground rounded-full border-2 border-primary" />
-										) : (
-											<Circle className="size-4" />
-										)}
-										<span
-											className={cn(
-												"text-mono",
-												version === remoteVersion.version && "font-bold",
-											)}
-										>
-											{remoteVersion.version}
-										</span>
-
-										{remoteVersion.label &&
-											versionLabels[remoteVersion.label] && (
-												<Badge
-													variant={versionLabels[remoteVersion.label].badge}
-													className={cn(
-														remoteVersion.label === "pulled" && "text-danger",
-													)}
-												>
-													{versionLabels[remoteVersion.label].title}
-												</Badge>
-											)}
-									</div>
-									<div className="text-sm text-muted-foreground">
-										<p>{remoteVersion.description}</p>
-										<p>发布日期：{remoteVersion.release}</p>
-									</div>
-								</div>
-							))}
-						</div>
-					),
-					isContentLong: true,
-				})
-			}}
-		>
-			切换
-		</span>
-	)
-}
-
-const KernalVersion = ({
-	name,
-	title,
-	Icon,
-	versionKey,
-	appVersions,
-	disabled = false,
-}: {
-	name: string
-	title: string
-	Icon: LucideIcon
-	versionKey: string
-	appVersions: AppVersions | undefined
-	disabled?: boolean
-}) => {
-	const version = useAtomValue(versionsAtom)
-	const useAlert = useAlertDialog()
-	const invokeUpdateKernal = useInvokeUpdateKernal()
-	const handleTimeTask = useHandleTimeTask()
-	const { isAutoRocket, handleToggleAutoRocket } = useToggleAutoRealTrading()
-	const { killKernal } = window.electronAPI
-
-	const latestVersion = useMemo(() => {
-		return appVersions?.latest?.[name]
-	}, [appVersions?.latest])
-
-	const currentVersion = useMemo(() => {
-		return version[versionKey]
-	}, [version])
-
-	const versionList = useMemo(() => {
-		return appVersions?.[name] ?? []
-	}, [appVersions?.[name]])
-
-	const handleKernalUpdate = (targetVersion?: string, kernelName?: string) => {
-		if (disabled) {
-			toast.error(`当前操作系统不支持更新${title}内核`)
-			return
-		}
-		const displayTargetVersion = targetVersion || "最新版本"
-		const displayKernelName = kernelName || name
-
-		useAlert.open({
-			title: `更新${title}(${displayKernelName})内核？`,
-			content: (
-				<div className="space-y-3 leading-relaxed">
-					<div className="bg-blue-50 dark:bg-blue-500/20 border border-blue-200 dark:border-blue-500/20 rounded-lg px-3 py-2.5">
-						<div className="flex items-center gap-2 text-blue-500">
-							<CircleArrowUp className="size-4" />
-							<span className="font-medium">版本更新提醒</span>
-						</div>
-						<p className="text-sm text-blue-500 mt-1">
-							即将
-							{currentVersion !== "暂无内核" && (
-								<>
-									从版本{" "}
-									<span className="font-mono bg-blue-200 text-blue-600 px-1 py-0.5 rounded">
-										{currentVersion}
-									</span>{" "}
-								</>
-							)}
-							更新到版本{" "}
-							<span className="font-mono bg-blue-200 text-blue-600 px-1 py-0.5 rounded">
-								{displayTargetVersion}
-							</span>
-						</p>
-					</div>
-					<p>
-						🛑 下载内核前，会自动停止自动数据更新和实盘功能。完成后，需要
-						<span className="text-warning">手动开启</span>。
-					</p>
-					<p>
-						🔥 下载内核的时候，会强制退出运行中的{displayKernelName}
-						进程，建议手动停止数据更新以及实盘功能后更新。
-					</p>
-					<p>⏩ 内核下载立即生效，建议盘后下载较为稳妥。</p>
-					<p>💬 如果遇到问题，可以私信林奇或者夏普助教帮助。</p>
-				</div>
-			),
-			okText: "立即更新",
-			okDelay: 5,
-			isContentLong: true,
-			onOk: async () => {
-				// 暂停数据更新和实盘功能
-				await handleTimeTask(true, false)
-				if (isAutoRocket) {
-					await handleToggleAutoRocket(false, false)
-				}
-
-				await killKernal(kernelName as KernalType, true)
-
-				await invokeUpdateKernal(kernelName as KernalType, targetVersion)
-			},
-		})
-	}
-	return (
-		<div className="space-y-1">
-			<h3 className="font-medium text-sm flex items-center gap-1">
-				<Icon className="size-4" />
-				{title}
-				{latestVersion !== currentVersion && (
-					<span
-						className="text-xs text-blue-500 dark:text-blue-400 cursor-pointer"
-						onClick={() => handleKernalUpdate(latestVersion, name)}
-						title={`更新${title}(${name})内核到版本 ${latestVersion}`}
-					>
-						{currentVersion === "暂无内核" ? "下载" : "更新"}
-					</span>
-				)}
-				{versionList.length > 0 && (
-					<KernalVersionSelect
-						name={name}
-						title={title}
-						versionKey={versionKey}
-						versions={versionList}
-						onVersionSelect={handleKernalUpdate}
-					/>
-				)}
-			</h3>
-			{disabled ? (
-				<Badge variant="secondary" className="font-mono">
-					{window.electron?.process?.platform === "darwin"
-						? "macOS 不支持"
-						: "当前操作系统不支持"}
-				</Badge>
-			) : (
-				<Badge className="font-mono">{currentVersion}</Badge>
-			)}
-		</div>
-	)
-}
+import { useInvokeUpdateKernal } from "@/renderer/hooks/useInvokeUpdateKernal"
+import { KernalVersion } from "@/renderer/components/kernal-version"
 
 export default function SettingsPage() {
 	const [showContributors, setShowContributors] = useState(false)
@@ -387,7 +123,7 @@ export default function SettingsPage() {
 	const { refetchLocalVersions, isLoadingLocalVersions } = useLocalVersions()
 
 	const useAlert = useAlertDialog()
-	const invokeUpdateKernal = useInvokeUpdateKernal()
+	const invokeUpdateKernal = useInvokeUpdateKernal() // 更新内核
 	const { getUpdateMessage, hasAnyUpdate } = useVersionCheck()
 
 	const handleUpdateKernals = async () => {
