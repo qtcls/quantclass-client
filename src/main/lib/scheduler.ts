@@ -15,6 +15,7 @@ import {
 	isAnyKernalBusy,
 	isKernalBusy,
 	isTradingTime,
+	killKernalByForce,
 } from "@/main/utils/tools.js"
 import logger from "@/main/utils/wiston.js"
 import { BASE_URL } from "@/main/vars.js"
@@ -286,6 +287,10 @@ async function wakeUpRocket(userState: UserState, mw) {
 
 	if (_store.get("real_market_config.account_id", "0") === "0") {
 		logger.info("[rocket] QMT账号为0，激活手动下单模式，不启动Rocket")
+		if (await isKernalBusy("rocket")) {
+			logger.info("[rocket] Rocket正在运行，强制杀死")
+			await killKernalByForce("rocket")
+		}
 		return
 	}
 
