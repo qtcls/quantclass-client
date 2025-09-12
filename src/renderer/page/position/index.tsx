@@ -102,7 +102,21 @@ export default function PositionInfo() {
 				</div>
 				{filename === "策略表现" ? (
 					<DataTable<PositionStrategyInfoType, unknown>
-						data={positions.data || []}
+						// 过滤掉占用资金为0的策略，满足下面的条件的，是换仓前的策略
+						data={(positions.data || [])
+							.filter(
+								(item: PositionStrategyInfoType) =>
+									(item.理论占比 ?? 0) !== 0 &&
+									(item.实际占比 ?? 0) !== 0 &&
+									(item.策略仓位 ?? 0) !== 0 &&
+									(item.占用资金 ?? 0) !== 0 &&
+									(item.当日盈亏 ?? 0) !== 0 &&
+									(item.当日收益率 ?? 0) !== 0,
+							)
+							.sort(
+								(a: PositionStrategyInfoType, b: PositionStrategyInfoType) =>
+									(a.策略名称 ?? "").localeCompare(b.策略名称 ?? ""),
+							)}
 						columns={strategyColumns}
 						loading={loading}
 						refresh={() => {

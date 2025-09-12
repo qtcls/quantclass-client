@@ -97,6 +97,7 @@ export const usePositionStockInfoColumns =
 			{
 				accessorKey: "策略名称",
 				header: "策略名称",
+				size: 268,
 			},
 			{
 				header: "股票名称",
@@ -256,6 +257,7 @@ export const usePositionStrategyInfoColumns =
 			{
 				accessorKey: "策略名称",
 				header: "策略名称",
+				size: 308,
 			},
 			{
 				accessorKey: "理论占比",
