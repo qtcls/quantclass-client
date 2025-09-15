@@ -10,9 +10,9 @@
 
 import fs from "node:fs/promises"
 import store from "../store/index.js"
-import { PACKAGE_INFO } from "../vars.js"
 import { clearOldKernal, getKernalPath } from "../utils/common.js"
 import logger from "../utils/wiston.js"
+import { PACKAGE_INFO } from "../vars.js"
 
 export async function getKernelVersion(kernal = "fuel") {
 	try {
