@@ -14,8 +14,8 @@ import type {
 	StgGroupType,
 } from "@/renderer/types/strategy"
 import { genPosMgmtStrategyDict, genSelectStrategyDict } from "@/renderer/utils"
-import { autoTradeTimeByRebTime } from "./trade"
 import type { TimeValue } from "react-aria"
+import { autoTradeTimeByRebTime } from "./trade"
 
 const { setStoreValue } = window.electronAPI
 
