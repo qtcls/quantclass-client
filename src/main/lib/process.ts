@@ -29,7 +29,7 @@ import { platform } from "@electron-toolkit/utils"
 import dayjs from "dayjs"
 import iconv from "iconv-lite"
 import { isUndefined } from "lodash-es"
-import { getBinPath } from "../utils/common.js"
+import { getKernalPath } from "../utils/common.js"
 import windowManager from "./WindowManager.js"
 
 export class ProcessManage {
@@ -218,10 +218,10 @@ export const execBin = async (
 		}
 
 		// -- 根据指定的内核选择相应的执行文件路径
-		const binPath = await getBinPath(kernel)
-		const isBinExist = fs.existsSync(binPath)
+		const binPath = await getKernalPath(kernel)
+		const isKernalExist = fs.existsSync(binPath)
 
-		if (!isBinExist) {
+		if (!isKernalExist) {
 			logger.warn(`[exec-${kernel}] 内核不存在，下载中`)
 			try {
 				await updateKernal(kernel)

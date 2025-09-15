@@ -52,12 +52,18 @@ const getSetting = async <T>(
 	return settings[key] || defaultValue
 }
 
-const getAllDataPath = async (nestPath?: string[], autoCreate = true) => {
+const getAllDataPath = async (
+	nestPath?: string | string[],
+	autoCreate = true,
+) => {
 	const allDataPath = await getSetting("all_data_path", "")
 	const newAllDataPath = path.normalize(allDataPath)
 
 	if (nestPath) {
-		const _path = path.join(newAllDataPath, ...nestPath)
+		const _path = path.join(
+			newAllDataPath,
+			...(Array.isArray(nestPath) ? nestPath : [nestPath]),
+		)
 
 		if (!fs.existsSync(path.dirname(_path)) && autoCreate) {
 			fs.mkdirSync(path.dirname(_path), { recursive: true })
