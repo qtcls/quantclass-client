@@ -426,17 +426,22 @@ export const _isWeekend = (now: dayjs.Dayjs): boolean =>
 	now.day() === 0 || now.day() === 6
 
 // -- 添加检查下载次数的函数
-export async function checkDownloadLimit(type: string): Promise<boolean> {
+export async function checkDownloadLimit(
+	type: string,
+	limit = 10,
+): Promise<boolean> {
 	const now = dayjs()
+	const kernal = type.toLowerCase()
+
 	const lastDownloadTime = (await store.getValue(
-		`${type}_last_download_time`,
+		`${kernal}_last_download_time`,
 		"",
 	)) as string
-	const downloadCount = await store.getValue(`${type}_download_count`, 0)
+	const downloadCount = await store.getValue(`${kernal}_download_count`, 0)
 
 	if (!lastDownloadTime) {
-		store.setValue(`${type}_last_download_time`, now.format())
-		store.setValue(`${type}_download_count`, 1)
+		store.setValue(`${kernal}_last_download_time`, now.format())
+		store.setValue(`${kernal}_download_count`, 1)
 		return true
 	}
 
@@ -446,18 +451,18 @@ export async function checkDownloadLimit(type: string): Promise<boolean> {
 
 	if (!isSameDay) {
 		// -- 不是同一天，重置计数
-		store.setValue(`${type}_last_download_time`, now.format())
-		store.setValue(`${type}_download_count`, 1)
+		store.setValue(`${kernal}_last_download_time`, now.format())
+		store.setValue(`${kernal}_download_count`, 1)
 		return true
 	}
 
-	if (downloadCount >= 10) {
-		logger.warn(`[${type}] 内核今日下载次数已达上限`)
+	if (downloadCount >= limit) {
+		logger.warn(`[${kernal}] 内核今日下载次数已达上限`)
 		return false
 	}
 
 	// -- 增加计数
-	store.setValue(`${type}_download_count`, downloadCount + 1)
+	store.setValue(`${kernal}_download_count`, downloadCount + 1)
 	return true
 }
 

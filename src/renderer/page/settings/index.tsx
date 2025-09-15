@@ -278,8 +278,8 @@ export default function SettingsPage() {
 					<RefreshCw
 						className={cn(
 							"size-4 mr-2",
-							isCheckingAppVersions ||
-								(isLoadingLocalVersions && "animate-spin"),
+							(isCheckingAppVersions || isLoadingLocalVersions) &&
+								"animate-spin",
 						)}
 					/>
 					检查更新

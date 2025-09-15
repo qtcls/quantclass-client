@@ -124,7 +124,6 @@ export async function downloadKernal(
 	downloadUrl: string,
 ) {
 	const lockFileName = `update_${kernal.toLowerCase()}.app.lock`
-
 	if (await checkLock(lockFileName)) {
 		logger.info(`[${kernal}] 正在下载中，退出`)
 		return
@@ -136,6 +135,7 @@ export async function downloadKernal(
 
 	try {
 		const codeFolder = await store.getAllDataPath(["code"])
+		const kernalFolderPath = path.join(codeFolder, kernal)
 
 		if (!downloadUrl) {
 			logger.error(`[${kernal}] 下载链接为空`)
@@ -151,7 +151,7 @@ export async function downloadKernal(
 		const kernalZipPath = path.join(codeFolder, fileName)
 
 		// -- 检查下载次数限制
-		const canDownload = await checkDownloadLimit(kernal.toLowerCase())
+		const canDownload = await checkDownloadLimit(kernal, 16)
 		if (!canDownload) {
 			logger.warn(`[${kernal}] 内核今日下载次数已达上限`)
 			mainWindow?.webContents.send("report-msg", {
@@ -180,8 +180,17 @@ export async function downloadKernal(
 
 		// 下载内核文件
 		await writeFile(kernalZipPath, buffer)
-
 		logger.info(`[${kernal}] 内核文件已下载到 ${kernalZipPath}`)
+
+		// 删除老内核文件夹
+		try {
+			if (fs.existsSync(kernalFolderPath)) {
+				await fs.promises.rmdir(kernalFolderPath)
+			}
+			logger.info(`[${kernal}] 删除原内核文件夹成功`)
+		} catch {
+			logger.error(`[${kernal}] 删除原内核文件时候报错`)
+		}
 
 		// 解压zip文件，从2025年5月27日开始，所有内核采用onedir的打包方式，所以需要解压zip文件
 		const zip = new AdmZip(kernalZipPath)
