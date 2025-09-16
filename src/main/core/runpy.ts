@@ -185,7 +185,7 @@ export async function downloadKernal(
 		// 删除老内核文件夹
 		try {
 			if (fs.existsSync(kernalFolderPath)) {
-				await fs.promises.rmdir(kernalFolderPath)
+				await fs.promises.rm(kernalFolderPath, { recursive: true, force: true })
 			}
 			logger.info(`[${kernal}] 删除原内核文件夹成功`)
 		} catch {
