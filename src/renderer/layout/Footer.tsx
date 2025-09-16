@@ -48,9 +48,14 @@ import { formatBytes } from "@/renderer/utils/formatBytes"
 import { useAtomValue, useSetAtom } from "jotai"
 import {
 	CircleArrowUp,
+	DatabaseZap,
 	FolderClock,
 	Monitor,
+	SquareFunction,
 	SquareTerminal,
+	Blocks,
+	ExternalLink,
+	FolderOpen,
 } from "lucide-react"
 import { FC, useState } from "react"
 import Markdown from "react-markdown"
@@ -62,12 +67,25 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "../components/ui/popover"
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "../components/ui/dropdown-menu"
+import { useRealMarketConfig } from "../hooks/useRealMarketConfig"
 
-const { createTerminalWindow, openUserDirectory } = window.electronAPI
+const {
+	createTerminalWindow,
+	openUserDirectory,
+	openDataDirectory,
+	openDirectory,
+} = window.electronAPI
 
 export const Footer: FC = () => {
 	const setIsShowMonitorPanel = useSetAtom(isShowMonitorPanelAtom)
 	const navigate = useNavigate()
+	const { realMarketConfig } = useRealMarketConfig()
 	useHotkeys([
 		["mod+`", async () => await createTerminalWindow()],
 		["mod+,", () => navigate(SETTINGS_PAGE)],
@@ -82,17 +100,56 @@ export const Footer: FC = () => {
 			/>
 			<div className="flex items-center mr-2">
 				<ThemeCustomizer />
-
-				<ButtonTooltip content="打开日志文件夹">
-					<Button
-						variant="ghost"
-						size="icon"
-						className="focus-visible:outline-none focus-visible:ring-transparent"
-						onClick={() => openUserDirectory("logs")}
-					>
-						<FolderClock className="h-4 w-4 text-foreground hover:cursor-pointer" />
-					</Button>
-				</ButtonTooltip>
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<Button
+							variant="ghost"
+							size="icon"
+							className="focus-visible:outline-none focus-visible:ring-transparent"
+						>
+							<FolderOpen className="h-4 w-4 text-foreground hover:cursor-pointer" />
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent>
+						{realMarketConfig.qmt_path && (
+							<DropdownMenuItem
+								onClick={() => openDirectory([realMarketConfig.qmt_path])}
+							>
+								<ExternalLink />
+								打开QMT文件夹
+							</DropdownMenuItem>
+						)}
+						<DropdownMenuItem
+							onClick={() =>
+								openDataDirectory([
+									"real_trading",
+									"rocket",
+									"data",
+									"系统日志",
+								])
+							}
+						>
+							<Blocks />
+							打开下单日志
+						</DropdownMenuItem>
+						<DropdownMenuItem
+							onClick={() => openDataDirectory(["real_trading", "logs"])}
+						>
+							<SquareFunction />
+							打开选股日志
+						</DropdownMenuItem>
+						<DropdownMenuItem
+							onClick={() => openDataDirectory(["code", "data", "log"])}
+						>
+							<DatabaseZap />
+							打开数据更新日志
+						</DropdownMenuItem>
+						<DropdownMenuItem onClick={() => openUserDirectory("logs")}>
+							<FolderClock />
+							打开客户端调度日志
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
 
 				<ButtonTooltip content="点击打开进程监控面板">
 					<Button
