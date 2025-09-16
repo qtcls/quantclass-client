@@ -20,7 +20,7 @@ import { useSettings } from "./useSettings"
  */
 export const useVersionCheck = () => {
 	const { appVersions, isCheckingAppVersions } = useAppVersions()
-	const { settings } = useSettings()
+	const { isFusionMode } = useSettings()
 	const localVersions = useAtomValue(versionsAtom)
 
 	// 检查是否有客户端版本更新
@@ -46,17 +46,15 @@ export const useVersionCheck = () => {
 
 		return {
 			fuel: latestRemoteVersions?.fuel !== localVersions.fuelVersion,
-			aqua:
-				settings.libraryType === "select"
-					? latestRemoteVersions?.aqua !== localVersions.aquaVersion
-					: false,
-			zeus:
-				settings.libraryType === "pos"
-					? latestRemoteVersions?.zeus !== localVersions.zeusVersion
-					: false,
+			aqua: !isFusionMode
+				? latestRemoteVersions?.aqua !== localVersions.aquaVersion
+				: false,
+			zeus: isFusionMode
+				? latestRemoteVersions?.zeus !== localVersions.zeusVersion
+				: false,
 			rocket: latestRemoteVersions?.rocket !== localVersions.rocketVersion,
 		}
-	}, [appVersions?.latest, localVersions, settings.libraryType])
+	}, [appVersions?.latest, localVersions, isFusionMode])
 
 	// 检查是否有任何更新
 	const hasAnyUpdate = useMemo(() => {
@@ -81,13 +79,13 @@ export const useVersionCheck = () => {
 			)
 		}
 
-		if (hasKernalUpdates.aqua && settings.libraryType === "select") {
+		if (hasKernalUpdates.aqua && !isFusionMode) {
 			updates.push(
 				`选股内核: ${localVersions?.aquaVersion} → ${appVersions?.latest?.aqua}`,
 			)
 		}
 
-		if (hasKernalUpdates.zeus && settings.libraryType === "pos") {
+		if (hasKernalUpdates.zeus && isFusionMode) {
 			updates.push(
 				`高级选股内核: ${localVersions?.zeusVersion} → ${appVersions?.latest?.zeus}`,
 			)
@@ -106,7 +104,7 @@ export const useVersionCheck = () => {
 		hasKernalUpdates,
 		localVersions,
 		appVersions,
-		settings.libraryType,
+		isFusionMode,
 	])
 
 	return {

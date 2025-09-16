@@ -9,15 +9,19 @@
  */
 
 import type { SettingsType } from "@/renderer/types"
-import { useAtom } from "jotai"
-import { useCallback } from "react"
+import { useAtom, useSetAtom } from "jotai"
+import { useCallback, useMemo } from "react"
 import { settingsAtom } from "../store/electron"
+import { libraryTypeAtom } from "../store/storage"
 
 export function useSettings() {
 	const [settings, setSettings] = useAtom(settingsAtom)
+	const setLibraryTypeAtom = useSetAtom(libraryTypeAtom)
 
 	const updateSettings = useCallback(
 		(newSettings: Partial<SettingsType>) => {
+			newSettings.libraryType && setLibraryTypeAtom(newSettings.libraryType)
+
 			setSettings((prev: SettingsType) => ({
 				...prev,
 				...newSettings,
@@ -38,6 +42,11 @@ export function useSettings() {
 		[updateSettings],
 	)
 
+	const isFusionMode = useMemo(
+		() => settings.libraryType === "pos",
+		[settings.libraryType],
+	)
+
 	return {
 		settings,
 		setSettings,
@@ -48,5 +57,7 @@ export function useSettings() {
 
 		performanceMode,
 		setPerformanceMode,
+
+		isFusionMode,
 	}
 }

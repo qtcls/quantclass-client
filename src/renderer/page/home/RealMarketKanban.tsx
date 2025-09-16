@@ -204,7 +204,7 @@ export const RealMarketKanban = () => {
 
 				<div className="flex items-center gap-2"></div>
 
-				{libraryType === "select" && (
+				{libraryType !== "pos" && (
 					<Card className="p-0">
 						<CardContent className="p-2">
 							<FinPieChart

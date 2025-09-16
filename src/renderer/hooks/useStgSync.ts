@@ -46,7 +46,7 @@ export function useStgSync() {
 	const updateStrategies = useCallback(
 		async (strategies: SelectStgType[]) => {
 			setSelectStgList(strategies)
-			if (libraryType === "select") {
+			if (libraryType !== "pos") {
 				const selectStgDict = await saveStrategyList(strategies)
 				setSelectStgDict(selectStgDict)
 			}

@@ -55,7 +55,7 @@ export default function TradingControl() {
 	return (
 		<>
 			<div className="flex items-center gap-6">
-				<H2>{libraryType === "select" ? "选股" : "仓位管理"}策略实盘</H2>
+				<H2>{libraryType === "pos" ? "仓位管理" : "选股"}策略实盘</H2>
 			</div>
 			<div className="text-muted-foreground flex items-center gap-2 pt-1 mb-2">
 				查看最新选股结果。预计股数和资金分配，以回测初始资金

@@ -112,7 +112,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 	// SelectStgList 相关方法
 	const resetSelectStgList = useCallback(() => {
 		setSelectStgList([])
-		if (libraryType === "select") {
+		if (libraryType !== "pos") {
 			setSelectStgDict(RESET)
 		}
 		return []
