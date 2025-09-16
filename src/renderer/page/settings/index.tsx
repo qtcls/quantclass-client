@@ -158,8 +158,13 @@ export default function SettingsPage() {
 				if (isAutoRocket) {
 					await handleToggleAutoRocket(false, false)
 				}
+				// -- 更新前重新请求版本
+				await refetchAppVersions()
 
-				await killAllKernals(true) // 强制杀死所有内核
+				// -- 更新前强制杀死所有内核
+				await killAllKernals(true)
+
+				// -- 更新内核
 				for (const kernal of [
 					"fuel",
 					isFusionMode ? "zeus" : "aqua",

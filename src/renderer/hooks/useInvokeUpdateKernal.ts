@@ -26,7 +26,7 @@ export const useInvokeUpdateKernal = () => {
 		targetVersion?: string,
 	): Promise<boolean> => {
 		const toastId = toast.loading(
-			`更新 ${kernal} 内核到版本 ${targetVersion}...`,
+			`更新 ${kernal} 内核到版本 ${targetVersion || "最新版本"}...`,
 		)
 		console.log(`Updating ${kernal} to version ${targetVersion}`)
 
