@@ -24,11 +24,11 @@ import { isAutoRocketAtom, isUpdatingAtom } from "@/renderer/store"
 import { monitorProcessesQueryAtom } from "@/renderer/store/query"
 import { useAtom, useAtomValue } from "jotai"
 
+import { useAlertDialog } from "@/renderer/context/alert-dialog"
 import ScheduleControl from "@/renderer/page/home/schedule"
 import { libraryTypeAtom } from "@/renderer/store/storage"
 import { type FC, useEffect } from "react"
-import { useAlertDialog } from "@/renderer/context/alert-dialog"
-import { AboutPage, ABOUT_CLIENT_VER } from "../settings/about"
+import { ABOUT_CLIENT_VER, AboutPage } from "../settings/about"
 
 const { getStoreValue, setStoreValue, closeApp } = window.electronAPI
 const Home: FC = () => {
@@ -51,6 +51,7 @@ const Home: FC = () => {
 					},
 					okDelay: 20,
 					cancelText: "退出客户端",
+					size: "xl",
 				})
 			}
 		})

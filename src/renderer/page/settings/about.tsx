@@ -1,8 +1,8 @@
+import { cn } from "@/renderer/lib/utils"
 import { BadgeInfo, ShieldQuestion } from "lucide-react"
-import { Badge } from "../../components/ui/badge"
 import { Puzzle } from "lucide-react"
 import { CalendarSync } from "lucide-react"
-import { cn } from "@/renderer/lib/utils"
+import { Badge } from "@/renderer/components/ui/badge"
 
 export const openLogFolders = () => {
 	const { openUserDirectory, openDataDirectory } = window.electronAPI

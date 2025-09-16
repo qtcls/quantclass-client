@@ -41,6 +41,7 @@ interface AlertDialogState {
 	onCancel?: () => void | Promise<void>
 	isContentLong?: boolean
 	disableClose?: boolean
+	size?: "md" | "lg" | "xl" | "2xl"
 }
 
 interface AlertDialogContextType {
@@ -122,7 +123,10 @@ export function AlertDialogProvider({ children }: { children: ReactNode }) {
 			{children}
 			<Dialog open={state.isOpen} onOpenChange={close}>
 				<DialogContent
-					className="p-0 space-y-0 gap-0"
+					className={cn(
+						"p-0 space-y-0 gap-0",
+						state.size && `max-w-${state.size}`,
+					)}
 					disableClose={loading || state.disableClose}
 				>
 					<DialogHeader className="p-4">
