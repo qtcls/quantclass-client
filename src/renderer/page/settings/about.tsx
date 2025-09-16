@@ -9,28 +9,28 @@ export const openLogFolders = () => {
 	return (
 		<>
 			<span
-				className="cursor-pointer px-1 py-0.5 border bg-muted rounded-md"
+				className="cursor-pointer px-1 py-0.5 border bg-muted rounded-md hover:bg-muted-foreground hover:text-muted"
 				onClick={() => openUserDirectory("logs")}
 			>
 				客户端调度日志
 			</span>
 			，
 			<span
-				className="cursor-pointer px-1 py-0.5 border bg-muted rounded-md"
+				className="cursor-pointer px-1 py-0.5 border bg-muted rounded-md hover:bg-muted-foreground hover:text-muted"
 				onClick={() => openDataDirectory(["code", "data", "log"])}
 			>
 				打开数据日志
 			</span>
 			，
 			<span
-				className="cursor-pointer px-1 py-0.5 border bg-muted rounded-md"
+				className="cursor-pointer px-1 py-0.5 border bg-muted rounded-md hover:bg-muted-foreground hover:text-muted"
 				onClick={() => openDataDirectory(["real_trading", "logs"])}
 			>
 				打开选股日志
 			</span>
 			，
 			<span
-				className="cursor-pointer px-1 py-0.5 border bg-muted rounded-md"
+				className="cursor-pointer px-1 py-0.5 border bg-muted rounded-md hover:bg-muted-foreground hover:text-muted"
 				onClick={() =>
 					openDataDirectory(["real_trading", "rocket", "data", "系统日志"])
 				}
@@ -43,7 +43,7 @@ export const openLogFolders = () => {
 
 export function AboutPage({ className }: { className?: string }) {
 	return (
-		<div className={cn("space-y-2.5 text-sm leading-relaxed", className)}>
+		<div className={cn("space-y-3 text-sm leading-loose", className)}>
 			<div className="space-y-1">
 				<p className="flex items-center gap-1 font-bold text-medium">
 					<BadgeInfo size={16} /> 客户端是什么？
@@ -153,7 +153,7 @@ export function AboutPage({ className }: { className?: string }) {
 						启动但是未执行，🟢 表示正在运行。
 					</li>
 					<li>
-						<span className="font-bold">日志文件</span>： {openLogFolders()}。
+						<span className="font-bold">日志文件夹</span>： {openLogFolders()}。
 					</li>
 				</ul>
 			</div>

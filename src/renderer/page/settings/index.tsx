@@ -226,7 +226,7 @@ export default function SettingsPage() {
 					</div>
 				</div>
 
-				<AboutPage className="border p-2 rounded-lg max-h-72 overflow-y-auto" />
+				<AboutPage className="border p-2 rounded-lg max-h-72 overflow-y-auto shadow-inner bg-neutral-50/60 dark:bg-neutral-900" />
 				<div className="grid grid-cols-3">
 					<KernalVersion
 						name="fuel"
@@ -314,7 +314,7 @@ export default function SettingsPage() {
 					}}
 				>
 					<FolderCode className="size-4 mr-2" />
-					打开文件夹
+					打开内核文件夹
 				</Button>
 			</div>
 
