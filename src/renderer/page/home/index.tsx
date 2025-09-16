@@ -26,9 +26,35 @@ import { useAtom, useAtomValue } from "jotai"
 
 import ScheduleControl from "@/renderer/page/home/schedule"
 import { libraryTypeAtom } from "@/renderer/store/storage"
-import { type FC } from "react"
+import { type FC, useEffect } from "react"
+import { useAlertDialog } from "@/renderer/context/alert-dialog"
+import { AboutPage, ABOUT_CLIENT_VER } from "../settings/about"
 
+const { getStoreValue, setStoreValue, closeApp } = window.electronAPI
 const Home: FC = () => {
+	const useAlert = useAlertDialog()
+	useEffect(() => {
+		const aboutKey = `app.alert.${ABOUT_CLIENT_VER}`
+		getStoreValue(aboutKey, "").then((value) => {
+			if (value === "") {
+				useAlert.open({
+					title: "关于客户端及使用逻辑",
+					content: <AboutPage />,
+					okText: "我已充分了解",
+					isContentLong: true,
+					disableClose: true,
+					onOk: () => {
+						setStoreValue(aboutKey, `${Date.now()}`)
+					},
+					onCancel: () => {
+						closeApp()
+					},
+					okDelay: 20,
+					cancelText: "退出客户端",
+				})
+			}
+		})
+	}, [])
 	return (
 		<div className="h-full flex py-3 gap-4">
 			{/* <div className={cn("grid gap-4 grid-cols-[1fr_2px_1fr]")}> */}

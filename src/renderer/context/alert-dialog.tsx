@@ -40,6 +40,7 @@ interface AlertDialogState {
 	onOk?: () => void | Promise<void>
 	onCancel?: () => void | Promise<void>
 	isContentLong?: boolean
+	disableClose?: boolean
 }
 
 interface AlertDialogContextType {
@@ -60,6 +61,7 @@ export function AlertDialogProvider({ children }: { children: ReactNode }) {
 		cancelText: "取消",
 		description: "",
 		okDelay: 0,
+		disableClose: false,
 	})
 
 	const [loading, setLoading] = useState(false)
@@ -119,7 +121,10 @@ export function AlertDialogProvider({ children }: { children: ReactNode }) {
 		<AlertDialogContext.Provider value={{ open, close }}>
 			{children}
 			<Dialog open={state.isOpen} onOpenChange={close}>
-				<DialogContent className="p-0 space-y-0 gap-0" disableClose={loading}>
+				<DialogContent
+					className="p-0 space-y-0 gap-0"
+					disableClose={loading || state.disableClose}
+				>
 					<DialogHeader className="p-4">
 						<DialogTitle>{state.title}</DialogTitle>
 						<DialogDescription className={state.description ? "" : "hidden"}>

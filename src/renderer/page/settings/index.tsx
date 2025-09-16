@@ -58,6 +58,7 @@ import {
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import Img from "../../../../build/icon.ico"
+import { AboutPage } from "./about"
 
 export default function SettingsPage() {
 	const [showContributors, setShowContributors] = useState(false)
@@ -220,6 +221,7 @@ export default function SettingsPage() {
 					</div>
 				</div>
 
+				<AboutPage className="border p-2 rounded-lg max-h-72 overflow-y-auto" />
 				<div className="grid grid-cols-3">
 					<KernalVersion
 						name="fuel"
