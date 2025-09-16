@@ -47,15 +47,15 @@ import { versionsAtom } from "@/renderer/store/versions"
 import { formatBytes } from "@/renderer/utils/formatBytes"
 import { useAtomValue, useSetAtom } from "jotai"
 import {
+	Blocks,
 	CircleArrowUp,
 	DatabaseZap,
+	ExternalLink,
 	FolderClock,
+	FolderOpen,
 	Monitor,
 	SquareFunction,
 	SquareTerminal,
-	Blocks,
-	ExternalLink,
-	FolderOpen,
 } from "lucide-react"
 import { FC, useState } from "react"
 import Markdown from "react-markdown"
@@ -63,16 +63,16 @@ import { useNavigate } from "react-router"
 import Img from "../../../build/icon.ico"
 import { Badge } from "../components/ui/badge"
 import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "../components/ui/popover"
-import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu"
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "../components/ui/popover"
 import { useRealMarketConfig } from "../hooks/useRealMarketConfig"
 
 const {
