@@ -13,9 +13,9 @@ import { useToggleAutoRealTrading } from "@/renderer/hooks/useToggleAutoRealTrad
 import { CircleCheck } from "lucide-react"
 import { useAlertDialog } from "../context/alert-dialog"
 import { useFusionManager } from "../hooks/useFusionManager"
+import { useSettings } from "../hooks/useSettings"
 import { useStrategyManager } from "../hooks/useStrategyManager"
 import { Badge } from "./ui/badge"
-import { useSettings } from "../hooks/useSettings"
 export function ChangeLibrary({
 	currentLibraryType,
 }: { currentLibraryType: string }) {

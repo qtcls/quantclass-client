@@ -11,8 +11,16 @@
 import TradeCtrlBtn from "@/renderer/components/trade-ctrl-btn"
 import { Badge } from "@/renderer/components/ui/badge"
 import { Button } from "@/renderer/components/ui/button"
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+} from "@/renderer/components/ui/dialog"
 import { H2 } from "@/renderer/components/ui/typography"
 import { useToggleAutoRealTrading } from "@/renderer/hooks"
+import { TradingConfigForm } from "@/renderer/page/trading/config-form"
+import { realConfigEditModalAtom } from "@/renderer/store"
 import { backtestConfigAtom, libraryTypeAtom } from "@/renderer/store/storage"
 import { useQuery } from "@tanstack/react-query"
 import { useAtom, useAtomValue } from "jotai"
@@ -20,14 +28,6 @@ import { Settings, TvMinimalPlay } from "lucide-react"
 import { useEffect, useState } from "react"
 import { RealResultProvider } from "../backtest/context"
 import { RunResultTable } from "../backtest/results"
-import { realConfigEditModalAtom } from "@/renderer/store"
-import { TradingConfigForm } from "@/renderer/page/trading/config-form"
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-} from "@/renderer/components/ui/dialog"
 
 export default function TradingControl() {
 	const { loadAquaTradingInfo, getStoreValue } = window.electronAPI

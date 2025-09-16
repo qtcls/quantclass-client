@@ -21,8 +21,8 @@ import type {
 	StgGroupType,
 } from "@/renderer/types/strategy"
 import {
-	saveStrategyListFusion,
 	saveStrategyList,
+	saveStrategyListFusion,
 } from "@/renderer/utils/strategy"
 // import { userAtom } from "@/renderer/store/user"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
