@@ -22,6 +22,7 @@ import {
 	saveStrategyList,
 	saveStrategyListFusion,
 } from "@/renderer/utils/strategy"
+import { LIBRARY_TYPE } from "@/shared/constants"
 import { useAtom, useSetAtom } from "jotai"
 import { RESET, useAtomCallback } from "jotai/utils"
 import {
@@ -35,7 +36,6 @@ import {
 import { autoInitAtoms } from "../store/electron"
 import { generateNonStrategySelectStrategyConfig } from "../utils"
 import { useElectronStoreInit } from "../utils/store"
-import { LIBRARY_TYPE } from "@/shared/constants"
 
 interface StoreContextType {
 	// 状态

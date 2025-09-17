@@ -106,11 +106,11 @@ export default function PositionInfo() {
 						data={(positions.data || [])
 							.filter(
 								(item: PositionStrategyInfoType) =>
-									(item.理论占比 ?? 0) !== 0 &&
-									(item.实际占比 ?? 0) !== 0 &&
-									(item.策略仓位 ?? 0) !== 0 &&
-									(item.占用资金 ?? 0) !== 0 &&
-									(item.当日盈亏 ?? 0) !== 0 &&
+									(item.理论占比 ?? 0) !== 0 ||
+									(item.实际占比 ?? 0) !== 0 ||
+									(item.策略仓位 ?? 0) !== 0 ||
+									(item.占用资金 ?? 0) !== 0 ||
+									(item.当日盈亏 ?? 0) !== 0 ||
 									(item.当日收益率 ?? 0) !== 0,
 							)
 							.sort(

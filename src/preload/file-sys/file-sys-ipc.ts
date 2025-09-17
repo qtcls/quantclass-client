@@ -20,6 +20,7 @@ import {
 import store, { rStore } from "@/main/store/index.js"
 import { killKernalByForce, sendErrorToClient } from "@/main/utils/tools.js"
 import logger from "@/main/utils/wiston.js"
+import { LIBRARY_TYPE } from "@/shared/constants.js"
 import { parse } from "csv-parse/sync"
 import {
 	BrowserWindow,
@@ -30,7 +31,6 @@ import {
 	shell,
 } from "electron"
 import { keys } from "lodash-es"
-import { LIBRARY_TYPE } from "@/shared/constants.js"
 
 async function createStrategyDirHandler(): Promise<void> {
 	ipcMain.handle("create-strategy-dir", async () => {
