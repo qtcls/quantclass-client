@@ -115,6 +115,11 @@ function handleRendererLog() {
 
 function handleRestartApp() {
 	ipcMain.handle("restart-app", async () => {
+		const mainWindow = windowManager.getWindow()
+		if (mainWindow) {
+			mainWindow.removeAllListeners()
+			mainWindow.destroy()
+		}
 		app.relaunch()
 		app.quit()
 	})

@@ -116,7 +116,7 @@ export const Footer: FC = () => {
 								onClick={() => openDirectory([realMarketConfig.qmt_path])}
 							>
 								<ExternalLink />
-								打开QMT文件夹
+								QMT文件夹
 							</DropdownMenuItem>
 						)}
 						<DropdownMenuItem
@@ -130,23 +130,33 @@ export const Footer: FC = () => {
 							}
 						>
 							<Blocks />
-							打开下单日志
+							下单日志
+							<Badge className="font-mono" variant="secondary">
+								rocket
+							</Badge>
 						</DropdownMenuItem>
 						<DropdownMenuItem
 							onClick={() => openDataDirectory(["real_trading", "logs"])}
 						>
 							<SquareFunction />
-							打开选股日志
+							选股日志
+							<Badge className="font-mono" variant="secondary">
+								aqua/zeus
+							</Badge>
 						</DropdownMenuItem>
 						<DropdownMenuItem
 							onClick={() => openDataDirectory(["code", "data", "log"])}
 						>
 							<DatabaseZap />
-							打开数据更新日志
+							数据更新日志
+							<Badge className="font-mono" variant="secondary">
+								fuel
+							</Badge>
 						</DropdownMenuItem>
 						<DropdownMenuItem onClick={() => openUserDirectory("logs")}>
 							<FolderClock />
-							打开客户端调度日志
+							客户端日志
+							<Badge variant="secondary">调度</Badge>
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>

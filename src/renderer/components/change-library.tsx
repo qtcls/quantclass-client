@@ -33,10 +33,15 @@ export function ChangeLibrary({
 			content: (
 				<ul className="list-disc list-inside pl-4">
 					<li>切换之后会清空所有数据</li>
-					<li>切换操作需要重启应用程序才能生效</li>
+					<li>
+						切换操作需要{" "}
+						<span className="font-bold text-warning">重启应用程序</span>{" "}
+						才能生效
+					</li>
 				</ul>
 			),
-			okText: "确认切换",
+			okText: "立即切换，并重启",
+			okDelay: 5,
 			onOk: async () => {
 				// 清理老的策略文件们
 				isFusionMode ? resetFusion() : resetSelectStgList()
