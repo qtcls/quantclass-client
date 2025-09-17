@@ -30,6 +30,7 @@ import {
 	shell,
 } from "electron"
 import { keys } from "lodash-es"
+import { LIBRARY_TYPE } from "@/shared/constants.js"
 
 async function createStrategyDirHandler(): Promise<void> {
 	ipcMain.handle("create-strategy-dir", async () => {
@@ -550,10 +551,7 @@ async function parseCsvFileHandler(): Promise<void> {
 			}
 
 			try {
-				const libraryType = await store.getValue(
-					"settings.libraryType",
-					"select",
-				)
+				const libraryType = await store.getValue(LIBRARY_TYPE, "select")
 				const backtestName = await store.getValue(
 					`${libraryType === "pos" ? "pos_mgmt" : "select_stock"}.backtest_name`,
 					"策略库",

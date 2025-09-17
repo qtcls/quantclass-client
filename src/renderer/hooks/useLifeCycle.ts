@@ -22,6 +22,7 @@ import {
 import {
 	accountKeyAtom,
 	isAutoLoginAtom,
+	libraryTypeAtom,
 	realMarketConfigSchemaAtom,
 } from "@/renderer/store/storage"
 import { macAddressAtom } from "@/renderer/store/user"
@@ -79,6 +80,7 @@ export const useLifeCycle = () => {
 		setIsFullscreen: useSetAtom(isFullscreenAtom),
 		setAccountKey: useSetAtom(accountKeyAtom),
 		setRealMarketConfig: useSetAtom(realMarketConfigSchemaAtom),
+		setLibraryType: useSetAtom(libraryTypeAtom),
 	}
 
 	// -- 用于保存休眠前的更新状态
@@ -129,11 +131,7 @@ export const useLifeCycle = () => {
 	 * -- 初始化账户信息
 	 */
 	const initAccountInfo = async () => {
-		const [apiKey, uuid, macAddress] = await Promise.all([
-			getStoreValue("settings.api_key", ""),
-			getStoreValue("settings.hid", ""),
-			getMacAddress(),
-		])
+		const macAddress = await getMacAddress()
 
 		setters.setMacAddress((prevMacAddress) => {
 			if (prevMacAddress !== macAddress) {
@@ -142,8 +140,8 @@ export const useLifeCycle = () => {
 			return macAddress
 		})
 		setters.setAccountKey({
-			apiKey: apiKey as string,
-			uuid: uuid as string,
+			apiKey: settings.api_key,
+			uuid: settings.hid,
 		})
 
 		// if (isLoggedIn && user?.apiKey && user?.uuid) {
@@ -187,6 +185,7 @@ export const useLifeCycle = () => {
 	// -- 生命周期钩子
 	useMount(async () => {
 		// versionCheck.start()
+		setters.setLibraryType(settings.libraryType)
 
 		await Promise.all([initScheduleTask(), initAccountInfo()])
 

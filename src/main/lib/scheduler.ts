@@ -19,6 +19,7 @@ import {
 } from "@/main/utils/tools.js"
 import logger from "@/main/utils/wiston.js"
 import { BASE_URL } from "@/main/vars.js"
+import { LIBRARY_TYPE } from "@/shared/constants.js"
 import { platform } from "@electron-toolkit/utils"
 import dayjs from "dayjs"
 import isBetween from "dayjs/plugin/isBetween.js"
@@ -111,10 +112,7 @@ function getCurrent15m(): string {
 const setupScheduler = async (): Promise<schedule.Job> => {
 	// -- 重置已存在的调度任务
 	cancelScheduler()
-	const libraryType = (await _store.get(
-		"settings.libraryType",
-		"select",
-	)) as string
+	const libraryType = (await _store.get(LIBRARY_TYPE, "select")) as string
 	const mw = windowManager.getWindow()
 	try {
 		mw?.webContents.send("send-schedule-status", "init")

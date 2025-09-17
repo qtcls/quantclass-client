@@ -10,7 +10,6 @@
 
 import {
 	fusionAtom,
-	libraryTypeAtom,
 	selectStgDictAtom,
 	selectStgListAtom,
 } from "@/renderer/store/storage"
@@ -23,7 +22,7 @@ import {
 	saveStrategyList,
 	saveStrategyListFusion,
 } from "@/renderer/utils/strategy"
-import { useAtom, useAtomValue, useSetAtom } from "jotai"
+import { useAtom, useSetAtom } from "jotai"
 import { RESET, useAtomCallback } from "jotai/utils"
 import {
 	createContext,
@@ -36,6 +35,7 @@ import {
 import { autoInitAtoms } from "../store/electron"
 import { generateNonStrategySelectStrategyConfig } from "../utils"
 import { useElectronStoreInit } from "../utils/store"
+import { LIBRARY_TYPE } from "@/shared/constants"
 
 interface StoreContextType {
 	// 状态
@@ -47,7 +47,6 @@ interface StoreContextType {
 		strategies: (SelectStgType | StgGroupType | PosStrategyType)[],
 	) => void
 	setSelectStgList: (strategies: SelectStgType[]) => void
-	libraryType: string
 
 	// 重置方法
 	resetFusion: () => (SelectStgType | StgGroupType | PosStrategyType)[]
@@ -63,11 +62,14 @@ const StoreContext = createContext<StoreContextType | null>(null)
 export function StoreProvider({ children }: { children: React.ReactNode }) {
 	const [fusion, setFusion] = useAtom(fusionAtom)
 	const [selectStgList, setSelectStgList] = useAtom(selectStgListAtom)
-	const libraryType = useAtomValue(libraryTypeAtom)
 	const setSelectStgDict = useSetAtom(selectStgDictAtom)
 	const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null) // 防抖时间控制器
-	const { clearRealMarketData, saveRealMarketData, cleanRealMarketData } =
-		window.electronAPI
+	const {
+		clearRealMarketData,
+		saveRealMarketData,
+		cleanRealMarketData,
+		getStoreValue,
+	} = window.electronAPI
 
 	/**
 	 * 初始化各种electron-store
@@ -90,18 +92,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 		[],
 	)
 
-	// 仅跟踪当前启用库对应的列表，避免无关列表变化也触发 effect
-	const relevantList = libraryType === "pos" ? fusion : selectStgList
-
 	// Fusion 相关方法
 	const resetFusion = useCallback(() => {
 		setFusion([])
-		if (libraryType === "pos") {
-			setSelectStgDict(RESET)
-			clearRealMarketData()
-		}
+		setSelectStgDict(RESET)
+		clearRealMarketData()
 		return []
-	}, [setFusion, libraryType, setSelectStgDict])
+	}, [setFusion, setSelectStgDict])
 
 	const syncFusion = useAtomCallback(async (get, set) => {
 		const currentFusion = get(fusionAtom)
@@ -112,11 +109,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 	// SelectStgList 相关方法
 	const resetSelectStgList = useCallback(() => {
 		setSelectStgList([])
-		if (libraryType !== "pos") {
-			setSelectStgDict(RESET)
-		}
+		setSelectStgDict(RESET)
+		clearRealMarketData()
 		return []
-	}, [setSelectStgList, libraryType, setSelectStgDict])
+	}, [setSelectStgList, setSelectStgDict])
 
 	const syncSelectStgList = useAtomCallback(async (get, set) => {
 		const currentSelectStgList = get(selectStgListAtom)
@@ -137,17 +133,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 		saveTimeoutRef.current = setTimeout(async () => {
 			const saveData = async () => {
 				let selectStgDict = {}
-				switch (libraryType) {
-					case "pos":
-						selectStgDict = await saveStrategyListFusion(fusion)
-						break
-					case "select":
-						selectStgDict = await saveStrategyList(selectStgList)
-						break
-					default:
-						break
-				}
+				// 重新读取配置的lib type
+				const libraryType = await getStoreValue(LIBRARY_TYPE)
+				libraryType === "pos"
+					? await saveStrategyListFusion(fusion)
+					: await saveStrategyList(selectStgList)
+
 				setSelectStgDict(selectStgDict)
+
 				// 修正：确保 selectStgDict 是对象，且避免类型报错，使用 Object.keys
 				const parsedData: Record<string, any> = {}
 				Object.entries({
@@ -156,6 +149,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 				}).forEach(([key, value], index) => {
 					parsedData[`strategy_${index}`] = { ...(value ?? {}), name: key }
 				})
+
 				const strategyKeys = Object.keys(parsedData)
 				await cleanRealMarketData(strategyKeys)
 				await saveRealMarketData(parsedData)
@@ -170,14 +164,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 				clearTimeout(saveTimeoutRef.current)
 			}
 		}
-	}, [relevantList, libraryType, setSelectStgDict])
+	}, [fusion, selectStgList, setSelectStgDict])
 
 	const contextValue = useMemo(
 		() => ({
 			// 状态
 			fusion,
 			selectStgList,
-			libraryType,
 
 			// 设置方法
 			setFusion,
@@ -194,7 +187,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 		[
 			fusion,
 			selectStgList,
-			libraryType,
 			setFusion,
 			setSelectStgList,
 			resetFusion,

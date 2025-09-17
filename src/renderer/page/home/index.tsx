@@ -104,11 +104,9 @@ export const KernalVersionDes = ({
 	] as const
 	// 根据 libraryType 动态调整 statusList
 	const getStatusList = () => {
-		if (libraryType === "pos") {
-			return baseStatusList.filter((item) => item.Key !== "aqua")
-		} else {
-			return baseStatusList.filter((item) => item.Key !== "zeus")
-		}
+		return baseStatusList.filter(
+			(item) => item.Key !== (libraryType === "pos" ? "aqua" : "zeus"),
+		)
 	}
 	const statusList = getStatusList()
 	const getStatusColor = (key: (typeof statusList)[number]["Key"]) => {
