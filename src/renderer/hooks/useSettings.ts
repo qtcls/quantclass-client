@@ -20,14 +20,16 @@ export function useSettings() {
 
 	const updateSettings = useCallback(
 		(newSettings: Partial<SettingsType>) => {
-			newSettings.libraryType && setLibraryTypeAtom(newSettings.libraryType)
+			if (newSettings.libraryType) {
+				setLibraryTypeAtom(newSettings.libraryType)
+			}
 
 			setSettings((prev: SettingsType) => ({
 				...prev,
 				...newSettings,
 			}))
 		},
-		[setSettings],
+		[setSettings, setLibraryTypeAtom],
 	)
 
 	const dataLocation = settings.all_data_path || ""
