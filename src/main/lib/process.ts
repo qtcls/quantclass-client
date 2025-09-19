@@ -101,7 +101,9 @@ export class ProcessManage {
 			} finally {
 				// 删除临时文件夹
 				this.processes.delete(childProcess.pid!)
-				logger.info(`删除之后的processes[${JSON.stringify(this.processes)}]`)
+				logger.info(
+					`[${kernel}] 删除之后的processes:${JSON.stringify(this.processes)}`,
+				)
 			}
 		})
 		// console.log("44444")
