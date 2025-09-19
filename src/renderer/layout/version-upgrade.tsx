@@ -94,11 +94,11 @@ export default function VersionUpgrade() {
 	const [versionList, setVersionList] = useAtom(versionListAtom)
 	const [data, setData] = useState<VersionData[]>([])
 	const [loading, setLoading] = useState(true)
-	const { openUrl } = window.electronAPI
+	const { openUrl, readChangelog } = window.electronAPI
 	useEffect(() => {
 		const loadChangelog = async () => {
 			try {
-				const result = await window.electronAPI.readChangelog()
+				const result = await readChangelog()
 				if (result.success) {
 					const parsedData = parseChangelog(result.data)
 					setData(parsedData)

@@ -601,10 +601,19 @@ async function parseCsvFileHandler(): Promise<void> {
 async function readChangelogHandler(): Promise<void> {
 	ipcMain.handle("read-changelog", async () => {
 		try {
-			const changelogPath = path.join(process.cwd(), "CHANGELOG.md")
+			// 优先从 resources 目录读取（打包后的路径）
+			const resourcesPath = path.join(process.resourcesPath, "CHANGELOG.md")
+			// 备用路径：开发环境的项目根目录
+			const devPath = path.join(process.cwd(), "CHANGELOG.md")
 
-			// -- 检查文件是否存在
-			if (!fs.existsSync(changelogPath)) {
+			let changelogPath: string
+			if (fs.existsSync(resourcesPath)) {
+				changelogPath = resourcesPath
+				logger.info(`[readChangelogHandler] 使用打包路径: ${resourcesPath}`)
+			} else if (fs.existsSync(devPath)) {
+				changelogPath = devPath
+				logger.info(`[readChangelogHandler] 使用开发路径: ${devPath}`)
+			} else {
 				logger.error("[readChangelogHandler] CHANGELOG.md 文件不存在")
 				return { success: false, error: "CHANGELOG.md 文件不存在", data: "" }
 			}
