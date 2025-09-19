@@ -59,9 +59,10 @@ export const createWindow = async (tray?: Tray): Promise<void> => {
 
 		const closeApp = async () => {
 			try {
-				const isMinimize = await store.get("settings.user_choice")
+				const isMinimize = await store.get("settings.user_choice", false)
+				logger.info("[settings.user_choice] 用户设置最小化到托盘: ", isMinimize)
 
-				if (isMinimize === undefined) {
+				if (!isMinimize) {
 					const { response, checkboxChecked } = await dialog.showMessageBox({
 						type: "question",
 						buttons: ["最小化", "退出程序", "取消"],
