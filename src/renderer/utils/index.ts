@@ -185,7 +185,7 @@ export function genSelectStrategyDict(
 	return {
 		strategy_weight: stg.cap_weight,
 		hold_plan: (stg.offset_list || [0]).map(
-			(offset) => `${stg.hold_period.replace("D", "")}_${offset}`,
+			(offset) => `${(stg.hold_period ?? "5D").replace("D", "")}_${offset}`,
 		),
 		select_count: stg.select_num,
 		stock_weight: ["equal_weight", false], // -- 默认为等权重，(当选股数量不足的时候，是否自动补足，false的话是全仓)
@@ -216,13 +216,18 @@ export function genSelectStrategyDict(
 	}
 }
 
-export function genPosMgmtStrategyDict(stg: PosStrategyType) {
+export function genPosMgmtStrategyDict(
+	stg: PosStrategyType,
+	trade_time:
+		| { sell_time: TimeValue; buy_time: TimeValue }
+		| undefined = undefined,
+) {
 	const reb_time = stg.rebalance_time ?? "close-open"
-	const { sell_time, buy_time } = autoTradeTimeByRebTime(reb_time) // -- 生成自动交易时间
+	const { sell_time, buy_time } = trade_time ?? autoTradeTimeByRebTime(reb_time) // -- 生成自动交易时间
 	return {
 		strategy_weight: stg.cap_weight,
 		hold_plan: (stg.offset_list || [0]).map(
-			(offset) => `${stg.hold_period.replace("D", "")}_${offset}`,
+			(offset) => `${(stg.hold_period ?? "5D").replace("D", "")}_${offset}`,
 		),
 		select_count: stg.max_select_num ?? 3, // -- 目前选股数量这个数值基本不用，可以用max_select_num来补齐
 		stock_weight: ["equal_weight", false], // -- 默认为等权重，(当选股数量不足的时候，是否自动补足，false的话是全仓)

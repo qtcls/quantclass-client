@@ -29,7 +29,7 @@ import {
 } from "@/renderer/components/ui/dialog"
 import { useDataSubscribed } from "@/renderer/hooks/useDataSubscribed"
 import { useAtomValue } from "jotai"
-import { Database, Play, RefreshCcw } from "lucide-react"
+import { Database, Play, RefreshCw } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router"
 import { accountKeyAtom } from "../../store/storage"
@@ -61,12 +61,14 @@ export const DataKanban = () => {
 					{isUpdating ? (
 						<ButtonTooltip content="停止自动更新数据">
 							<Button
-								variant={dataScheduleTimes.length > 0 ? "warning" : "success"}
+								variant={
+									dataScheduleTimes.length > 0 ? "successOutline" : "success"
+								}
 								className="hover:cursor-pointer"
 								disabled={disabled}
 								onClick={() => handleTimeTask(true)}
 							>
-								<RefreshCcw className="size-4 animate-spin mr-2" />
+								<RefreshCw className="size-4 animate-spin mr-2" />
 								暂停
 							</Button>
 						</ButtonTooltip>
@@ -95,15 +97,15 @@ export const DataKanban = () => {
 					</Button>
 				</div>
 
-				<div className="bg-card rounded-lg p-4 shadow-sm border max-w-3xl">
+				<div className="bg-card rounded-lg p-3 shadow-sm border max-w-3xl">
 					<H4 className="mb-4">
 						存储路径{" "}
 						<span className="text-muted-foreground text-sm">
 							建议预留最少 20GB 空间
 						</span>
 					</H4>
-					<div className="space-y-2">
-						<DataLocationCtrl />
+					<div className="flex items-center gap-2 w-full">
+						<DataLocationCtrl className="min-w-64" />
 					</div>
 				</div>
 			</div>

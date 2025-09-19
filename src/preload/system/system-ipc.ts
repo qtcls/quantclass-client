@@ -8,10 +8,14 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
+import { getAppAndKernalVersions } from "@/main/core/lib.js"
+import { checkRemoteVersions, updateKernal } from "@/main/core/runpy.js"
 import windowManager from "@/main/lib/WindowManager.js"
 import { process_manager } from "@/main/lib/process.js"
 import { setupScheduler } from "@/main/lib/scheduler.js"
+import { killAllKernalByForce, killKernalByForce } from "@/main/utils/tools.js"
 import { log } from "@/main/utils/wiston.js"
+import type { KernalType } from "@/shared/types/index.js"
 import { electronApp, platform } from "@electron-toolkit/utils"
 import { app, ipcMain } from "electron"
 
@@ -79,6 +83,21 @@ function handleKillProcess() {
 	})
 }
 
+function handleKillAllKernals() {
+	ipcMain.handle("kill-all-kernals", async (_event, byForce = false) => {
+		return await killAllKernalByForce(byForce)
+	})
+}
+
+function handleKillKernal() {
+	ipcMain.handle(
+		"kill-kernal",
+		async (_event, kernal: KernalType, byForce = false) => {
+			return await killKernalByForce(kernal, byForce)
+		},
+	)
+}
+
 function handleSetAutoUpdate() {
 	ipcMain.handle("set-auto-update", async (_event) => {
 		await setupScheduler()
@@ -96,9 +115,35 @@ function handleRendererLog() {
 
 function handleRestartApp() {
 	ipcMain.handle("restart-app", async () => {
+		const mainWindow = windowManager.getWindow()
+		if (mainWindow) {
+			mainWindow.removeAllListeners()
+			mainWindow.destroy()
+		}
 		app.relaunch()
 		app.quit()
 	})
+}
+
+async function handleCheckUpdate(): Promise<void> {
+	ipcMain.handle("check-update", async (_event, now = true) => {
+		return await checkRemoteVersions(now)
+	})
+}
+
+async function handleGetAppAndKernalVersions(): Promise<void> {
+	ipcMain.handle("get-app-and-kernal-versions", async () => {
+		return await getAppAndKernalVersions()
+	})
+}
+
+async function handleUpdateKernal(): Promise<void> {
+	ipcMain.handle(
+		"update-kernal",
+		async (_event, name: KernalType, targetVersion?: string) => {
+			return await updateKernal(name as KernalType, targetVersion)
+		},
+	)
 }
 
 export const regSystemIPC = () => {
@@ -106,11 +151,16 @@ export const regSystemIPC = () => {
 	handleMinimize()
 	handleRendererLog()
 	handleKillProcess()
+	handleKillAllKernals()
+	handleKillKernal()
 	handleSetAutoLogin()
 	handleSetAutoUpdate()
 	fetchFullscreenState()
 	handleMonitorProcess()
 	handleToggleFullscreen()
 	handleRestartApp()
-	console.log("[ok] system-ipc")
+	handleGetAppAndKernalVersions()
+	handleUpdateKernal()
+	handleCheckUpdate()
+	console.log("[reg] system-ipc")
 }

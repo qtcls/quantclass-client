@@ -21,7 +21,7 @@ import server from "@/main/server/index.js"
 import { cleanupDB } from "@/main/server/middleware/db.js"
 import {
 	cleanLockFiles,
-	killAllCoreByForce,
+	killAllKernalByForce,
 	startServerOnAvailablePort,
 } from "@/main/utils/tools.js"
 import logger from "@/main/utils/wiston.js"
@@ -185,7 +185,7 @@ if (!gotTheLock) {
 		const win = windowManager.getWindowById()
 
 		// 强制杀掉所有相关的进程
-		await killAllCoreByForce(true)
+		await killAllKernalByForce(true)
 
 		if (win) {
 			if (win.isMinimized() || !win.isVisible()) {
@@ -224,7 +224,7 @@ if (!gotTheLock) {
 	app.on("quit", async (_, exitCode) => {
 		// 在这里添加你的清理或保存操作
 		await cleanLockFiles()
-		await killAllCoreByForce(true)
+		await killAllKernalByForce(true)
 		logger.info(`应用已退出，退出码：${exitCode}`)
 	})
 }

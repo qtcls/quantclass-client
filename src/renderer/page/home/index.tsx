@@ -8,7 +8,6 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
-import { SelfStarting } from "@/renderer/components/About/selfStarting"
 import {
 	ProcessHoverCard,
 	ProcessHoverCardContent,
@@ -19,16 +18,44 @@ import { cn } from "@/renderer/lib/utils"
 import { DataKanban } from "@/renderer/page/home/DataKanban"
 import { ProcessCard, ProcessKanban } from "@/renderer/page/home/ProcessKanban"
 import { RealMarketKanban } from "@/renderer/page/home/RealMarketKanban"
-import { CoreUpdateStatus } from "@/renderer/page/home/coreUpdateStatus"
+import { KernalUpdateStatus } from "@/renderer/page/home/kernal-update-status"
+import { SelfStarting } from "@/renderer/page/settings/preview"
 import { isAutoRocketAtom, isUpdatingAtom } from "@/renderer/store"
 import { monitorProcessesQueryAtom } from "@/renderer/store/query"
 import { useAtom, useAtomValue } from "jotai"
 
+import { useAlertDialog } from "@/renderer/context/alert-dialog"
 import ScheduleControl from "@/renderer/page/home/schedule"
 import { libraryTypeAtom } from "@/renderer/store/storage"
-import { type FC } from "react"
+import { type FC, useEffect } from "react"
+import { ABOUT_CLIENT_VER, AboutPage } from "../settings/about"
 
+const { getStoreValue, setStoreValue, closeApp } = window.electronAPI
 const Home: FC = () => {
+	const useAlert = useAlertDialog()
+	useEffect(() => {
+		const aboutKey = `app.alert.${ABOUT_CLIENT_VER}`
+		getStoreValue(aboutKey, "").then((value) => {
+			if (value === "") {
+				useAlert.open({
+					title: "关于客户端及使用逻辑",
+					content: <AboutPage />,
+					okText: "我已充分了解",
+					isContentLong: true,
+					disableClose: true,
+					onOk: () => {
+						setStoreValue(aboutKey, `${Date.now()}`)
+					},
+					onCancel: () => {
+						closeApp()
+					},
+					okDelay: 20,
+					cancelText: "退出客户端",
+					size: "xl",
+				})
+			}
+		})
+	}, [])
 	return (
 		<div className="h-full flex py-3 gap-4">
 			{/* <div className={cn("grid gap-4 grid-cols-[1fr_2px_1fr]")}> */}
@@ -48,7 +75,7 @@ const Home: FC = () => {
 	)
 }
 
-export const CoreVersionDes = ({
+export const KernalVersionDes = ({
 	className,
 	layout = "vertical",
 }: {
@@ -77,12 +104,9 @@ export const CoreVersionDes = ({
 	] as const
 	// 根据 libraryType 动态调整 statusList
 	const getStatusList = () => {
-		if (libraryType === "pos") {
-			return baseStatusList.filter((item) => item.Key !== "aqua")
-		} else if (libraryType === "select") {
-			return baseStatusList.filter((item) => item.Key !== "zeus")
-		}
-		return baseStatusList // 默认情况下返回完整的 statusList
+		return baseStatusList.filter(
+			(item) => item.Key !== (libraryType === "pos" ? "aqua" : "zeus"),
+		)
 	}
 	const statusList = getStatusList()
 	const getStatusColor = (key: (typeof statusList)[number]["Key"]) => {
@@ -90,7 +114,7 @@ export const CoreVersionDes = ({
 		if (isUpdating && key === "fuel") return "🟡"
 		if (isAutoRocket && (key === "aqua" || key === "zeus" || key === "rocket"))
 			return "🟡"
-		return "🚫" // 默认状态
+		return "⚪" // 默认状态
 	}
 
 	return (
@@ -113,7 +137,7 @@ export const CoreVersionDes = ({
 							</ProcessHoverCardContent>
 						</ProcessHoverCard>
 					))}
-					{isUpdating && <CoreUpdateStatus />}
+					{isUpdating && <KernalUpdateStatus />}
 				</div>
 			</div>
 		</>

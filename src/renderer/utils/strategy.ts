@@ -8,13 +8,14 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
-import { REAL_MARKET_SS_SELECTED_STRATEGIES as REAL_MARKET_SELECT_STRATEGIES } from "@/renderer/constant"
 import type {
 	PosStrategyType,
 	SelectStgType,
 	StgGroupType,
 } from "@/renderer/types/strategy"
 import { genPosMgmtStrategyDict, genSelectStrategyDict } from "@/renderer/utils"
+import type { TimeValue } from "react-aria"
+import { autoTradeTimeByRebTime } from "./trade"
 
 const { setStoreValue } = window.electronAPI
 
@@ -66,23 +67,38 @@ export const saveStrategyList = async (strategies: SelectStgType[]) => {
 		cap_weight: strategy.cap_weight / 100,
 		calc_time: strategy.calc_time ?? "08:00:00",
 	}))
+
+	//
+	const rebTimeCache: Record<
+		string,
+		{ sell_time: TimeValue; buy_time: TimeValue }
+	> = {}
+
+	const strategyDict = {}
+	for (let index = 0; index < strategiesWithAdjustedWeight.length; index++) {
+		const strategy = strategiesWithAdjustedWeight[index]
+		if (!rebTimeCache[strategy.rebalance_time ?? "close-open"]) {
+			rebTimeCache[strategy.rebalance_time ?? "close-open"] =
+				autoTradeTimeByRebTime(strategy.rebalance_time ?? "close-open")
+		}
+		strategyDict[`#${index}.${strategy.name}`] = genSelectStrategyDict(
+			strategy as SelectStgType,
+			rebTimeCache[strategy.rebalance_time ?? "close-open"],
+		)
+	}
 	// -- 生成策略配置字典，添加index
-	const strategyDict = strategiesWithAdjustedWeight.reduce(
-		(acc, item, index) => {
-			acc[`#${index}.${item.name}`] = genSelectStrategyDict(
-				item as SelectStgType,
-			)
-			return acc
-		},
-		{},
-	)
+	// const strategyDict = strategiesWithAdjustedWeight.reduce(
+	// 	(acc, item, index) => {
+	// 		acc[`#${index}.${item.name}`] = genSelectStrategyDict(
+	// 			item as SelectStgType,
+	// 		)
+	// 		return acc
+	// 	},
+	// 	{},
+	// )
 	// -- 生成aqua内核策略列表
 	const selectStrategyList = strategiesWithAdjustedWeight.map((stg) =>
 		genSelectStgInfo(stg, false),
-	)
-	await setStoreValue(
-		REAL_MARKET_SELECT_STRATEGIES,
-		strategiesWithAdjustedWeight,
 	)
 	await setStoreValue("select_stock.strategy_list", selectStrategyList)
 	return strategyDict
@@ -103,77 +119,139 @@ export const saveStrategyListFusion = async (
 	)
 
 	// -- 生成zeus内核策略列表
-	const selectStrategyList = strategiesWithAdjustedWeight.map((stg) => {
-		switch (stg.type) {
-			case "pos":
-				return {
-					name: stg.name,
-					hold_period: stg.hold_period,
-					offset_list: stg.offset_list,
-					max_select_num: stg.max_select_num ?? 0, // -- 最大选股数量
-					rebalance_time: stg.rebalance_time,
-					cap_weight: stg.cap_weight,
-					params: stg.params,
-					strategy_pool: stg.strategy_pool.map((grp_or_stg) =>
-						grp_or_stg.type === "group"
-							? {
-									name: grp_or_stg.name,
-									cap_weight: grp_or_stg.cap_weight,
-									strategy_list: grp_or_stg.strategy_list.map((_stg) =>
-										genSelectStgInfo(_stg as SelectStgType),
-									),
-								}
-							: genSelectStgInfo(grp_or_stg as SelectStgType),
-					),
-				}
-			case "group":
-				return {
-					name: stg.name,
-					cap_weight: stg.cap_weight,
-					strategy_list: stg.strategy_list.map((_stg) =>
-						genSelectStgInfo(_stg as SelectStgType),
-					),
-				}
-			default:
-				return genSelectStgInfo(stg as SelectStgType)
-		}
-	})
+	const selectStrategyList = strategiesWithAdjustedWeight.map(
+		(stg: SelectStgType | StgGroupType | PosStrategyType) => {
+			switch (stg.type) {
+				case "pos":
+					return {
+						name: stg.name,
+						hold_period: stg.hold_period,
+						offset_list: stg.offset_list,
+						max_select_num: stg.max_select_num ?? 0, // -- 最大选股数量
+						rebalance_time: stg.rebalance_time,
+						cap_weight: stg.cap_weight,
+						params: stg.params,
+						strategy_pool: stg.strategy_pool.map((grp_or_stg) =>
+							grp_or_stg.type === "group"
+								? {
+										name: grp_or_stg.name,
+										cap_weight: grp_or_stg.cap_weight,
+										strategy_list: grp_or_stg.strategy_list.map((_stg) =>
+											genSelectStgInfo(_stg as SelectStgType),
+										),
+									}
+								: genSelectStgInfo(grp_or_stg as SelectStgType),
+						),
+					}
+				case "group":
+					return {
+						name: stg.name,
+						cap_weight: stg.cap_weight,
+						strategy_list: stg.strategy_list.map((_stg) =>
+							genSelectStgInfo(_stg as SelectStgType),
+						),
+					}
+				default:
+					return genSelectStgInfo(stg as SelectStgType)
+			}
+		},
+	)
 	await setStoreValue("pos_mgmt.strategies", selectStrategyList)
 
-	// -- 生成策略配置字典，添加index
-	const strategyDict = strategiesWithAdjustedWeight.reduce(
-		(
-			acc: Record<string, any>,
-			item: PosStrategyType | SelectStgType | StgGroupType,
-			index: number,
-		) => {
-			const strategyName = `X${index + 1}-${item.name}`
+	const rebTimeVals: Record<
+		string,
+		{ sell_time: TimeValue; buy_time: TimeValue }
+	> = {}
 
-			switch (item.type) {
-				case "pos":
-					acc[strategyName] = genPosMgmtStrategyDict(item as PosStrategyType)
-					break
-				case "group":
-					if (item.strategy_list.length > 1) {
-						// 处理策略组
-						item.strategy_list.forEach((curr1, index1) => {
-							const key = `${strategyName}#${index1}.${curr1.name}`
-							acc[key] = genSelectStrategyDict({
-								...curr1,
-								cap_weight: (curr1.cap_weight / 100) * (item.cap_weight || 1),
-							})
-						})
-					} else {
-						acc[strategyName] = genSelectStrategyDict(item.strategy_list[0])
-					}
-					break
-				default:
-					acc[strategyName] = genSelectStrategyDict(item as SelectStgType)
-					break
+	const strategyDict = {}
+	for (let index = 0; index < strategiesWithAdjustedWeight.length; index++) {
+		const strategy = strategiesWithAdjustedWeight[index]
+		const strategyName = `X${index + 1}-${strategy.name}`
+		if (strategy.type === "pos") {
+			const rebTime = strategy.rebalance_time ?? "close-open"
+			if (!rebTimeVals[rebTime]) {
+				rebTimeVals[rebTime] = autoTradeTimeByRebTime(rebTime)
 			}
-			return acc
-		},
-		{},
-	)
+			strategyDict[strategyName] = genPosMgmtStrategyDict(
+				strategy as PosStrategyType,
+				rebTimeVals[rebTime],
+			)
+		} else if (strategy.type === "group") {
+			for (let index0 = 0; index0 < strategy.strategy_list.length; index0++) {
+				const subStrategy = strategy.strategy_list[index0]
+				const rebTime = subStrategy.rebalance_time ?? "close-open"
+				if (!rebTimeVals[rebTime]) {
+					rebTimeVals[rebTime] = autoTradeTimeByRebTime(rebTime)
+				}
+				const dictKey =
+					strategy.strategy_list.length > 1
+						? `${strategyName}#${index0}.${subStrategy.name}`
+						: strategyName
+				strategyDict[dictKey] = genSelectStrategyDict(
+					{
+						...subStrategy,
+						cap_weight:
+							(subStrategy.cap_weight / 100) * (strategy.cap_weight ?? 0),
+					},
+					rebTimeVals[rebTime],
+				)
+			}
+		} else {
+			const rebTime = strategy.rebalance_time ?? "close-open"
+			if (!rebTimeVals[rebTime]) {
+				rebTimeVals[rebTime] = autoTradeTimeByRebTime(rebTime)
+			}
+			strategyDict[strategyName] = genSelectStrategyDict(
+				{
+					...strategy,
+					cap_weight: strategy.cap_weight ?? 0 / 100,
+				},
+				rebTimeVals[rebTime],
+			)
+		}
+	}
+
+	// -- 生成策略配置字典，添加index
+	// const strategyDict = strategiesWithAdjustedWeight.reduce(
+	// 	(
+	// 		acc: Record<string, any>,
+	// 		item: PosStrategyType | SelectStgType | StgGroupType,
+	// 		index: number,
+	// 	) => {
+	// 		const strategyName = `X${index + 1}-${item.name}`
+
+	// 		switch (item.type) {
+	// 			case "pos":
+	// 				acc[strategyName] = genPosMgmtStrategyDict(item as PosStrategyType)
+	// 				break
+	// 			case "group":
+	// 				if (item.strategy_list.length > 1) {
+	// 					item.strategy_list.forEach((curr1, index1) => {
+	// 						const key = `${strategyName}#${index1}.${curr1.name}`
+	// 						acc[key] = genSelectStrategyDict({
+	// 							...curr1,
+	// 							cap_weight: (curr1.cap_weight / 100) * (item.cap_weight ?? 0),
+	// 						})
+	// 					})
+	// 				} else {
+	// 					acc[strategyName] = genSelectStrategyDict({
+	// 						...item.strategy_list[0],
+	// 						cap_weight:
+	// 							(item.strategy_list[0].cap_weight / 100) *
+	// 							(item.cap_weight ?? 0),
+	// 					})
+	// 				}
+	// 				break
+	// 			default:
+	// 				acc[strategyName] = genSelectStrategyDict({
+	// 					...item,
+	// 					cap_weight: item.cap_weight ?? 0 / 100,
+	// 				})
+	// 				break
+	// 		}
+	// 		return acc
+	// 	},
+	// 	{},
+	// )
 	return strategyDict
 }

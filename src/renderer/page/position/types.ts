@@ -37,7 +37,9 @@ export type PositionStockInfoType = {
 
 export type PositionStrategyInfoType = {
 	策略名称: string
-	占比: number
+	理论占比: number
+	实际占比: number
+	策略仓位: number
 	占用资金: number
 	当日盈亏: number
 	当日收益率: number

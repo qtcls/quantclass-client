@@ -8,18 +8,17 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
-import { exec } from "node:child_process"
 import fs from "node:fs"
 import { writeFile } from "node:fs/promises"
 import { createRequire } from "node:module"
-import { arch } from "node:os"
 import path from "node:path"
-import { CONFIG } from "@/main/config.js"
+import { getKernelVersion } from "@/main/core/lib.js"
 import windowManager from "@/main/lib/WindowManager.js"
 import { postUserMainAction } from "@/main/request/index.js"
 import store from "@/main/store/index.js"
-import { getBinPath } from "@/main/utils/common.js"
+import logger from "@/main/utils/wiston.js"
 import { BASE_URL, CLIENT_VERSION } from "@/main/vars.js"
+import type { AppVersions } from "@/shared/types/index.js"
 import { platform } from "@electron-toolkit/utils"
 import dayjs from "dayjs"
 import {
@@ -28,21 +27,13 @@ import {
 	createLockFile,
 	removeLockFile,
 } from "../utils/tools.js"
-import logger from "../utils/wiston.js"
-import { getCoreVersion, getVersionWithLoop } from "./lib.js"
 
 const require = createRequire(import.meta.url)
 const AdmZip = require("adm-zip")
 
 const clientVersion = CLIENT_VERSION
 
-const URL = `${BASE_URL}/api/data/client`
-const CORE_VERSION_REMOTE_URL = {
-	fuel: `${URL}/fuel-bin-v2/version`,
-	aqua: `${URL}/aqua-bin/version`,
-	rocket: `${URL}/rocket-bin-v3/version`,
-	zeus: `${URL}/zeus-bin/version`,
-}
+const URL = `${BASE_URL}/api/data/query/client-versions`
 
 // -- 添加工具函数
 function getRandomDelay(min: number, max: number): number {
@@ -50,196 +41,190 @@ function getRandomDelay(min: number, max: number): number {
 }
 
 /**
+ * 检查服务器内核版本，并且保存到本地
+ * @returns {Promise<{version: string, download: string}>}
+ * @throws Error
+ */
+export async function fetchRemoteVersions(): Promise<AppVersions> {
+	console.log(`[version] fetch ${URL}?client=${clientVersion}`)
+	const response = await fetch(`${URL}?client=${clientVersion}`)
+
+	if (!response.ok)
+		throw new Error(`[app] 内核版本获取失败: ${response.status}`)
+
+	const resp = await response.json()
+
+	store.setValue("app.versions", resp)
+	return resp
+}
+
+/**
+ * 获取本地缓存的远程版本，如果本地没有缓存，则重新请求远程版本
+ * @returns {Promise<AppVersions>}
+ */
+export async function getRemoteVersions(): Promise<AppVersions> {
+	const versions = (await store.getValue("app.versions", {})) as AppVersions
+	if (!versions.latest) {
+		try {
+			return await fetchRemoteVersions()
+		} catch (error) {
+			logger.error(`[app] 获取远程版本失败: ${error}`)
+			return versions
+		}
+	}
+	return versions
+}
+
+/**
  * 检查本地版本和远程版本是否一致
  * @returns {Promise<boolean>} 如果版本一致返回 true,否则返回 false
  */
-export async function isCoreUpToDate(
-	core: "fuel" | "aqua" | "rocket" | "zeus",
-	immediately = true, //是否需要立即检查版本
-): Promise<boolean | 1> {
-	const binPath = await getBinPath(core)
-	const isBinExist = fs.existsSync(binPath)
-
-	// -- 如果本地不存在内核，直接返回 false
-	if (!isBinExist) {
-		logger.info(`[${core}] 本地不存在内核`)
-		return false
-	}
-
+export async function checkRemoteVersions(now = true): Promise<AppVersions> {
 	const current = dayjs()
-	const lastUpdateCheck = await store.getValue(`lastUpdateCheck.${core}`, "")
+	const lastUpdateCheck = await store.getValue("lastUpdateCheck.app", "")
+	let remoteVersions = await getRemoteVersions()
+	let needFetchRemoteVersion = true
 
 	// 如果immediately=true，表示需要立即检查版本，这个时候跳过时间检查，直接请求远程版本
 	if (lastUpdateCheck) {
 		// -- 如果存在内核，且需要检查时间
 		const lastUpdateTime = dayjs(lastUpdateCheck)
 		const timeDifference = current.diff(lastUpdateTime, "second")
-		const randomDelay = immediately ? 3 : (getRandomDelay(41, 67) * 7) / 1000 // 转换为秒，每次休息间隔大概7分钟再check版本
+		const randomDelay = now ? 3 : (getRandomDelay(41, 67) * 7) / 1000 // 转换为秒，每次休息间隔大概7分钟再check版本
 		logger.info(`随机数 ${randomDelay}，timeDifference ${timeDifference}`)
 		if (timeDifference < randomDelay) {
 			logger.info(
-				`[${core}] 距离上次检查时间不足 ${(randomDelay / 60).toFixed(1)} 分钟，跳过检查`,
+				`[远程版本检查] 距离上次检查时间不足 ${(randomDelay / 60).toFixed(1)} 分钟，跳过检查`,
 			)
-			return 1
+			needFetchRemoteVersion = false
 		}
 	}
-	store.setValue(`lastUpdateCheck.${core}`, current.toISOString())
 
-	try {
-		const { version: remoteVersion } = await getRemoteVersion(core)
-		const localVersion = await getCoreVersion(core)
-
-		logger.info(
-			`[${core}] 本地版本: ${localVersion}, 远程版本: ${remoteVersion}`,
-		)
-
-		return remoteVersion === localVersion
-	} catch (error) {
-		// -- 如果请求失败但本地有内核，返回 true
-		logger.info(`[${core}] 远程版本获取失败，但本地存在内核，跳过更新`)
-		logger.error(`[${core}] 检查版本一致性时出错: ${error}`)
-		return true
+	if (needFetchRemoteVersion) {
+		try {
+			remoteVersions = await fetchRemoteVersions()
+		} catch (error) {
+			logger.error(`[app] 获取远程版本失败: ${error}`)
+			return remoteVersions
+		}
 	}
-}
+	store.setValue("lastUpdateCheck.app", current.toISOString())
 
-// 这个函数是给客户端页面检查内核是否最新使用，所以 默认immediate === true 表示立即检查，跳过延迟
-export async function isFuelUpToDate(): Promise<boolean | 1> {
-	return isCoreUpToDate("fuel")
-}
-
-export async function isAquaUpToDate(): Promise<boolean | 1> {
-	return isCoreUpToDate("aqua")
-}
-
-export async function isRocketUpToDate(): Promise<boolean | 1> {
-	return isCoreUpToDate("rocket")
-}
-
-/**
- * 检查服务器内核版本
- * @returns {Promise<{version: string, download: string}>}
- * @throws Error
- */
-export async function getRemoteVersion(
-	core: "fuel" | "aqua" | "rocket" | "zeus",
-): Promise<{
-	version: string
-	download: string
-	downloads?: {
-		win: string
-		arm: string
-		intel: string
-	}
-}> {
-	console.log(
-		`[version] fetch ${CORE_VERSION_REMOTE_URL[core]}?client=${clientVersion}`,
-	)
-	const response = await fetch(
-		`${CORE_VERSION_REMOTE_URL[core]}?client=${clientVersion}`,
-	)
-
-	if (!response.ok)
-		throw new Error(`[${core}] 内核版本获取失败: ${response.status}`)
-
-	const data = await response.json()
-
-	if (data.code === 200) {
-		return data.data
-	}
-
-	throw new Error(`[${core}] 内核版本获取失败: ${response.status}`)
+	return remoteVersions
 }
 
 /**
  * 下载内核，从2025年5月27日开始，所有内核采用onedir的打包方式，所以需要替换exe为zip
- * @param core 内核名称
+ * @param kernal 内核名称
  * @returns
  */
-export async function downloadCore(core: "aqua" | "rocket" | "zeus") {
-	const lockFileName =
-		CONFIG[`UPDATE_${core.toUpperCase()}_LOCK_FILE_NAME`] ??
-		CONFIG.LOCK_FILE_NAME
-
+export async function downloadKernal(
+	kernal: "fuel" | "aqua" | "rocket" | "zeus",
+	version: string,
+	downloadUrl: string,
+) {
+	const lockFileName = `update_${kernal.toLowerCase()}.app.lock`
 	if (await checkLock(lockFileName)) {
-		logger.info(`[${core}] 正在下载中，退出`)
+		logger.info(`[${kernal}] 正在下载中，退出`)
 		return
 	}
 
-	logger.info(`[${core}] 更新开始...`)
+	logger.info(`[${kernal}] 更新开始...`)
 	await createLockFile(lockFileName)
+	const mainWindow = windowManager.getWindow()
 
 	try {
-		const { version, download } = await getRemoteVersion(core)
-		const binFolder = await store.getAllDataPath(["code"])
+		const codeFolder = await store.getAllDataPath(["code"])
+		const kernalFolderPath = path.join(codeFolder, kernal)
 
-		if (!download) {
-			logger.error(`[${core}] 下载链接为空`)
+		if (!downloadUrl) {
+			logger.error(`[${kernal}] 下载链接为空`)
 			return
 		}
 
-		// 2025年5月27日开始，所有内核采用onedir的打包方式，所以需要替换exe为zip
-		let downloadUrl = download
-		downloadUrl = download.replace(".exe", ".zip")
-
 		logger.info(
-			`[${core}] 使用远程链接: ${downloadUrl.replace("https://cdnservice.quantclass.cn/client", "")}`,
+			`[${kernal}] 版本: ${version}，使用远程链接: ${downloadUrl}，保存路径: ${codeFolder}`,
 		)
-		logger.info(`[${core}] 内核保存路径: ${binFolder}`)
 
 		const fileName = downloadUrl.split("/").pop() as string
-		const versionFileName = path.join(binFolder, `${version}.yml`)
-		const binPath = path.join(binFolder, fileName)
+		const versionFileName = path.join(codeFolder, `${version}.yml`)
+		const kernalZipPath = path.join(codeFolder, fileName)
 
-		// -- 检查文件写入权限
+		// -- 检查下载次数限制
+		const canDownload = await checkDownloadLimit(kernal, 16)
+		if (!canDownload) {
+			logger.warn(`[${kernal}] 内核今日下载次数已达上限`)
+			mainWindow?.webContents.send("report-msg", {
+				code: 400,
+				message: "今日内核下载次数已达上限，请联系助教再试",
+			})
+			return {
+				success: false,
+				error: "今日内核下载次数已达上限，请联系助教再试",
+			}
+		}
+
+		// -- 开始下载
+		const res = await fetch(downloadUrl)
+		if (!res.ok) {
+			logger.error(`[${kernal}] 获取内核失败: ${res.status}`)
+			throw new Error(`获取 ${kernal} 内核失败: ${res.status}`)
+		}
+
+		const buffer = Buffer.from(await res.arrayBuffer())
+
+		// await Promise.all([
+		// 	writeFile(versionFileName, version),
+		// 	writeFile(kernalZipPath, buffer),
+		// ])
+
+		// 下载内核文件
+		await writeFile(kernalZipPath, buffer)
+		logger.info(`[${kernal}] 内核文件已下载到 ${kernalZipPath}`)
+
+		// 删除老内核文件夹
+		try {
+			if (fs.existsSync(kernalFolderPath)) {
+				await fs.promises.rm(kernalFolderPath, { recursive: true, force: true })
+			}
+			logger.info(`[${kernal}] 删除原内核文件夹成功`)
+		} catch {
+			logger.error(`[${kernal}] 删除原内核文件时候报错`)
+		}
+
+		// 解压zip文件，从2025年5月27日开始，所有内核采用onedir的打包方式，所以需要解压zip文件
+		const zip = new AdmZip(kernalZipPath)
+		zip.extractAllTo(codeFolder, true)
+		await fs.promises.unlink(kernalZipPath) // 删除zip文件
+
+		logger.info(`[${kernal}] 内核文件已解压到 ${codeFolder}`)
+
+		// 更新版本信息文件，删除旧的版本文件
 		try {
 			// -- 删除对应内核的旧版本 yml 文件
-			const prefix = core.toLowerCase()
+			const prefix = kernal.toLowerCase()
 			const oldVersionFiles = await fs.promises
-				.readdir(binFolder)
+				.readdir(codeFolder)
 				.then((files) =>
 					files.filter(
 						(file) => file.startsWith(`${prefix}_`) && file.endsWith(".yml"),
 					),
 				)
 			for (const file of oldVersionFiles) {
-				await fs.promises.unlink(path.join(binFolder, file))
-				logger.info(`[${core}] 删除旧的内核版本文件: ${file}`)
+				await fs.promises.unlink(path.join(codeFolder, file))
+				logger.info(`[${kernal}] 删除旧的内核版本文件: ${file}`)
 			}
 
-			// -- 测试文件写入权限
+			// 更新版本信息文件
 			await writeFile(versionFileName, version)
-			await fs.promises.unlink(versionFileName)
 		} catch (error) {
-			const mainWindow = windowManager.getWindow()
-
-			logger.error(`[${core}] 文件系统权限错误: ${error}`)
+			logger.error(`[${kernal}] 文件系统权限错误: ${error}`)
 			mainWindow?.webContents.send("report-msg", {
 				code: 400,
 				message: `文件系统权限错误，内核下载失败: ${error}`,
 			})
-			return
+			return { success: false, error: "文件系统权限错误，内核下载失败" }
 		}
-
-		// -- 检查下载次数限制
-		const canDownload = await checkDownloadLimit(core.toLowerCase())
-		if (!canDownload) {
-			logger.warn(`[${core}] 内核今日下载次数已达上限`)
-			return
-		}
-
-		// -- 开始下载
-		const res = await fetch(downloadUrl)
-		if (!res.ok) {
-			logger.error(`[${core}] 获取内核失败: ${res.status}`)
-			throw new Error(`获取 ${core} Core 失败: ${res.status}`)
-		}
-
-		const buffer = Buffer.from(await res.arrayBuffer())
-
-		await Promise.all([
-			writeFile(versionFileName, version),
-			writeFile(binPath, buffer),
-		])
 
 		// -- 下载成功后发送埋点请求
 		try {
@@ -249,235 +234,63 @@ export async function downloadCore(core: "aqua" | "rocket" | "zeus") {
 				await postUserMainAction(api_key, {
 					uuid,
 					role: "client",
-					action: `下载 ${core} 内核成功: ${version}`,
+					action: `下载 ${kernal} 内核成功: ${version}`,
 				})
 			}
 		} catch (error) {
-			logger.error(`[${core}] 请求点失败: ${error}`)
+			logger.error(`[${kernal}] 请求点失败: ${error}`)
 		}
 
-		logger.info(`[${core}] 内核文件已下载到 ${binPath}`)
-
-		// 解压zip文件，从2025年5月27日开始，所有内核采用onedir的打包方式，所以需要解压zip文件
-		const zip = new AdmZip(binPath)
-		zip.extractAllTo(binFolder, true)
-		await fs.promises.unlink(binPath) // 删除zip文件
+		return { success: true, data: { version, downloadUrl } }
 	} catch (error) {
-		logger.error(`[${core}] 更新/下载内核失败: ${error}`)
+		logger.error(`[${kernal}] 更新/下载内核失败: ${error}`)
+		return { success: false, error: "更新/下载内核失败" }
 	} finally {
 		await removeLockFile(lockFileName)
 	}
 }
 
-export async function updateCore(
-	core: "aqua" | "rocket" | "zeus",
-	check_immediately = false,
+export async function updateKernal(
+	kernal: "aqua" | "rocket" | "zeus" | "fuel",
+	targetVersion?: string,
 ) {
+	const winKernals = ["rocket"]
+	// -- 如果需要立即检查版本，并且没有指定版本，则立即检查版本
+	const remoteVersions = await checkRemoteVersions(!targetVersion)
+	const localVersion = await getKernelVersion(kernal)
+
+	let downloadVersion = ""
+
 	// -- 非Windows系统，跳过更新
+	if (!platform.isWindows && winKernals.includes(kernal)) {
+		logger.info(`[${kernal}] 非Windows系统，跳过更新`)
+		return { success: true, data: localVersion }
+	}
+
+	if (targetVersion) {
+		if (localVersion === targetVersion) {
+			logger.info(`[${kernal}] 版本一致，跳过更新`)
+			return { success: true, data: localVersion }
+		}
+		downloadVersion = targetVersion
+	} else {
+		if (remoteVersions.latest[kernal] === localVersion) {
+			logger.info(`[${kernal}] 与远程版本一致`)
+			return { success: true, data: localVersion }
+		}
+		downloadVersion = remoteVersions.latest[kernal]
+	}
+
+	let downloadUrl = remoteVersions[kernal].find(
+		(v) => v.version === downloadVersion,
+	)?.download as string
+
+	logger.info(`[${kernal}] ${downloadVersion} 下载地址: ${downloadUrl}`)
+
+	// 如果是非Windows系统，在downloadUrl的文件名中加上-mac后缀
 	if (!platform.isWindows) {
-		logger.info(`[${core}] 非Windows系统，跳过更新`)
-		return
+		downloadUrl = downloadUrl.replace(/(\.[^.]+)$/, "-mac$1")
+		logger.info(`[${kernal}] 非Windows系统，下载地址调整为: ${downloadUrl}`)
 	}
-
-	const isUpToDate = await isCoreUpToDate(core, check_immediately)
-	if (isUpToDate === 1) return // -- undefined 表示跳过本次更新检查
-
-	if (isUpToDate) {
-		logger.info(`[${core}] 与远程版本一致`)
-		return
-	}
-
-	await downloadCore(core)
-}
-
-/**
- * 下载并且更新 Fuel 内核
- * @returns {Promise<void>}
- */
-export async function updateFuelCore(
-	immediately = false,
-): Promise<{ msg: string }> {
-	// 检查版本一致性
-	const isUpToDate = await isCoreUpToDate("fuel", immediately)
-	if (isUpToDate === 1) {
-		return { msg: "Fuel 已是最新" }
-	}
-	if (isUpToDate) {
-		logger.info("[fuel] 与远程版本一致")
-		return { msg: "Fuel 已是最新" }
-	}
-	// 设置更新锁
-	const isFuelUpdating = await checkLock(CONFIG.UPDATE_FUEL_LOCK_FILE_NAME)
-
-	if (isFuelUpdating) {
-		logger.info("[fuel] 内核正在下载中，退出")
-		return { msg: "Fuel 正在下载中" }
-	}
-
-	logger.info("[fuel] 开始下载...")
-	await createLockFile(CONFIG.UPDATE_FUEL_LOCK_FILE_NAME)
-
-	try {
-		// 设置环境变量
-		const { version, downloads = { arm: "", win: "", intel: "" } } =
-			await getRemoteVersion("fuel")
-		let download_link = ""
-		const py_code_path = await store.getAllDataPath(["code"])
-
-		if (!fs.existsSync(py_code_path)) {
-			try {
-				fs.mkdirSync(py_code_path)
-			} catch (error) {
-				logger.error(`[fuel] 创建目录失败: ${error}`)
-				return { msg: "创建目录失败" }
-			}
-		}
-
-		if (platform.isMacOS) {
-			if (arch() === "arm64") {
-				download_link = downloads.arm
-			} else if (arch() === "x64") {
-				download_link = downloads.intel
-			} else {
-				logger.error(`[fuel] 不支持的 macOS 架构: ${arch()}`)
-
-				return { msg: `不支持的 macOS 架构: ${arch()}` }
-			}
-		} else if (platform.isWindows) {
-			// -- 2025年5月27日开始，所有内核采用onedir的打包方式，所以需要替换exe为zip
-			download_link = downloads.win.replace(".exe", ".zip")
-		} else {
-			logger.error("[fuel] 不支持的操作系统")
-			return { msg: "不支持的操作系统" }
-		}
-
-		if (!download_link) {
-			logger.error("[fuel] 无法确定下载链接")
-			return { msg: "无法确定下载链接" }
-		}
-
-		const fileName = download_link.split("/").pop() as string
-		const versionFileName = path.join(py_code_path, `${version}.yml`)
-		const remoteFuelBinName = path.join(py_code_path, fileName)
-
-		// -- 检查文件写入权限
-		try {
-			// -- 删除对应内核的旧版本 yml 文件
-			const oldVersionFiles = await fs.promises
-				.readdir(py_code_path)
-				.then((files) =>
-					files.filter(
-						(file) => file.startsWith("fuel_") && file.endsWith(".yml"),
-					),
-				)
-			for (const file of oldVersionFiles) {
-				await fs.promises.unlink(path.join(py_code_path, file))
-				logger.info(`[fuel] 删除旧的版本文件: ${file}`)
-			}
-
-			// -- 测试文件写入权限
-			await writeFile(versionFileName, version)
-			await fs.promises.unlink(versionFileName)
-		} catch (error) {
-			const mainWindow = windowManager.getWindow()
-			logger.error(`[fuel] 文件系统权限错误: ${error}`)
-			mainWindow?.webContents.send("report-msg", {
-				code: 400,
-				message: `文件系统权限错误，Fuel 内核下载失败: ${error}`,
-			})
-			return { msg: "[fuel] 文件系统权限错误" }
-		}
-
-		logger.info(
-			`[fuel] 内核保存路径: ${py_code_path}，下载链接: ${download_link}`,
-		)
-
-		// -- 检查下载次数限制
-		const canDownload = await checkDownloadLimit("fuel")
-		if (!canDownload) {
-			return { msg: "[fuel] 今日下载次数已达上限" }
-		}
-
-		// -- 开始下载
-
-		const res = await fetch(download_link)
-		if (!res.ok) {
-			logger.error(
-				`[fuel] 获取 URL 失败: ${download_link.replace("https://cdnservice.quantclass.cn/client", "")}, 状态: ${res.status}`,
-			)
-			return { msg: `下载失败: ${res.statusText}` }
-		}
-
-		const buffer = Buffer.from(await res.arrayBuffer())
-
-		await Promise.all([
-			writeFile(versionFileName, version),
-			writeFile(remoteFuelBinName, buffer),
-		])
-
-		// -- 下载成功后送埋点请求
-		try {
-			if (platform.isMacOS) {
-				exec(`chmod +x ${remoteFuelBinName}`)
-			}
-			const api_key = await store.getSetting("api_key", "")
-			const uuid = await store.getSetting("uuid", "")
-			if (api_key && uuid) {
-				await postUserMainAction(api_key, {
-					uuid,
-					role: "client",
-					action: `下载 Fuel 内核成功: ${version}`,
-				})
-			}
-		} catch (error) {
-			logger.error(`[fuel] 请求点失败: ${JSON.stringify(error, null, 2)}`)
-		}
-
-		logger.info(`[fuel] 文件已下载到 ${remoteFuelBinName}`)
-
-		if (platform.isWindows) {
-			// -- 2025年5月27日开始，所有内核采用onedir的打包方式，所以需要解压zip文件
-			const zip = new AdmZip(remoteFuelBinName)
-			zip.extractAllTo(py_code_path, true)
-			await fs.promises.unlink(remoteFuelBinName) // 删除zip文件
-		}
-
-		logger.info("[fuel] 已更新")
-		return { msg: "Fuel 更新成功" }
-	} catch (error) {
-		logger.error(`[fuel] 更新失败: ${error}`)
-		return { msg: "Fuel 更新失败" }
-	} finally {
-		// 解除更新锁
-		await removeLockFile(CONFIG.UPDATE_FUEL_LOCK_FILE_NAME)
-	}
-}
-
-// 当表单保存时，做一系列检查
-export async function updatePyCore(isMember: boolean) {
-	const mainWindow = windowManager.getWindow()
-	// 让前端进入loading的状态
-	mainWindow?.webContents.send("client-global-loading", true, "success")
-
-	logger.info("更新内核")
-
-	// 更新内核
-	try {
-		await updateFuelCore(true)
-		if (platform.isWindows && isMember) {
-			await updateCore("aqua", true)
-			await updateCore("rocket", true)
-			await updateCore("zeus", true)
-		}
-	} catch (e) {
-		logger.error(JSON.stringify(e, null, 2))
-		mainWindow?.webContents.send("client-global-loading", false, "error")
-		// 在异常情况下，直接返回，不执行后续的操作
-		return await getVersionWithLoop()
-	}
-
-	logger.info("内核更新执行完成")
-	mainWindow?.webContents.send("client-global-loading", false, "success")
-
-	return await getVersionWithLoop()
+	return await downloadKernal(kernal, downloadVersion, downloadUrl)
 }

@@ -11,7 +11,6 @@
 import fs from "node:fs"
 import os from "node:os"
 import path from "node:path"
-import { CONFIG } from "@/main/config.js"
 import { getJsonDataFromFile } from "@/main/core/dataList.js"
 // @ts-ignore
 import {
@@ -19,12 +18,9 @@ import {
 	// deleteLineComments,
 } from "@/main/pythonToJson.js"
 import store, { rStore } from "@/main/store/index.js"
-import {
-	checkLock,
-	killCoreByForce,
-	sendErrorToClient,
-} from "@/main/utils/tools.js"
+import { killKernalByForce, sendErrorToClient } from "@/main/utils/tools.js"
 import logger from "@/main/utils/wiston.js"
+import { LIBRARY_TYPE } from "@/shared/constants.js"
 import { parse } from "csv-parse/sync"
 import {
 	BrowserWindow,
@@ -205,25 +201,9 @@ function openFileHandler() {
 // 	})
 // }
 
-async function checkFuelUpdateLockHandler(): Promise<void> {
-	ipcMain.handle("check-fuel-update-lock", async () => {
-		const isFuelUpdating = await checkLock(CONFIG.UPDATE_FUEL_LOCK_FILE_NAME)
-
-		return {
-			pending: isFuelUpdating,
-		}
-	})
-}
-
 function openUrlHandler() {
 	ipcMain.handle("open-url", async (_, url: string) => {
 		await shell.openExternal(url)
-	})
-}
-
-async function forceKillAllProcessesHandler(): Promise<void> {
-	ipcMain.handle("force-kill-all-processes", async () => {
-		await killCoreByForce("fuel")
 	})
 }
 
@@ -264,7 +244,7 @@ async function clearRealMarketDataHandler(): Promise<void> {
 
 async function killRocketHandler(): Promise<void> {
 	ipcMain.handle("kill-rocket", async () => {
-		await killCoreByForce("rocket")
+		await killKernalByForce("rocket")
 	})
 }
 
@@ -571,12 +551,9 @@ async function parseCsvFileHandler(): Promise<void> {
 			}
 
 			try {
-				const libraryType = await store.getValue(
-					"settings.libraryType",
-					"select",
-				)
+				const libraryType = await store.getValue(LIBRARY_TYPE, "select")
 				const backtestName = await store.getValue(
-					`${libraryType === "select" ? "select_stock" : "pos_mgmt"}.backtest_name`,
+					`${libraryType === "pos" ? "pos_mgmt" : "select_stock"}.backtest_name`,
 					"策略库",
 				)
 				const filePath = await store.getAllDataPath([
@@ -624,10 +601,19 @@ async function parseCsvFileHandler(): Promise<void> {
 async function readChangelogHandler(): Promise<void> {
 	ipcMain.handle("read-changelog", async () => {
 		try {
-			const changelogPath = path.join(process.cwd(), "CHANGELOG.md")
+			// 优先从 resources 目录读取（打包后的路径）
+			const resourcesPath = path.join(process.resourcesPath, "CHANGELOG.md")
+			// 备用路径：开发环境的项目根目录
+			const devPath = path.join(process.cwd(), "CHANGELOG.md")
 
-			// -- 检查文件是否存在
-			if (!fs.existsSync(changelogPath)) {
+			let changelogPath: string
+			if (fs.existsSync(resourcesPath)) {
+				changelogPath = resourcesPath
+				logger.info(`[readChangelogHandler] 使用打包路径: ${resourcesPath}`)
+			} else if (fs.existsSync(devPath)) {
+				changelogPath = devPath
+				logger.info(`[readChangelogHandler] 使用开发路径: ${devPath}`)
+			} else {
 				logger.error("[readChangelogHandler] CHANGELOG.md 文件不存在")
 				return { success: false, error: "CHANGELOG.md 文件不存在", data: "" }
 			}
@@ -682,11 +668,9 @@ export const regFileSysIPC = () => {
 	saveRealMarketDataHandler()
 	cleanRealMarketDataHandler()
 	clearRealMarketDataHandler()
-	checkFuelUpdateLockHandler()
 	deleteRealMarketDataHandler()
 	createRealTradingDirHandler()
-	forceKillAllProcessesHandler()
 	strategyResultPathHandler()
 	importPositionHandler()
-	console.log("[ok] file-sys-ipc")
+	console.log("[reg] file-sys-ipc")
 }

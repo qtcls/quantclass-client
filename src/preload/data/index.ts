@@ -36,7 +36,6 @@ export const dataIPC = {
 		kernel: string,
 		extraEnv?: string,
 	) => ipcRenderer.invoke("exec-fuel-with-env", args, action, kernel, extraEnv),
-	calcTradingPlan: () => ipcRenderer.invoke("calc-trading-plan"),
 	rocketExecute: () => ipcRenderer.invoke("rocket-execute"),
 	// TODO: 需要迁移到trading.ts
 
@@ -74,10 +73,6 @@ export const dataIPC = {
 	fetchMonitorProcesses: () => ipcRenderer.invoke("fetch-monitor-processes"),
 
 	// 导入功能
-	importLibraryDir: (filePath: string) =>
-		ipcRenderer.invoke("import-library-dir", filePath),
-	importFusionDir: (filePath: string) =>
-		ipcRenderer.invoke("import-fusion-dir", filePath),
 	parseCsvFile: (csvfileName = "最新选股结果", mode = "backtest") =>
 		ipcRenderer.invoke("parse-csv-file", csvfileName, mode),
 }

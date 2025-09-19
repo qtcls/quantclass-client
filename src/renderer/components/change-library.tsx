@@ -10,23 +10,22 @@
 
 import { Button } from "@/renderer/components/ui/button"
 import { useToggleAutoRealTrading } from "@/renderer/hooks/useToggleAutoRealTrading"
-import { libraryTypeAtom } from "@/renderer/store/storage"
-import { useAtom } from "jotai"
 import { CircleCheck } from "lucide-react"
 import { useAlertDialog } from "../context/alert-dialog"
 import { useFusionManager } from "../hooks/useFusionManager"
+import { useSettings } from "../hooks/useSettings"
 import { useStrategyManager } from "../hooks/useStrategyManager"
 import { Badge } from "./ui/badge"
 export function ChangeLibrary({
 	currentLibraryType,
 }: { currentLibraryType: string }) {
-	const [libraryType, setLibraryType] = useAtom(libraryTypeAtom)
+	const { settings, isFusionMode, updateSettings } = useSettings()
 	const { isAutoRocket } = useToggleAutoRealTrading()
 	const { open: openAlert } = useAlertDialog()
 	const { resetSelectStgList } = useStrategyManager()
 	const { resetFusion } = useFusionManager()
 
-	const { setStoreValue, restartApp } = window.electronAPI
+	const { restartApp } = window.electronAPI
 
 	const handleChangeLibrary = () => {
 		openAlert({
@@ -34,21 +33,20 @@ export function ChangeLibrary({
 			content: (
 				<ul className="list-disc list-inside pl-4">
 					<li>切换之后会清空所有数据</li>
-					<li>切换操作需要重启应用程序才能生效</li>
+					<li>
+						切换操作需要{" "}
+						<span className="font-bold text-warning">重启应用程序</span>{" "}
+						才能生效
+					</li>
 				</ul>
 			),
-			okText: "确认切换",
+			okText: "立即切换，并重启",
+			okDelay: 5,
 			onOk: async () => {
-				const targetLibraryType = libraryType === "select" ? "pos" : "select"
-				if (libraryType === "select") {
-					// 需要清空选股策略
-					resetSelectStgList()
-				} else {
-					// 需要清理仓位管理策略，zym写的不行，只能自己手搓
-					resetFusion()
-				}
-				setLibraryType(targetLibraryType)
-				setStoreValue("settings.libraryType", targetLibraryType)
+				// 清理老的策略文件们
+				isFusionMode ? resetFusion() : resetSelectStgList()
+
+				updateSettings({ libraryType: isFusionMode ? "select" : "pos" })
 
 				// 重启应用程序
 				restartApp()
@@ -59,23 +57,24 @@ export function ChangeLibrary({
 
 	return (
 		<>
-			{currentLibraryType === libraryType ? (
-				<div className="flex items-center gap-2 border border-blue-500 bg-blue-50 text-blue-500 rounded-lg p-2 dark:bg-blue-900 dark:border-blue-300 dark:text-blue-300">
-					<Badge className="py-1 px-1.5 flex items-center gap-1 bg-blue-500 dark:bg-blue-300">
+			{currentLibraryType === settings.libraryType ? (
+				<div className="flex items-center gap-2 text-sm">
+					<Badge variant="info" className="py-1 px-1.5 flex items-center gap-1">
 						<CircleCheck size={14} />
 						<span>已启用</span>
 					</Badge>
-
-					<span>客户端会使用当前策略库中的配置进行回测和实盘</span>
+					<span className="text-blue-600 dark:text-blue-400">
+						客户端会使用当前策略库中的配置进行回测和实盘
+					</span>
 				</div>
 			) : (
-				<div className="flex items-center gap-2 border border-warning-500 bg-warning-50 text-warning-500 rounded-lg p-2">
+				<div className="flex items-center gap-2 border border-warning-200 bg-warning-50 text-warning rounded-lg px-2 py-1.5">
 					<Button
 						disabled={isAutoRocket}
 						onClick={handleChangeLibrary}
 						size="sm"
 						variant="ringHover"
-						className="h-7 w-16 text-sm"
+						className="h-7 w-16"
 					>
 						启用
 					</Button>

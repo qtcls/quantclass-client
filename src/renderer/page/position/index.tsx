@@ -21,7 +21,7 @@ import {
 	PositionStrategyInfoType,
 } from "@/renderer/page/position/types"
 import { useQuery } from "@tanstack/react-query"
-import { RefreshCcw } from "lucide-react"
+import { RefreshCw } from "lucide-react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
@@ -58,16 +58,16 @@ export default function PositionInfo() {
 			</div>
 			<div className="space-y-2">
 				<div className="flex items-center justify-between">
-					<Tabs
-						defaultValue={filename}
-						onValueChange={(value) => setFilename(value)}
-					>
-						<TabsList>
-							<TabsTrigger value="策略表现">策略表现</TabsTrigger>
-							<TabsTrigger value="个股表现">个股表现</TabsTrigger>
-						</TabsList>
-					</Tabs>
 					<div className="flex items-center gap-2">
+						<Tabs
+							defaultValue={filename}
+							onValueChange={(value) => setFilename(value)}
+						>
+							<TabsList>
+								<TabsTrigger value="策略表现">策略表现</TabsTrigger>
+								<TabsTrigger value="个股表现">个股表现</TabsTrigger>
+							</TabsList>
+						</Tabs>
 						<div className="text-sm text-muted-foreground">
 							数据更新时间：
 							{positions.update_time
@@ -85,24 +85,38 @@ export default function PositionInfo() {
 									)
 								: "无"}
 						</div>
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => {
-								refetch()
-								toast.success("刷新成功")
-							}}
-							className="flex items-center gap-2"
-							disabled={loading}
-						>
-							<RefreshCcw className="w-4 h-4" />
-							刷新
-						</Button>
 					</div>
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => {
+							refetch()
+							toast.success("刷新成功")
+						}}
+						className="flex items-center gap-2 h-8"
+						disabled={loading}
+					>
+						<RefreshCw className="w-4 h-4" />
+						刷新
+					</Button>
 				</div>
 				{filename === "策略表现" ? (
 					<DataTable<PositionStrategyInfoType, unknown>
-						data={positions.data || []}
+						// 过滤掉占用资金为0的策略，满足下面的条件的，是换仓前的策略
+						data={(positions.data || [])
+							.filter(
+								(item: PositionStrategyInfoType) =>
+									(item.理论占比 ?? 0) !== 0 ||
+									(item.实际占比 ?? 0) !== 0 ||
+									(item.策略仓位 ?? 0) !== 0 ||
+									(item.占用资金 ?? 0) !== 0 ||
+									(item.当日盈亏 ?? 0) !== 0 ||
+									(item.当日收益率 ?? 0) !== 0,
+							)
+							.sort(
+								(a: PositionStrategyInfoType, b: PositionStrategyInfoType) =>
+									(a.策略名称 ?? "").localeCompare(b.策略名称 ?? ""),
+							)}
 						columns={strategyColumns}
 						loading={loading}
 						refresh={() => {
@@ -110,6 +124,7 @@ export default function PositionInfo() {
 						}}
 						pagination={false}
 						placeholder="查找所有列..."
+						_maxHeight="calc(100vh - 275px)"
 					/>
 				) : (
 					<DataTable<PositionStockInfoType, unknown>
@@ -121,6 +136,7 @@ export default function PositionInfo() {
 						}}
 						pagination={false}
 						placeholder="查找所有列..."
+						_maxHeight="calc(100vh - 275px)"
 					/>
 				)}
 			</div>

@@ -8,7 +8,6 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
-import LoadingAnime from "@/renderer/components/LoadingAnime"
 import { ThemeCustomizer } from "@/renderer/components/theme-customizer"
 import {
 	Avatar,
@@ -25,11 +24,6 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/renderer/components/ui/dialog"
-import {
-	HoverCard,
-	HoverCardContent,
-	HoverCardTrigger,
-} from "@/renderer/components/ui/hover-card"
 import { Progress } from "@/renderer/components/ui/progress"
 import { ScrollArea } from "@/renderer/components/ui/scroll-area"
 import {
@@ -39,76 +33,133 @@ import {
 	SidebarMenuItem,
 } from "@/renderer/components/ui/sidebar"
 import { InlineCode } from "@/renderer/components/ui/typography"
-import { isWindows } from "@/renderer/constant"
+import { SETTINGS_PAGE, isWindows } from "@/renderer/constant"
 import { UpdateStatus } from "@/renderer/context/update-context"
-import { useQueryVersion } from "@/renderer/hooks"
 import { useAppUpdate } from "@/renderer/hooks/useAppUpdate"
 import { useHotkeys } from "@/renderer/hooks/useHotkeys"
-import { useRealTradingRole } from "@/renderer/hooks/useRealTradingRole"
 import { SettingsGearIcon } from "@/renderer/icons/SettingsGearIcon"
 
-import { CoreVersionDes } from "@/renderer/page/home"
-import { isShowAboutAtom, isShowMonitorPanelAtom } from "@/renderer/store"
-import {
-	libraryTypeAtom,
-	versionAtom,
-	versionListAtom,
-} from "@/renderer/store/storage"
-import { userAtom } from "@/renderer/store/user"
+import { GlowDot } from "@/renderer/components/ui/glow-dot"
+import { useVersionCheck } from "@/renderer/hooks/useVersionCheck"
+import { KernalVersionDes } from "@/renderer/page/home"
+import { isShowMonitorPanelAtom } from "@/renderer/store"
+import { versionsAtom } from "@/renderer/store/versions"
 import { formatBytes } from "@/renderer/utils/formatBytes"
-import { useMutation } from "@tanstack/react-query"
 import { useAtomValue, useSetAtom } from "jotai"
 import {
 	Blocks,
+	CircleArrowUp,
 	DatabaseZap,
+	ExternalLink,
 	FolderClock,
+	FolderOpen,
 	Monitor,
-	RefreshCw,
 	SquareFunction,
 	SquareTerminal,
 } from "lucide-react"
-import { FC } from "react"
+import { FC, useState } from "react"
 import Markdown from "react-markdown"
-import { toast } from "sonner"
+import { useNavigate } from "react-router"
 import Img from "../../../build/icon.ico"
 import { Badge } from "../components/ui/badge"
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "../components/ui/dropdown-menu"
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "../components/ui/popover"
+import { useRealMarketConfig } from "../hooks/useRealMarketConfig"
 
 const {
-	getCoreAndClientVersion,
 	createTerminalWindow,
 	openUserDirectory,
-	rendererLog,
+	openDataDirectory,
+	openDirectory,
 } = window.electronAPI
 
 export const Footer: FC = () => {
 	const setIsShowMonitorPanel = useSetAtom(isShowMonitorPanelAtom)
-	const setIsShowAbout = useSetAtom(isShowAboutAtom)
-
+	const navigate = useNavigate()
+	const { realMarketConfig } = useRealMarketConfig()
 	useHotkeys([
 		["mod+`", async () => await createTerminalWindow()],
-		["mod+,", () => setIsShowAbout((prev) => !prev)],
+		["mod+,", () => navigate(SETTINGS_PAGE)],
 	])
 
 	return (
 		<div className="flex h-10 items-center justify-between pl-4 text-foreground border-t">
-			<CoreVersionDes
+			<KernalVersionDes
 				textSize="base"
 				layout="horizontal"
 				className="gap-4 text-xs text-muted-foreground h-full items-center"
 			/>
 			<div className="flex items-center mr-2">
 				<ThemeCustomizer />
-
-				<ButtonTooltip content="打开日志文件夹">
-					<Button
-						variant="ghost"
-						size="icon"
-						className="focus-visible:outline-none focus-visible:ring-transparent"
-						onClick={() => openUserDirectory("logs")}
-					>
-						<FolderClock className="h-4 w-4 text-foreground hover:cursor-pointer" />
-					</Button>
-				</ButtonTooltip>
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<Button
+							variant="ghost"
+							size="icon"
+							className="focus-visible:outline-none focus-visible:ring-transparent"
+						>
+							<FolderOpen className="h-4 w-4 text-foreground hover:cursor-pointer" />
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent>
+						{realMarketConfig.qmt_path && (
+							<DropdownMenuItem
+								onClick={() => openDirectory([realMarketConfig.qmt_path])}
+							>
+								<ExternalLink />
+								QMT文件夹
+							</DropdownMenuItem>
+						)}
+						<DropdownMenuItem
+							onClick={() =>
+								openDataDirectory([
+									"real_trading",
+									"rocket",
+									"data",
+									"系统日志",
+								])
+							}
+						>
+							<Blocks />
+							下单日志
+							<Badge className="font-mono" variant="secondary">
+								rocket
+							</Badge>
+						</DropdownMenuItem>
+						<DropdownMenuItem
+							onClick={() => openDataDirectory(["real_trading", "logs"])}
+						>
+							<SquareFunction />
+							选股日志
+							<Badge className="font-mono" variant="secondary">
+								aqua/zeus
+							</Badge>
+						</DropdownMenuItem>
+						<DropdownMenuItem
+							onClick={() => openDataDirectory(["code", "data", "log"])}
+						>
+							<DatabaseZap />
+							数据更新日志
+							<Badge className="font-mono" variant="secondary">
+								fuel
+							</Badge>
+						</DropdownMenuItem>
+						<DropdownMenuItem onClick={() => openUserDirectory("logs")}>
+							<FolderClock />
+							客户端日志
+							<Badge variant="secondary">调度</Badge>
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
 
 				<ButtonTooltip content="点击打开进程监控面板">
 					<Button
@@ -153,7 +204,7 @@ export const Footer: FC = () => {
 						variant="ghost"
 						size="icon"
 						className="focus-visible:outline-none focus-visible:ring-transparent"
-						onClick={() => setIsShowAbout((prev) => !prev)}
+						onClick={() => navigate(SETTINGS_PAGE)}
 					>
 						<SettingsGearIcon className="h-4 w-4 text-foreground hover:cursor-pointer" />
 					</Button>
@@ -164,27 +215,11 @@ export const Footer: FC = () => {
 }
 
 export const _SiderFooter = () => {
-	const { isLoggedIn, user } = useAtomValue(userAtom)
 	const { status, progress, updateInfo, confirmCallback } = useAppUpdate()
-	const hasRealTradingAccess = useRealTradingRole()
-	const {
-		coreVersion,
-		clientVersion,
-		aquaVersion,
-		zeusVersion,
-		rocketVersion,
-	} = useAtomValue(versionAtom) ?? {}
-	const libraryType = useAtomValue(libraryTypeAtom)
-	const { runAsync, loading } = useQueryVersion()
-	const { mutateAsync: fetchFuel, isPending } = useMutation({
-		mutationKey: ["fetch-kernel-version"],
-		mutationFn: async () => {
-			rendererLog("info", "fetch latest kernel version")
-			return await getCoreAndClientVersion(user?.isMember ?? false)
-		},
-	})
-	const setVersionList = useSetAtom(versionListAtom)
-
+	const { clientVersion } = useAtomValue(versionsAtom) ?? {}
+	const { hasAnyUpdate, getUpdateMessage } = useVersionCheck()
+	const navigate = useNavigate()
+	const [showVersionUpdate, setShowVersionUpdate] = useState(false)
 	return (
 		<SidebarFooter>
 			<SidebarMenu>
@@ -239,127 +274,52 @@ export const _SiderFooter = () => {
 				)}
 
 				<SidebarMenuItem>
-					<HoverCard>
-						<HoverCardTrigger>
-							<SidebarMenuButton size="lg" asChild>
-								<div>
-									<div className="flex aspect-square size-8 items-center justify-center rounded-lg text-sidebar-primary-foreground">
-										<Avatar className="size-8">
-											<AvatarImage src={Img} alt="quantclass" />
-											<AvatarFallback>Q</AvatarFallback>
-										</Avatar>
-									</div>
+					<SidebarMenuButton
+						size="lg"
+						onClick={() => {
+							setShowVersionUpdate(false)
+							navigate(SETTINGS_PAGE)
+						}}
+						className="overflow-visible"
+						onMouseEnter={() => setShowVersionUpdate(hasAnyUpdate && true)}
+						onMouseLeave={() => setShowVersionUpdate(false)}
+					>
+						<Popover
+							open={showVersionUpdate}
+							onOpenChange={setShowVersionUpdate}
+						>
+							<PopoverTrigger asChild>
+								<div className="flex items-center gap-2.5">
+									<Avatar className="size-10 border bg-white dark:border-white ">
+										<AvatarImage src={Img} alt="quantclass" />
+										<AvatarFallback>Q</AvatarFallback>
+									</Avatar>
 									<div className="flex flex-col gap-1 leading-none">
-										<span className="font-semibold">量化小讲堂</span>
+										<div className="relative">
+											<span className="font-semibold">量化小讲堂</span>
+											<GlowDot
+												visible={hasAnyUpdate}
+												size="sm"
+												color="red"
+												className="absolute -top-0.5 -right-4"
+											/>
+										</div>
 										<Badge>v{clientVersion}</Badge>
 									</div>
 								</div>
-							</SidebarMenuButton>
-						</HoverCardTrigger>
-
-						<HoverCardContent className="cursor-text py-2">
-							<div className="text-sm text-muted-foreground mb-2">
-								内核版本
-								<ButtonTooltip content="检查内核版本">
-									<Button
-										variant="ghost"
-										size="icon"
-										className="h-6 w-6 ml-2"
-										onClick={async () => {
-											if (!isLoggedIn) {
-												toast.dismiss()
-												toast.error("请先登录")
-												return
-											}
-
-											// const isLatest = await checkBinVersion()
-											// if (isLatest) {
-											// 	toast.success("内核已都是最新")
-											// 	await runAsync()
-											// 	return
-											// } else {
-											// 	toast.info("有可用更新，开始更新")
-
-											// 	await fetchFuel()
-											// 	await runAsync()
-											// }
-
-											await fetchFuel()
-											await runAsync()
-										}}
-									>
-										<RefreshCw className="h-3 w-3" />
-									</Button>
-								</ButtonTooltip>
-							</div>
-
-							<div className="space-y-1.5">
-								<div className="flex items-center gap-2">
-									<DatabaseZap className="size-4" />
-									<span className="text-sm">数据内核</span>
-									<Badge
-										className="ml-auto font-mono"
-										variant={coreVersion ? "default" : "outline"}
-									>
-										v{coreVersion?.split("_")[2] ?? "暂无内核"}
-									</Badge>
+							</PopoverTrigger>
+							<PopoverContent className="w-80 p-3" sideOffset={4}>
+								<div className="space-y-2">
+									<h4 className="font-medium text-sm flex items-center gap-1.5">
+										<CircleArrowUp size={18} /> 版本更新提醒
+									</h4>
+									<div className="text-xs text-muted-foreground whitespace-pre-line">
+										{getUpdateMessage}
+									</div>
 								</div>
-								{hasRealTradingAccess && user?.isMember && (
-									<>
-										{libraryType === "select" ? (
-											<div className="flex items-center gap-2">
-												<SquareFunction className="size-4" />
-												{/* <span className="size-1.5 rounded-full bg-primary/90" /> */}
-												<span className="text-sm">选股内核</span>
-												<Badge
-													className="ml-auto font-mono"
-													variant={aquaVersion ? "default" : "outline"}
-												>
-													v{aquaVersion?.split("_")[2] ?? "暂无内核"}
-												</Badge>
-											</div>
-										) : (
-											<div className="flex items-center gap-2">
-												<SquareFunction className="size-4" />
-												<span className="text-sm">高级选股内核</span>
-												<Badge
-													className="ml-auto font-mono"
-													variant={zeusVersion ? "default" : "outline"}
-												>
-													v{zeusVersion?.split("_")[2] ?? "暂无内核"}
-												</Badge>
-											</div>
-										)}
-
-										<div className="flex items-center gap-2">
-											<Blocks className="size-4" />
-											{/* <span className="size-1.5 rounded-full bg-primary/90" /> */}
-											<span className="text-sm">下单内核</span>
-											{/* <span className="text-sm text-muted-foreground ml-auto"> */}
-											<Badge
-												className="ml-auto font-mono"
-												variant={rocketVersion ? "default" : "outline"}
-											>
-												v{rocketVersion?.split("_")[2] ?? "暂无内核"}
-											</Badge>
-										</div>
-									</>
-								)}
-								<hr />
-								<div
-									className="flex items-center gap-2 cursor-pointer"
-									onClick={() => {
-										setVersionList([])
-									}}
-								>
-									<span className="text-sm">客户端更新日志</span>
-									<Badge className="ml-auto font-mono">v{clientVersion}</Badge>
-								</div>
-							</div>
-
-							<LoadingAnime loading={isPending || loading} type="coreUpdate" />
-						</HoverCardContent>
-					</HoverCard>
+							</PopoverContent>
+						</Popover>
+					</SidebarMenuButton>
 				</SidebarMenuItem>
 			</SidebarMenu>
 		</SidebarFooter>

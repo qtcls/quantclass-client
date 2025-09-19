@@ -8,11 +8,16 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
+import type { KernalType } from "@/shared/types/kernal.js"
 import { ipcRenderer } from "electron"
 
 export const systemIPC = {
 	// 进程控制
 	handleKillProcess: (pid: number) => ipcRenderer.invoke("kill-process", pid),
+	killAllKernals: (byForce = false) =>
+		ipcRenderer.invoke("kill-all-kernals", byForce),
+	killKernal: (kernal: KernalType, byForce = false) =>
+		ipcRenderer.invoke("kill-kernal", kernal, byForce),
 
 	// 全屏控制
 	handleToggleFullscreen: () => ipcRenderer.invoke("toggle-fullscreen"),
@@ -31,10 +36,11 @@ export const systemIPC = {
 	setAutoUpdate: () => ipcRenderer.invoke("set-auto-update"),
 
 	// 版本管理
-	checkUpdate: () => ipcRenderer.invoke("check-update"),
-	checkBinVersion: () => ipcRenderer.invoke("check-bin-version"),
-	getCoreAndClientVersionWithLoop: () =>
-		ipcRenderer.invoke("get-core-and-client-version-loop"),
+	checkUpdate: (now = true) => ipcRenderer.invoke("check-update", now),
+	updateKernal: (name: KernalType, targetVersion?: string) =>
+		ipcRenderer.invoke("update-kernal", name, targetVersion),
+	getAppAndKernalVersions: () =>
+		ipcRenderer.invoke("get-app-and-kernal-versions"),
 
 	// 系统信息
 	getMacAddress: () => ipcRenderer.invoke("get-mac-address"),

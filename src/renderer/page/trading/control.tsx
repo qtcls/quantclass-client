@@ -11,8 +11,16 @@
 import TradeCtrlBtn from "@/renderer/components/trade-ctrl-btn"
 import { Badge } from "@/renderer/components/ui/badge"
 import { Button } from "@/renderer/components/ui/button"
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+} from "@/renderer/components/ui/dialog"
 import { H2 } from "@/renderer/components/ui/typography"
 import { useToggleAutoRealTrading } from "@/renderer/hooks"
+import { TradingConfigForm } from "@/renderer/page/trading/config-form"
+import { realConfigEditModalAtom } from "@/renderer/store"
 import { backtestConfigAtom, libraryTypeAtom } from "@/renderer/store/storage"
 import { useQuery } from "@tanstack/react-query"
 import { useAtom, useAtomValue } from "jotai"
@@ -20,14 +28,6 @@ import { Settings, TvMinimalPlay } from "lucide-react"
 import { useEffect, useState } from "react"
 import { RealResultProvider } from "../backtest/context"
 import { RunResultTable } from "../backtest/results"
-import { realConfigEditModalAtom } from "@/renderer/store"
-import { TradingConfigForm } from "@/renderer/page/trading/config-form"
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-} from "@/renderer/components/ui/dialog"
 
 export default function TradingControl() {
 	const { loadAquaTradingInfo, getStoreValue } = window.electronAPI
@@ -55,7 +55,7 @@ export default function TradingControl() {
 	return (
 		<>
 			<div className="flex items-center gap-6">
-				<H2>{libraryType === "select" ? "选股" : "仓位管理"}策略实盘</H2>
+				<H2>{libraryType === "pos" ? "仓位管理" : "选股"}策略实盘</H2>
 			</div>
 			<div className="text-muted-foreground flex items-center gap-2 pt-1 mb-2">
 				查看最新选股结果。预计股数和资金分配，以回测初始资金

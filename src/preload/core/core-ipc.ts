@@ -9,20 +9,12 @@
  */
 
 import { networkInterfaces } from "node:os"
-import { getVersionWithLoop } from "@/main/core/lib.js"
-import {
-	isAquaUpToDate,
-	isFuelUpToDate,
-	isRocketUpToDate,
-	updatePyCore,
-} from "@/main/core/runpy.js"
 import {
 	setAutoTrading,
 	setAutoUpdate,
 	systemState,
 } from "@/main/lib/scheduler.js"
 import logger from "@/main/utils/wiston.js"
-import { platform } from "@electron-toolkit/utils"
 import { ipcMain } from "electron"
 
 async function toggleHandler(): Promise<void> {
@@ -38,52 +30,6 @@ async function setAutoTradingHandler(): Promise<void> {
 			setAutoTrading(isOn)
 		},
 	)
-}
-
-async function getCoreAndClientVersion(): Promise<void> {
-	ipcMain.handle(
-		"get-core-and-client-version",
-		async (_event, isMember: boolean) => {
-			return await updatePyCore(isMember)
-		},
-	)
-}
-
-async function checkBinVersion(): Promise<void> {
-	ipcMain.handle("check-bin-version", async () => {
-		const isFuelConsistent = await isFuelUpToDate()
-
-		if (platform.isWindows) {
-			const isRocketVersionConsistent = await isRocketUpToDate()
-			const isRealTradingVersionConsistent = await isAquaUpToDate()
-			logger.info(
-				`[checkBinVersion] 检查版本一致性: fuel: ${isFuelConsistent}, rocket: ${isRocketVersionConsistent}, real_trading: ${isRealTradingVersionConsistent}`,
-			)
-
-			if (
-				isFuelConsistent &&
-				isRocketVersionConsistent &&
-				isRealTradingVersionConsistent
-			) {
-				logger.info("[checkBinVersion] 与远程版本一致")
-				return true
-			}
-		}
-
-		if (isFuelConsistent && !platform.isWindows) {
-			logger.info("[checkBinVersion] Fuel 与远程版本一致")
-			return true
-		}
-
-		logger.info("[checkBinVersion] 本地版本与远程版本不一致，需要更新")
-		return false
-	})
-}
-
-async function getCoreAndClientVersionWithLoop(): Promise<void> {
-	ipcMain.handle("get-core-and-client-version-loop", async () => {
-		return await getVersionWithLoop()
-	})
 }
 
 async function syncNetworkStatusHandler() {
@@ -114,10 +60,7 @@ async function getMacAddressHandler(): Promise<void> {
 export const regCoreIPC = () => {
 	toggleHandler()
 	setAutoTradingHandler()
-	checkBinVersion()
 	getMacAddressHandler()
-	getCoreAndClientVersion()
 	syncNetworkStatusHandler()
-	getCoreAndClientVersionWithLoop()
-	console.log("[ok] core-ipc")
+	console.log("[reg] core-ipc")
 }

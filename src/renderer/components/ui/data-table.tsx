@@ -118,7 +118,7 @@ export function DataTable<TData, TValue>({
 	getRowId,
 	title,
 	maxWidth,
-	_maxHeight = "calc(100vh - 305px)",
+	_maxHeight = "calc(100vh - 21.5em)",
 	emptyText = "暂无数据",
 	loading = false,
 	pagination = true,
@@ -246,6 +246,7 @@ export function DataTable<TData, TValue>({
 						style={{
 							width: fixedWidth ? table.getCenterTotalSize() : "100%",
 							minWidth: fixedWidth ? undefined : table.getCenterTotalSize(),
+							maxHeight: _maxHeight,
 						}}
 					>
 						<TableHeader

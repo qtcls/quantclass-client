@@ -11,15 +11,20 @@
 import windowManager from "@/main/lib/WindowManager.js"
 import { execBin } from "@/main/lib/process.js"
 import { type UserState, userStore } from "@/main/lib/userStore.js"
-import { isAnyCoreBusy, isCoreBusy, isTradingTime } from "@/main/utils/tools.js"
+import {
+	isAnyKernalBusy,
+	isKernalBusy,
+	isTradingTime,
+	killKernalByForce,
+} from "@/main/utils/tools.js"
 import logger from "@/main/utils/wiston.js"
 import { BASE_URL } from "@/main/vars.js"
+import { LIBRARY_TYPE } from "@/shared/constants.js"
 import { platform } from "@electron-toolkit/utils"
 import dayjs from "dayjs"
 import isBetween from "dayjs/plugin/isBetween.js"
 import Store from "electron-store"
 import schedule from "node-schedule"
-// import { updateCore, updateFuelCore } from "../core/runpy.js" // 2025-08-27不再自动更新内核
 
 const _store = new Store()
 
@@ -46,9 +51,6 @@ const systemState: SystemState = {
  */
 async function initializeSystem() {
 	try {
-		// -- fuel 内核直接更新，无需检查状态
-		// await updateFuelCore(true)
-
 		// -- 非 Windows 平台到此结束
 		if (!platform.isWindows) return
 
@@ -72,16 +74,6 @@ async function initializeSystem() {
 					return
 				}
 			}
-
-			// const status = (await _store.get("status", 0)) as 0 | 1 | 2
-
-			// if (status === 2) {
-			// 	await updateCore("aqua", true)
-			// 	await updateCore("rocket", true)
-			// 	await updateCore("zeus", true)
-			// } else {
-			// 	logger.info("本地状态：非法状态")
-			// }
 		} catch (error) {
 			logger.error(`获取状态失败: ${error}`)
 			return
@@ -120,10 +112,7 @@ function getCurrent15m(): string {
 const setupScheduler = async (): Promise<schedule.Job> => {
 	// -- 重置已存在的调度任务
 	cancelScheduler()
-	const libraryType = (await _store.get(
-		"settings.libraryType",
-		"select",
-	)) as string
+	const libraryType = (await _store.get(LIBRARY_TYPE, "select")) as string
 	const mw = windowManager.getWindow()
 	try {
 		mw?.webContents.send("send-schedule-status", "init")
@@ -169,7 +158,7 @@ const setupScheduler = async (): Promise<schedule.Job> => {
 		// -- 检查是否设置自动更新数据，如果设置了，唤醒 Rocket
 		if (requireTrading) await wakeUpRocket(userState, mw)
 
-		if (await isAnyCoreBusy()) {
+		if (await isAnyKernalBusy()) {
 			logger.info("[scheduler] 内核正忙，跳过本轮调度")
 			return
 		}
@@ -189,7 +178,7 @@ const setupScheduler = async (): Promise<schedule.Job> => {
 			logger.info(
 				`[scheduler-fuel] 数据模块定时任务: ${dataModuleTimes}, 当前时间: ${current15m}, 是否更新: ${isScheduleDataModule}`,
 			)
-			if (await isCoreBusy("fuel")) {
+			if (await isKernalBusy("fuel")) {
 				logger.info("[fuel] 内核正忙，跳过本轮调度")
 			} else if (!isScheduleDataModule) {
 				logger.info("[fuel] 非定时更新数据时间，跳过本轮数据更新")
@@ -216,7 +205,7 @@ const setupScheduler = async (): Promise<schedule.Job> => {
 			logger.info(`[libraryType] 策略类型${libraryType}`)
 			switch (libraryType) {
 				case "pos":
-					if (await isCoreBusy("zeus")) {
+					if (await isKernalBusy("zeus")) {
 						logger.info("[zeus] 内核正忙，跳过本轮调度")
 					} else if (!isScheduleSelectModule) {
 						logger.info("[zeus] 非定时选股时间，跳过本轮选股")
@@ -225,7 +214,7 @@ const setupScheduler = async (): Promise<schedule.Job> => {
 					}
 					break
 				case "select":
-					if (await isCoreBusy("aqua")) {
+					if (await isKernalBusy("aqua")) {
 						logger.info("[aqua] 内核正忙，跳过本轮调度")
 					} else if (!isScheduleSelectModule) {
 						logger.info("[aqua] 非定时选股时间，跳过本轮选股")
@@ -246,9 +235,6 @@ const setupScheduler = async (): Promise<schedule.Job> => {
 
 // -- 处理自动更新逻辑
 async function wakeUpFuel(mw) {
-	// 2025-08-27不再自动更新内核
-	// mw?.webContents.send("send-schedule-status", "fuel_updating")
-	// await updateFuelCore()
 	try {
 		logger.info("[fuel] 自动更新所有数据...")
 		mw?.webContents.send("send-schedule-status", "fuel_start")
@@ -264,9 +250,6 @@ async function wakeUpAqua(userState: UserState, mw) {
 		logger.info(`[aqua] 非分享会状态，跳过Aqua，${userState?.user}`)
 		return
 	}
-	// 2025-08-27不再自动更新内核
-	// mw?.webContents.send("send-schedule-status", "aqua_updating")
-	// await updateCore("aqua")
 	try {
 		mw?.webContents.send("send-schedule-status", "aqua_start")
 		await execBin(["select", "trading"], "选股", "aqua")
@@ -282,9 +265,6 @@ async function wakeUpZeus(userState: UserState, mw) {
 		return
 	}
 	logger.info("[zeus] 正在调用zeus")
-	// 2025-08-27不再自动更新内核
-	// mw?.webContents.send("send-schedule-status", "aqua_updating")
-	// await updateCore("zeus")
 	try {
 		mw?.webContents.send("send-schedule-status", "aqua_start")
 		await execBin(["select", "trading"], "选股", "zeus")
@@ -300,6 +280,15 @@ async function wakeUpRocket(userState: UserState, mw) {
 	// -- 非 Windows 或非会员用户跳过实盘逻辑
 	if (!platform.isWindows) {
 		logger.info("[rocket] 非 Windows 系统，Rocket无法自动下单")
+		return
+	}
+
+	if (_store.get("real_market_config.account_id", "0") === "0") {
+		logger.info("[rocket] QMT账号为0，激活手动下单模式，不启动Rocket")
+		if (await isKernalBusy("rocket")) {
+			logger.info("[rocket] Rocket正在运行，强制杀死")
+			await killKernalByForce("rocket")
+		}
 		return
 	}
 
@@ -320,11 +309,6 @@ async function wakeUpRocket(userState: UserState, mw) {
 		// await new Promise((resolve) => setTimeout(resolve, 10000))
 		return
 	}
-
-	// 2025-08-27不再自动更新内核
-	// mw?.webContents.send("send-schedule-status", "rocket_updating")
-	// await updateCore("rocket")
-
 	// -- 启动 rocket
 	mw?.webContents.send("send-schedule-status", "rocket_start")
 	await startRocketIfNeeded()
@@ -333,7 +317,7 @@ async function wakeUpRocket(userState: UserState, mw) {
 // -- 启动 rocket 服务
 async function startRocketIfNeeded() {
 	logger.info("[rocket] 交易时间，确认 rocket 状态")
-	const rocketBusy = await isCoreBusy("rocket")
+	const rocketBusy = await isKernalBusy("rocket")
 	if (!rocketBusy) {
 		try {
 			await execBin(["run"], "启动 rocket", "rocket")

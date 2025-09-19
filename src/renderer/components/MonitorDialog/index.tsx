@@ -8,7 +8,6 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
-import { monitorColumns } from "@/renderer/components/MonitorDialog/monitor-columns"
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -33,11 +32,9 @@ import { actionDialogAtom } from "@/renderer/store"
 import { monitorProcessesQueryAtom } from "@/renderer/store/query"
 import { useMount } from "etc-hooks"
 import { useAtom, useSetAtom } from "jotai"
-import { template } from "lodash-es"
 import { Loader } from "lucide-react"
 import { type FC, useEffect, useState } from "react"
 import { toast } from "sonner"
-import { DataTable } from "../ui/data-table"
 const { handleKillProcess } = window.electronAPI
 const MonitorDialog: FC = () => {
 	const setIsShowMonitorPanel = useSetAtom(isShowMonitorPanelAtom)

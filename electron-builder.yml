@@ -7,6 +7,8 @@ extraResources:
     to: resources
   - from: node_modules/monaco-editor/min/vs
     to: resources
+  - from: CHANGELOG.md
+    to: CHANGELOG.md
 extraFiles: build
 # beforeBuild: bin/rebuild.js
 afterPack: bin/remove.js
@@ -19,9 +21,13 @@ files:
   - "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}"
   - "!**/node_modules/*.d.ts"
   - "!**/node_modules/.bin"
+  - "!**/.pnpm/*/{CHANGELOG.md,README.md,README,readme.md,readme}"
+  - "!**/.pnpm/*/{test,__tests__,tests,powered-test,example,examples}"
+  - "!**/.pnpm/*/*.d.ts"
+  - "!**/.pnpm/*/.bin"
   - "node_modules/monaco-editor/min/**/*"
   - "!electron.vite.config.{js,ts,mjs,cjs}"
-  - "!{biome.json,dev-app-update.yml,CHANGELOG.md,README.md,components.json}"
+  - "!{biome.json,dev-app-update.yml,README.md,components.json}"
   - "!{.env,.env.*,.npmrc,pnpm-lock.yaml,.cursorignore,.cursorrules}"
   - "!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}"
 artifactName: ${productName}-${version}-${arch}.${ext}

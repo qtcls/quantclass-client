@@ -22,7 +22,7 @@ const Table = React.forwardRef<
 	<div
 		style={{
 			maxWidth: "calc(100vw - 14rem - 2em)", // 设置默认最大宽度
-			maxHeight: "calc(100vh - 23.5em)", // 设置默认最大高度
+			// maxHeight: "calc(100vh - 23.5em)", // 设置默认最大高度
 			...containerStyle, // 允许外部传入样式
 		}}
 		className={cn("w-full", containerClassname)}

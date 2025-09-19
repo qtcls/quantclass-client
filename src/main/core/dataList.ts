@@ -56,7 +56,7 @@ export const getJsonDataFromFile = async <T = unknown>(
 		return defaultValue
 	}
 
-	logger.info(`成功读取文件：${filePath[filePath.length - 1]}`)
+	logger.info(`成功读取文件：${fullPath}`)
 	return fileData
 }
 
