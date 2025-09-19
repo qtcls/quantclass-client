@@ -46,10 +46,20 @@ async function getCachedStoreValue<T>(
 		const value = await getStoreValue(key, defaultValue)
 		console.log("IPC:getStoreValue", key, value)
 
-		// 更新缓存
-		storeCache.set(key, { value, timestamp: now })
+		// 简单的默认值合并：只补充缺失的字段
+		let mergedValue: any
+		if (Array.isArray(defaultValue) || Array.isArray(value)) {
+			// 如果涉及数组，直接使用 store 值
+			mergedValue = value
+		} else {
+			// 普通对象进行浅层合并
+			mergedValue = { ...defaultValue, ...value }
+		}
 
-		return value as T
+		// 更新缓存
+		storeCache.set(key, { value: mergedValue, timestamp: now })
+
+		return mergedValue as T
 	} catch (error) {
 		console.warn(`Failed to get store value for key "${key}":`, error)
 		return defaultValue
@@ -116,7 +126,7 @@ export function atomWithElectronStore<T>(
 	defaultValue: T,
 	options: ElectronStoreOptions = {},
 ) {
-	const { useLocalStorage = false, getOnInit = true } = options
+	const { useLocalStorage = true, getOnInit = true } = options
 
 	// 基础 atom：选择 localStorage 或纯内存
 	const baseAtom = useLocalStorage

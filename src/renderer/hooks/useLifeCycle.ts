@@ -185,7 +185,7 @@ export const useLifeCycle = () => {
 	// -- 生命周期钩子
 	useMount(async () => {
 		// versionCheck.start()
-		setters.setLibraryType(settings.libraryType)
+		setters.setLibraryType(settings.libraryType || "select")
 
 		await Promise.all([initScheduleTask(), initAccountInfo()])
 

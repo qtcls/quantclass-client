@@ -27,22 +27,18 @@ export const buyBlacklistAtom = atomWithElectronStore<BlacklistItem[]>(
 /**
  * 设置
  */
-export const settingsAtom = atomWithElectronStore<SettingsType>(
-	"settings",
-	{
-		all_data_path: "",
-		strategy_result_path: "",
-		is_auto_launch_update: false,
-		is_auto_launch_real_trading: false,
-		data_white_list: [],
-		hid: "",
-		api_key: "",
-		libraryType: "",
-		performance_mode: "EQUAL",
-		user_choice: false,
-	},
-	{ useLocalStorage: true, getOnInit: true },
-)
+export const settingsAtom = atomWithElectronStore<SettingsType>("settings", {
+	all_data_path: "",
+	strategy_result_path: "",
+	is_auto_launch_update: false,
+	is_auto_launch_real_trading: false,
+	data_white_list: [],
+	hid: "",
+	api_key: "",
+	libraryType: "select",
+	performance_mode: "EQUAL",
+	user_choice: false,
+})
 
 export const dataSubscribedAtom = atomWithElectronStore<IDataListType[]>(
 	"data_map",
@@ -77,7 +73,6 @@ export const realMarketConfigAtom = atomWithElectronStore<RealMarketConfigType>(
 		message_robot_url: "",
 		reverse_repo_keep: 1000,
 	},
-	{ useLocalStorage: true, getOnInit: true },
 )
 
 /**
