@@ -48,80 +48,64 @@ export enum Channels {
 	AppUpdaterProgress = "AppUpdaterProgress",
 	AppUpdaterAbort = "AppUpdaterAbort",
 }
-
-/**
- * 获取Fuel内核路径。因为Fuel的逻辑相对于我们其他的模块会更加复杂，所以单独写一个函数
- * @returns 内核路径
- */
-export const GetExecFuelFile = async () => {
-	const pyCodePath = await store.getAllDataPath(["code"])
-	let execFuelFilePath = ""
-
-	if (platform.isWindows) {
-		execFuelFilePath = path.join(pyCodePath, "fuel", "fuel.exe")
-	} else if (platform.isMacOS) {
-		if (arch() === "arm64") {
-			execFuelFilePath = path.join(pyCodePath, "fuel")
-		}
-		if (arch() === "x64") {
-			execFuelFilePath = path.join(pyCodePath, "fuel2")
-		}
-
-		if (existsSync(execFuelFilePath)) {
-			try {
-				await fs.chmod(execFuelFilePath, 0o755)
-			} catch (error) {
-				logger.error(
-					`[GetExecFuelFile]: ${execFuelFilePath} 内核权限设置失败: ${error}`,
-				)
-			}
-
-			exec(`chmod +x ${execFuelFilePath}`)
-		} else {
-			logger.info(`[GetExecFuelFile]: ${execFuelFilePath} 内核暂不存在`)
-		}
-	}
-
-	return path.normalize(execFuelFilePath)
-}
-
 /**
  * 获取内核路径
  * @param kernel 内核名称
  * @returns 内核路径
  */
-export const getBinPath = async (kernel: string) => {
-	// 如果是fuel，则直接返回可执行文件路径
-	if (kernel === "fuel") {
-		return await GetExecFuelFile()
-	}
-
-	const pyCodePath = await store.getAllDataPath(["code"])
-	// 2025年5月27日开始，所有内核采用onedir的打包方式，所以需要替换exe为zip
-	const folderName = platform.isWindows ? kernel : `${kernel}-${arch()}`
-	let binPath: string = path.join(pyCodePath, folderName, kernel)
+export const getKernalPath = async (kernel: string) => {
+	const codePath = await store.getAllDataPath("code", true)
+	let kernalPath: string = path.join(
+		codePath,
+		platform.isWindows ? kernel : `${kernel}-${arch()}`, // 非Windows系统，需要加上arch()
+		kernel,
+	)
 
 	if (platform.isWindows) {
-		binPath = `${binPath}.exe`
+		kernalPath = `${kernalPath}.exe`
 	} else {
-		exec(`chmod +x ${binPath}`)
+		exec(`chmod +x ${kernalPath}`)
 	}
 
-	if (existsSync(binPath)) {
+	if (existsSync(kernalPath)) {
 		try {
-			await fs.chmod(binPath, 0o755)
+			await fs.chmod(kernalPath, 0o755)
 		} catch (error) {
-			logger.error(`[getBinPath]: ${binPath} 内核权限设置失败: ${error}`)
+			logger.error(`[getKernalPath]: ${kernalPath} 内核权限设置失败: ${error}`)
 		}
 	}
 
-	return path.normalize(binPath)
+	return path.normalize(kernalPath)
+}
+
+/**
+ * 清理旧的内核
+ * @param kernel 内核名称
+ * @returns 旧的内核路径
+ */
+export const clearOldKernal = async (kernel: string) => {
+	const codePath = await store.getAllDataPath("code", true)
+	let kernalPath: string = path.join(codePath, kernel)
+
+	if (platform.isWindows) {
+		kernalPath = `${kernalPath}.exe`
+	}
+
+	if (existsSync(kernalPath)) {
+		try {
+			await fs.unlink(kernalPath)
+		} catch (error) {
+			logger.error(`[delKernal]: ${kernalPath} 删除失败: ${error}`)
+		}
+	}
+
+	return path.normalize(kernalPath)
 }
 
 export const tradingCalender = async () => {
 	if (platform.isWindows) {
 		const periodOffsetPath = await store.getAllDataPath(
-			["period_offset.csv"],
+			"period_offset.csv",
 			false,
 		)
 

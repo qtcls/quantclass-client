@@ -35,7 +35,7 @@ export const useToggleAutoRealTrading = () => {
 		window.electronAPI
 
 	const strategies = useMemo(() => {
-		return libraryType === "select" ? selectStgList : fusion
+		return libraryType === "pos" ? fusion : selectStgList
 	}, [libraryType, selectStgList, fusion])
 
 	/**

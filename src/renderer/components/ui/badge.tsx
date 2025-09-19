@@ -28,6 +28,8 @@ const badgeVariants = cva(
 					"border-transparent bg-success text-success-foreground shadow hover:bg-success/80",
 				outline: "text-foreground",
 				info: "border-transparent bg-blue-500 text-blue-50 shadow hover:bg-blue-500/80 dark:bg-blue-300 dark:hover:bg-blue-300/80 dark:text-blue-900",
+				"outline-info":
+					"border-blue-500 text-blue-500 hover:bg-blue-500/10 dark:border-blue-300 dark:text-blue-300 dark:hover:bg-blue-300/10",
 			},
 		},
 		defaultVariants: {

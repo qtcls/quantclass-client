@@ -21,8 +21,8 @@ import type {
 	StgGroupType,
 } from "@/renderer/types/strategy"
 import {
-	saveStrategyListFusion,
 	saveStrategyList,
+	saveStrategyListFusion,
 } from "@/renderer/utils/strategy"
 // import { userAtom } from "@/renderer/store/user"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
@@ -46,7 +46,7 @@ export function useStgSync() {
 	const updateStrategies = useCallback(
 		async (strategies: SelectStgType[]) => {
 			setSelectStgList(strategies)
-			if (libraryType === "select") {
+			if (libraryType !== "pos") {
 				const selectStgDict = await saveStrategyList(strategies)
 				setSelectStgDict(selectStgDict)
 			}

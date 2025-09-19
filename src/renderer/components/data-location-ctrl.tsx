@@ -19,6 +19,7 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 import { useSettings } from "../hooks/useSettings"
+import ButtonTooltip from "./ui/button-tooltip"
 
 const { selectDirectory, openDataDirectory } = window.electronAPI
 
@@ -72,6 +73,7 @@ export function DataLocationCtrl({ className }: { className?: string }) {
 					variant="outline"
 					className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 flex items-center justify-center" // 按钮的高度和输入框一致
 					disabled={choosing}
+					size="sm"
 					onClick={handleFolderSelect}
 				>
 					{dataLocation ? "更改" : "选择"}
@@ -83,25 +85,27 @@ export function DataLocationCtrl({ className }: { className?: string }) {
 					</div>
 				)}
 			</div>
-
-			<Button
-				size="sm"
-				variant="outline"
-				className="h-10 text-foreground lg:flex gap-1"
-				onClick={async () => {
-					setPending(true)
-					await openDataDirectory()
-					setTimeout(() => setPending(false), 750)
-				}}
-				disabled={pending}
-			>
-				{pending ? (
-					<Loader2 size={16} className="animate-spin" />
-				) : (
-					<FolderOpen size={16} />
-				)}
-				打开文件夹
-			</Button>
+			{dataLocation && (
+				<ButtonTooltip content="打开数据文件夹" delayDuration={10}>
+					<Button
+						size="sm"
+						variant="outline"
+						className="h-10 text-foreground lg:flex gap-1"
+						onClick={async () => {
+							setPending(true)
+							await openDataDirectory()
+							setTimeout(() => setPending(false), 750)
+						}}
+						disabled={pending}
+					>
+						{pending ? (
+							<Loader2 size={16} className="animate-spin" />
+						) : (
+							<FolderOpen size={16} />
+						)}
+					</Button>
+				</ButtonTooltip>
+			)}
 		</>
 	)
 }

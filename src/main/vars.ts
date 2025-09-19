@@ -14,5 +14,5 @@ import pkg from "../../package.json"
 export const BASE_URL = process.env.VITE_BASE_URL || "https://api.quantclass.cn"
 
 // 应用版本信息
-export const CLIENT_VERSION = pkg.version
+export const CLIENT_VERSION = `v${pkg.version}`
 export const PACKAGE_INFO = pkg

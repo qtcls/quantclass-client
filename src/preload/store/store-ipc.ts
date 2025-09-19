@@ -41,5 +41,5 @@ export const regStoreIPC = () => {
 	setStoreIPC()
 	getStoreIPC()
 	deleteStoreIPC()
-	console.log("[ok] store-ipc")
+	console.log("[reg] store-ipc")
 }

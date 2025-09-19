@@ -8,48 +8,112 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
-import { useMutation } from "@tanstack/react-query"
+import { useAppVersions } from "@/renderer/hooks/useAppVersion"
+import { versionsAtom } from "@/renderer/store/versions"
 import { useAtomValue } from "jotai"
-import { toast } from "sonner"
-import { isWindows } from "../constant"
-import { versionAtom } from "../store/storage"
-import { useInterval } from "./useInterval"
+import { useMemo } from "react"
+import { useSettings } from "./useSettings"
 
 /**
- * -- 使用版本检查的自定义 Hook
+ * 检查版本是否有更新的hook
+ * @returns 版本检查结果和相关状态
  */
 export const useVersionCheck = () => {
-	const version = useAtomValue(versionAtom)
-	const { checkUpdate } = window.electronAPI
-	const { mutateAsync: checkForUpdate, error } = useMutation({
-		mutationKey: ["check-update"],
-		mutationFn: async () => await checkUpdate(),
-	})
+	const { appVersions, isCheckingAppVersions } = useAppVersions()
+	const { isFusionMode } = useSettings()
+	const localVersions = useAtomValue(versionsAtom)
 
-	const { start } = useInterval(
-		async () => {
-			const data = await checkForUpdate()
-			if (data.updateInfo.version === version.clientVersion) {
-				toast.dismiss()
-				toast.info("当前已是最新版本")
-			}
-			if (data.updateInfo.version !== version.clientVersion) {
-				if (isWindows) {
-					toast.dismiss()
-					toast.info("发现可用新版本，开始下载")
-					return
-				}
-				toast.dismiss()
-				toast.info("发现可用新版本，请从网站上下载覆盖更新", {
-					duration: 5 * 1000,
-				})
-			}
-			if (error) {
-				toast.error("检查更新失败")
-			}
-		},
-		1000 * 60 * 60 * 2,
-	)
+	// 检查是否有客户端版本更新
+	const hasClientUpdate = useMemo(() => {
+		const remoteVersion = appVersions?.app?.version
+		if (!remoteVersion || !localVersions?.clientVersion) {
+			return false
+		}
+		return remoteVersion !== localVersions.clientVersion
+	}, [appVersions?.app?.version, localVersions?.clientVersion])
 
-	return { start }
+	// 检查是否有内核版本更新
+	const hasKernalUpdates = useMemo(() => {
+		const latestRemoteVersions = appVersions?.latest
+		if (!latestRemoteVersions || !localVersions) {
+			return {
+				fuel: false,
+				aqua: false,
+				zeus: false,
+				rocket: false,
+			}
+		}
+
+		return {
+			fuel: latestRemoteVersions?.fuel !== localVersions.fuelVersion,
+			aqua: !isFusionMode
+				? latestRemoteVersions?.aqua !== localVersions.aquaVersion
+				: false,
+			zeus: isFusionMode
+				? latestRemoteVersions?.zeus !== localVersions.zeusVersion
+				: false,
+			rocket: latestRemoteVersions?.rocket !== localVersions.rocketVersion,
+		}
+	}, [appVersions?.latest, localVersions, isFusionMode])
+
+	// 检查是否有任何更新
+	const hasAnyUpdate = useMemo(() => {
+		return hasClientUpdate || Object.values(hasKernalUpdates).some(Boolean)
+	}, [hasClientUpdate, hasKernalUpdates])
+
+	// 生成更新消息
+	const getUpdateMessage = useMemo(() => {
+		if (!hasAnyUpdate) return ""
+
+		const updates: string[] = []
+
+		if (hasClientUpdate) {
+			updates.push(
+				`客户端: ${localVersions?.clientVersion} → ${appVersions?.app.version}`,
+			)
+		}
+
+		if (hasKernalUpdates.fuel) {
+			updates.push(
+				`数据内核: ${localVersions?.fuelVersion} → ${appVersions?.latest?.fuel}`,
+			)
+		}
+
+		if (hasKernalUpdates.aqua && !isFusionMode) {
+			updates.push(
+				`选股内核: ${localVersions?.aquaVersion} → ${appVersions?.latest?.aqua}`,
+			)
+		}
+
+		if (hasKernalUpdates.zeus && isFusionMode) {
+			updates.push(
+				`高级选股内核: ${localVersions?.zeusVersion} → ${appVersions?.latest?.zeus}`,
+			)
+		}
+
+		if (hasKernalUpdates.rocket) {
+			updates.push(
+				`下单内核: ${localVersions?.rocketVersion} → ${appVersions?.latest?.rocket}`,
+			)
+		}
+
+		return updates.length > 0 ? updates.join("\n") : ""
+	}, [
+		hasAnyUpdate,
+		hasClientUpdate,
+		hasKernalUpdates,
+		localVersions,
+		appVersions,
+		isFusionMode,
+	])
+
+	return {
+		hasClientUpdate,
+		hasKernalUpdates,
+		hasAnyUpdate,
+		isCheckingVersions: isCheckingAppVersions,
+		appVersions,
+		localVersions,
+		getUpdateMessage,
+	}
 }

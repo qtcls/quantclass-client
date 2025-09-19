@@ -12,7 +12,7 @@ import { readFile, writeFile } from "node:fs/promises"
 // import { checkFuelExist } from "@/main/core/runpy.js"
 import { execBin } from "@/main/lib/process.js"
 import store from "@/main/store/index.js"
-import { isCoreBusy } from "@/main/utils/tools.js"
+import { isKernalBusy } from "@/main/utils/tools.js"
 import logger from "@/main/utils/wiston.js"
 
 // 增量更新和定时增量更新
@@ -23,7 +23,7 @@ export async function updateProduct(product?: string) {
 		)
 		// await checkFuelExist()
 
-		const isFuelBusy = await isCoreBusy("fuel")
+		const isFuelBusy = await isKernalBusy("fuel")
 
 		logger.info(`manually update ${product}`)
 		!isFuelBusy && product
@@ -48,7 +48,7 @@ export async function updateFullProducts(
 	try {
 		logger.info(`check fuel_bin exist before update ${product_name} full data`)
 
-		const isFuelBusy = await isCoreBusy("fuel")
+		const isFuelBusy = await isKernalBusy("fuel")
 
 		logger.info("manually update full products")
 

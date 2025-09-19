@@ -32,7 +32,7 @@ function StrategyRunContent() {
 	return (
 		<div className="h-full flex-1 flex-col md:flex pt-3">
 			<div className="flex items-end mb-1">
-				<H2>{libraryType === "select" ? "选股" : "仓位管理"}策略回测</H2>
+				<H2>{libraryType === "pos" ? "仓位管理" : "选股"}策略回测</H2>
 			</div>
 			<div className="flex flex-col w-full space-y-1">
 				{/* <p className="text-muted-foreground">

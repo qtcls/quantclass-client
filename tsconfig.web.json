@@ -4,6 +4,7 @@
 		"src/renderer/env.d.ts",
 		"src/renderer/**/*",
 		"src/renderer/**/*.tsx",
+		"src/shared/**/*",
 		// "src/renderer/types/index.ts",
 		"src/preload/*.d.ts",
 		"src/test/**/*"

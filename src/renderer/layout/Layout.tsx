@@ -8,7 +8,6 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
-import AboutDialog from "@/renderer/components/About/AboutDialog"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { type FC, useEffect } from "react"
 import { Outlet, useLocation } from "react-router"
@@ -18,13 +17,11 @@ import {
 	useLifeCycle,
 	useNetInterval,
 	useNetworkToast,
-	useQueryVersion,
 	useRouterGuard,
 } from "@/renderer/hooks"
 
 import {
 	isFullscreenAtom,
-	isShowAboutAtom,
 	isShowMonitorPanelAtom,
 	loadingAnimeAtom,
 } from "@/renderer/store"
@@ -51,6 +48,7 @@ import { useReportErr } from "./hooks/useReportErr"
 import { AlertDialogProvider } from "@/renderer/context/alert-dialog"
 import VersionUpgrade from "@/renderer/layout/version-upgrade"
 import { cn } from "@/renderer/lib/utils"
+import { useLocalVersions } from "../store/versions"
 
 const { handleToggleFullscreen } = window.electronAPI
 
@@ -58,8 +56,6 @@ const { handleToggleFullscreen } = window.electronAPI
 interface MainLayoutProps {
 	loading: boolean
 	content: string | undefined
-	isShowAbout: boolean
-	setIsShowAbout: (value: boolean) => void
 	isShowMonitorPanel: boolean
 }
 
@@ -77,16 +73,15 @@ const Layout: FC = () => {
 	const { pathname } = useLocation()
 	const [loading] = useAtom(loadingAnimeAtom)
 	const setIsFullscreen = useSetAtom(isFullscreenAtom)
-	const [isShowAbout, setIsShowAbout] = useAtom(isShowAboutAtom)
 	const isShowMonitorPanel = useAtomValue(isShowMonitorPanelAtom)
 	const { content } = useReportErr()
 
 	// -- Hooks
-	const { run: queryVersion } = useQueryVersion()
+	const { refetchLocalVersions } = useLocalVersions()
 
 	// -- Effects
 	useEffect(() => {
-		queryVersion()
+		refetchLocalVersions()
 	}, [pathname])
 
 	// -- Handlers
@@ -113,8 +108,6 @@ const Layout: FC = () => {
 				<MainLayout
 					loading={loading}
 					content={content}
-					isShowAbout={isShowAbout}
-					setIsShowAbout={setIsShowAbout}
 					isShowMonitorPanel={isShowMonitorPanel}
 				/>
 			</SidebarProvider>
@@ -128,8 +121,6 @@ export default Layout
 const MainLayout: FC<MainLayoutProps> = ({
 	loading,
 	content,
-	isShowAbout,
-	setIsShowAbout,
 	isShowMonitorPanel,
 }) => {
 	useLocation()
@@ -145,9 +136,7 @@ const MainLayout: FC<MainLayoutProps> = ({
 					<UserMenu />
 				</div>
 			</header>
-
-			<AboutDialog open={isShowAbout} onOpenChange={setIsShowAbout} />
-			<LoadingAnime loading={loading} content={content} type="coreUpdate" />
+			<LoadingAnime loading={loading} content={content} type="kernalUpdate" />
 			<AlertDialogProvider>
 				<div
 					className={cn(

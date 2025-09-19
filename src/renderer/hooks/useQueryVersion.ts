@@ -8,11 +8,11 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
-import { versionQueryAtom } from "@/renderer/store/versions"
+import { versionsQueryAtom } from "@/renderer/store/versions"
 import { useAtom } from "jotai"
 
 export const useQueryVersion = () => {
-	const [{ isLoading, refetch }] = useAtom(versionQueryAtom)
+	const [{ isLoading, refetch }] = useAtom(versionsQueryAtom)
 
 	return { run: refetch, runAsync: refetch, loading: isLoading }
 }

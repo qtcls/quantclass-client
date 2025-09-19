@@ -8,6 +8,7 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
+import { PerformanceModeSelectTabs } from "@/renderer/components/select-tabs"
 import { Badge } from "@/renderer/components/ui/badge"
 import { Button } from "@/renderer/components/ui/button"
 import ButtonTooltip from "@/renderer/components/ui/button-tooltip"
@@ -28,6 +29,7 @@ import {
 } from "@/renderer/components/ui/radio-group"
 // import { ScrollArea } from "@/renderer/components/ui/scroll-area"
 import { usePermissionCheck, useToggleAutoRealTrading } from "@/renderer/hooks"
+import { useRealMarketConfig } from "@/renderer/hooks/useRealMarketConfig"
 import { realConfigEditModalAtom } from "@/renderer/store"
 import { rocketStatusQueryAtom } from "@/renderer/store/query"
 import { realMarketConfigSchemaAtom } from "@/renderer/store/storage"
@@ -75,6 +77,9 @@ export function TradingConfigForm() {
 	const [realMarketConfig, setRealMarketConfig] = useAtom(
 		realMarketConfigSchemaAtom,
 	)
+
+	const { setPerformanceMode } = useRealMarketConfig()
+
 	const setRealConfigEditModal = useSetAtom(realConfigEditModalAtom)
 	const { isAutoRocket, handleToggleAutoRocket } = useToggleAutoRealTrading()
 
@@ -145,6 +150,7 @@ export function TradingConfigForm() {
 			}
 
 			// -- 这里应该调用 setStoreValue 来保存配置
+			setPerformanceMode(values.performance_mode)
 			await setStoreValue("real_market_config", formattedValues)
 			setRealMarketConfig(values)
 
@@ -397,43 +403,12 @@ export function TradingConfigForm() {
 										</FormLabel>
 
 										<FormControl>
-											<RadioGroup
-												disabled={!user?.isMember}
-												onValueChange={field.onChange}
+											<PerformanceModeSelectTabs
+												name="性能模式"
 												defaultValue={field.value}
-												className="flex space-x-1"
-											>
-												<FormItem className="flex items-center space-x-1 space-y-0">
-													<FormControl>
-														<RadioGroupItem value="ECONOMY" />
-													</FormControl>
-													<FormLabel
-														className={`${field.value === "ECONOMY" ? "font-bold" : "font-normal"}`}
-													>
-														节能
-													</FormLabel>
-												</FormItem>
-												<FormItem className="flex items-center space-x-1 space-y-0">
-													<FormControl>
-														<RadioGroupItem value="EQUAL" />
-													</FormControl>
-													<FormLabel
-														className={`${field.value === "EQUAL" ? "font-bold" : "font-normal"}`}
-													>
-														均衡
-													</FormLabel>
-												</FormItem>
-												<FormItem className="flex items-center space-x-1 space-y-0">
-													<FormControl>
-														<RadioGroupItem value="PERFORMANCE" />
-													</FormControl>
-													<FormLabel
-														className={`${field.value === "PERFORMANCE" ? "font-bold" : "font-normal"}`}
-													>
-														性能
-													</FormLabel>
-												</FormItem>
-											</RadioGroup>
+												onValueChange={field.onChange}
+												showToast={false}
+											/>
 										</FormControl>
 									</FormItem>
 								)}

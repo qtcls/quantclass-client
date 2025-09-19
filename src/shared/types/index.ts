@@ -8,11 +8,11 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
-export type PowerMonitor = "resume" | "suspend"
+// 版本相关类型
+export type {
+	KernalVersionType,
+	AppVersions,
+} from "./version.js"
 
-export interface PowerMonitorAPI {
-	subscribePowerMonitor: (
-		cb: (event: any, status: PowerMonitor) => void,
-	) => Promise<void>
-	unSubscribePowerMonitor: () => Promise<void>
-}
+// 内核相关类型
+export type { KernalType } from "./kernal.js"

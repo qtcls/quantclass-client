@@ -10,7 +10,7 @@
 
 // import { checkFuelExist } from "@/main/core/runpy.js"
 import { execBin } from "@/main/lib/process.js"
-import { isCoreBusy } from "@/main/utils/tools.js"
+import { isKernalBusy } from "@/main/utils/tools.js"
 import logger from "@/main/utils/wiston.js"
 
 // 增量更新和定时增量更新
@@ -20,7 +20,7 @@ export async function updateStrategies(strategy?: string, manual = "manual") {
 		// await checkFuelExist()
 		logger.info(`manually update ${strategy}`)
 
-		const isFuelBusy = await isCoreBusy("fuel")
+		const isFuelBusy = await isKernalBusy("fuel")
 
 		!isFuelBusy && strategy
 			? await execBin(["one_strategy", strategy], `更新策略-${strategy}`)

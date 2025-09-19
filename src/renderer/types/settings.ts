@@ -19,4 +19,5 @@ export type SettingsType = {
 	api_key: string
 	libraryType: string
 	performance_mode: string
+	user_choice: boolean
 }

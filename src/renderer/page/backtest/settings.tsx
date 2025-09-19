@@ -50,9 +50,9 @@ export function BacktestSettings() {
 	const libraryType = useAtomValue(libraryTypeAtom)
 	// 新增一个变量configKey，根据libraryType的变化自动切换是选股还是仓位管理
 	const configKey = useMemo(() => {
-		return libraryType === "select"
-			? SELECT_STOCK_STRATEGY_CONFIG
-			: POS_MGMT_STRATEGY_CONFIG
+		return libraryType === "pos"
+			? POS_MGMT_STRATEGY_CONFIG
+			: SELECT_STOCK_STRATEGY_CONFIG
 	}, [libraryType])
 
 	const debouncedSetEstimatedFund = useDebounceFn(

@@ -94,11 +94,11 @@ export default function VersionUpgrade() {
 	const [versionList, setVersionList] = useAtom(versionListAtom)
 	const [data, setData] = useState<VersionData[]>([])
 	const [loading, setLoading] = useState(true)
-
+	const { openUrl, readChangelog } = window.electronAPI
 	useEffect(() => {
 		const loadChangelog = async () => {
 			try {
-				const result = await window.electronAPI.readChangelog()
+				const result = await readChangelog()
 				if (result.success) {
 					const parsedData = parseChangelog(result.data)
 					setData(parsedData)
@@ -175,7 +175,14 @@ export default function VersionUpgrade() {
 						))}
 						{data.filter((v) => !versionList.includes(v.version)).length >
 							10 && (
-							<div className="flex items-center text-gray-500 justify-center text-sm">
+							<div
+								className="flex items-center text-gray-500 justify-center text-sm cursor-pointer"
+								onClick={() => {
+									openUrl(
+										"https://gitee.com/quantclass/quantclass-client/blob/main/CHANGELOG.md",
+									)
+								}}
+							>
 								<span>查看完整版本更新记录</span>
 								<ArrowRight className="size-4" />
 							</div>

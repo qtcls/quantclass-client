@@ -11,7 +11,6 @@
 import { isWindows } from "@/renderer/constant"
 import { useConfig } from "@/renderer/hooks/useConfig"
 import { useHandleTimeTask } from "@/renderer/hooks/useHandleTimeTask"
-import { useQueryVersion } from "@/renderer/hooks/useQueryVersion"
 import { useToggleAutoRealTrading } from "@/renderer/hooks/useToggleAutoRealTrading"
 import { onPowerStatus, unPowerStatusListener } from "@/renderer/ipc/listener"
 
@@ -22,33 +21,27 @@ import {
 } from "@/renderer/store"
 import {
 	accountKeyAtom,
-	isAutoLaunchRealTradingAtom,
-	isAutoLaunchUpdateAtom,
 	isAutoLoginAtom,
+	libraryTypeAtom,
 	realMarketConfigSchemaAtom,
-	userChoiceAtom,
 } from "@/renderer/store/storage"
 import { macAddressAtom } from "@/renderer/store/user"
-import { versionEffectAtom } from "@/renderer/store/versions"
-import { scheduleDailyTask } from "@/renderer/utils"
+import { useLocalVersions, versionsEffectAtom } from "@/renderer/store/versions"
 import { useMount, useUnmount, useUpdateEffect } from "etc-hooks"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
-import { isEmpty } from "lodash-es"
 import { toast } from "sonner"
 import { syncUserState } from "../ipc/userInfo"
+import { useAppVersions } from "./useAppVersion"
 import { useFusionManager } from "./useFusionManager"
+import { useSettings } from "./useSettings"
 import { useStrategyManager } from "./useStrategyManager"
 import { useUserInfoSync } from "./useUserInfoSync"
-// import { useVersionCheck } from "./useVersionCheck"
-
 const {
 	fetchFullscreenState,
 	subscribePowerMonitor,
 	subscribeScheduleStatus,
 	removeReportErrorListener,
-	setPythonDependenceInstallClose,
 	unSubscribeSendScheduleStatusListener,
-	removePythonDependenceInstallCloseListener,
 	// checkDBFile,
 	getMacAddress,
 	setAutoLaunch,
@@ -64,15 +57,14 @@ const {
 export const useLifeCycle = () => {
 	// -- 状态管理
 	const [config] = useConfig()
-	const { run } = useQueryVersion()
+	const { refetchLocalVersions } = useLocalVersions()
 	const isUpdating = useAtomValue(isUpdatingAtom)
 	const isAutoLogin = useAtomValue(isAutoLoginAtom)
-	const isAutoLaunchUpdate = useAtomValue(isAutoLaunchUpdateAtom)
-	const isAutoLaunchRealTrading = useAtomValue(isAutoLaunchRealTradingAtom)
-	useAtom(versionEffectAtom)
+	const { settings } = useSettings()
+	useAtom(versionsEffectAtom) // -- 监听版本更新
+	useAppVersions() // -- 检查远程版本
 
 	// -- 自定义 Hooks
-	// const versionCheck = useVersionCheck()
 	const { user, isLoggedIn } = useUserInfoSync()
 	const { syncSelectStgList } = useStrategyManager()
 	const { syncFusion } = useFusionManager()
@@ -83,12 +75,12 @@ export const useLifeCycle = () => {
 	// -- Setters
 	const setters = {
 		// setExtraWorkStatus: useSetAtom(extraWorkStatusAtom),
-		setUserChoice: useSetAtom(userChoiceAtom),
 		setMacAddress: useSetAtom(macAddressAtom),
 		setLoading: useSetAtom(loadingAnimeAtom),
 		setIsFullscreen: useSetAtom(isFullscreenAtom),
 		setAccountKey: useSetAtom(accountKeyAtom),
 		setRealMarketConfig: useSetAtom(realMarketConfigSchemaAtom),
+		setLibraryType: useSetAtom(libraryTypeAtom),
 	}
 
 	// -- 用于保存休眠前的更新状态
@@ -98,7 +90,6 @@ export const useLifeCycle = () => {
 	 * -- 初始化定时任务
 	 */
 	const initScheduleTask = async () => {
-		const auto_time = await getStoreValue("settings.auto_time", "")
 		const realMarketConfig = await getStoreValue("real_market_config", {
 			filter_kcb: true,
 			filter_cyb: true,
@@ -134,20 +125,13 @@ export const useLifeCycle = () => {
 					| "ECONOMY",
 			}))
 		}
-
-		!isEmpty(auto_time) && scheduleDailyTask(auto_time, handleTimeTask)
 	}
 
 	/**
 	 * -- 初始化账户信息
 	 */
 	const initAccountInfo = async () => {
-		const [apiKey, uuid, macAddress, userChoice] = await Promise.all([
-			getStoreValue("settings.api_key", ""),
-			getStoreValue("settings.hid", ""),
-			getMacAddress(),
-			getStoreValue("settings.user_choice", false),
-		])
+		const macAddress = await getMacAddress()
 
 		setters.setMacAddress((prevMacAddress) => {
 			if (prevMacAddress !== macAddress) {
@@ -155,10 +139,9 @@ export const useLifeCycle = () => {
 			}
 			return macAddress
 		})
-		setters.setUserChoice(userChoice as boolean)
 		setters.setAccountKey({
-			apiKey: apiKey as string,
-			uuid: uuid as string,
+			apiKey: settings.api_key,
+			uuid: settings.hid,
 		})
 
 		// if (isLoggedIn && user?.apiKey && user?.uuid) {
@@ -183,40 +166,35 @@ export const useLifeCycle = () => {
 		}
 	}
 
-	/**
-	 * -- 初始化内核安装监听
-	 */
-	const initPythonDependenceListener = async () => {
-		removePythonDependenceInstallCloseListener()
-		setPythonDependenceInstallClose(
-			(isClosed: boolean, status: "success" | "error") => {
-				setters.setLoading(isClosed)
-				if (!isClosed) {
-					status === "success" && toast.success("版本已更至最新")
-					status === "error" &&
-						toast.error("内核版本更新失败", {
-							description: "更新失败，请联系助教。可以检查网络或者重启客户端",
-						})
-				}
-			},
-		)
+	const initAutoLauncher = async () => {
+		if (settings.is_auto_launch_update) {
+			await handleTimeTask(false, false)
+			toast.success("已为您开启自动更新数据")
+		}
+		if (
+			settings.is_auto_launch_update &&
+			settings.is_auto_launch_real_trading
+		) {
+			await handleToggleAutoRocket(true, false, true)
+			toast.success("已为您开启自动实盘和自动更新数据")
+		} else {
+			await handleToggleAutoRocket(false, false, true)
+		}
 	}
 
 	// -- 生命周期钩子
 	useMount(async () => {
 		// versionCheck.start()
+		setters.setLibraryType(settings.libraryType || "select")
 
-		await Promise.all([
-			initScheduleTask(),
-			initAccountInfo(),
-			// initDataMap(),
-			initPythonDependenceListener(),
-		])
+		await Promise.all([initScheduleTask(), initAccountInfo()])
 
 		// -- 初始化监听器
 		onPowerStatus(handlePowerStatusChange)
 		subscribePowerMonitor((_event, status) => handlePowerStatusChange(status))
-		subscribeScheduleStatus((_event, status) => status === "done" && run())
+		subscribeScheduleStatus(
+			(_event, status) => status === "done" && refetchLocalVersions(),
+		)
 
 		// -- 初始化其他状态
 		const initialFullscreenState = await fetchFullscreenState()
@@ -242,23 +220,9 @@ export const useLifeCycle = () => {
 			isLoggedIn,
 		})
 
-		// -- 处理自动启动
-		if (isAutoLaunchUpdate) {
-			await handleTimeTask(false, false)
-			toast.success("已为您开启自动更新数据")
-		}
-
-		// -- 处理自动实盘
-		if (isAutoLaunchUpdate && isAutoLaunchRealTrading) {
-			await handleToggleAutoRocket(true, false, true)
-			toast.success("已为您开启自动实盘和自动更新数据")
-		} else {
-			await handleToggleAutoRocket(false, false, true)
-		}
-
 		// -- 清理实时市场数据，这个虽然useMarket的过程中会清理，但是这里是为了保险起见，初始化时再清理一次
 		// await cleanMarketData()
-		await Promise.all([syncSelectStgList(), syncFusion()])
+		await Promise.all([syncSelectStgList(), syncFusion(), initAutoLauncher()])
 	})
 
 	// -- 更新效果

@@ -16,23 +16,20 @@ import {
 	spawn,
 } from "node:child_process"
 import fs from "node:fs"
-import { updateCore, updateFuelCore } from "@/main/core/runpy.js"
+import { updateKernal } from "@/main/core/runpy.js"
 import { userStore } from "@/main/lib/userStore.js"
 import store, { CONFIG_PATH, ROCKET_STR_INFO_PATH } from "@/main/store/index.js"
 import {
-	isAquaCoreRunning,
-	isFuelCoreRunning,
+	isKernalRunning,
 	isPidRunning,
-	isRocketCoreRunning,
-	isZeusCoreRunning,
-	killCoreByForce,
+	killKernalByForce,
 } from "@/main/utils/tools.js"
 import logger from "@/main/utils/wiston.js"
 import { platform } from "@electron-toolkit/utils"
 import dayjs from "dayjs"
 import iconv from "iconv-lite"
 import { isUndefined } from "lodash-es"
-import { getBinPath } from "../utils/common.js"
+import { getKernalPath } from "../utils/common.js"
 import windowManager from "./WindowManager.js"
 
 export class ProcessManage {
@@ -104,7 +101,9 @@ export class ProcessManage {
 			} finally {
 				// 删除临时文件夹
 				this.processes.delete(childProcess.pid!)
-				logger.info(`删除之后的processes[${JSON.stringify(this.processes)}]`)
+				logger.info(
+					`[${kernel}] 删除之后的processes:${JSON.stringify(this.processes)}`,
+				)
 			}
 		})
 		// console.log("44444")
@@ -141,16 +140,16 @@ export class ProcessManage {
 			console.log("1111111")
 
 			if (action.action === "自动更新所有数据") {
-				await killCoreByForce("fuel")
+				await killKernalByForce("fuel")
 			}
 			if (action.kernel === "aqua") {
-				await killCoreByForce("aqua")
+				await killKernalByForce("aqua")
 			}
 			if (action.kernel === "zeus") {
-				await killCoreByForce("zeus")
+				await killKernalByForce("zeus")
 			}
 			if (action.action === "启动 rocket") {
-				await killCoreByForce("rocket")
+				await killKernalByForce("rocket")
 			}
 
 			console.log("22222")
@@ -221,17 +220,13 @@ export const execBin = async (
 		}
 
 		// -- 根据指定的内核选择相应的执行文件路径
-		const binPath = await getBinPath(kernel)
-		const isBinExist = fs.existsSync(binPath)
+		const binPath = await getKernalPath(kernel)
+		const isKernalExist = fs.existsSync(binPath)
 
-		if (!isBinExist) {
+		if (!isKernalExist) {
 			logger.warn(`[exec-${kernel}] 内核不存在，下载中`)
 			try {
-				if (kernel === "fuel") {
-					await updateFuelCore(true)
-				} else {
-					await updateCore(kernel, true)
-				}
+				await updateKernal(kernel)
 			} catch (e) {
 				logger.error(
 					`[exec-${kernel}] 内核更新失败: ${JSON.stringify(e, null, 2)}`,
@@ -239,10 +234,10 @@ export const execBin = async (
 			}
 		}
 
-		const fuelRunning = await isFuelCoreRunning()
-		const aquaRunning = await isAquaCoreRunning()
-		const rocketRunning = await isRocketCoreRunning()
-		const zeusRunning = await isZeusCoreRunning()
+		const fuelRunning = await isKernalRunning("fuel")
+		const aquaRunning = await isKernalRunning("aqua")
+		const zeusRunning = await isKernalRunning("zeus")
+		const rocketRunning = await isKernalRunning("rocket", true)
 		if (platform.isMacOS) exec(`chmod +x ${binPath}`)
 
 		logger.info(`[exec-${kernel}] 内核路径: ${binPath}`)

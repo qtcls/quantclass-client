@@ -12,10 +12,6 @@ import path from "node:path"
 import { app } from "electron"
 
 export const CONFIG = {
-	LOCK_FILE_NAME: "fuel.lock",
-	UPDATE_ROCKET_LOCK_FILE_NAME: "update_rocket.lock",
-	UPDATE_AQUA_LOCK_FILE_NAME: "update_aqua.lock",
-	UPDATE_FUEL_LOCK_FILE_NAME: "update_fuel.lock",
 	DEFAULT_ALL_DATA_PATH: path.join(
 		app.getPath("home"),
 		"quantclass-data-folder",

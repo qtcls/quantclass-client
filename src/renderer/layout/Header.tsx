@@ -22,6 +22,7 @@ import {
 	HOME_PAGE,
 	REAL_TRADING_SECTION_PAGE,
 	REAL_TRADING_TAB_NAME,
+	SETTINGS_PAGE,
 	TRADING_MAIN_PAGE,
 	isWindows,
 } from "@/renderer/constant"
@@ -30,9 +31,9 @@ import { useRealTradingRole } from "@/renderer/hooks/useRealTradingRole"
 import { SettingsGearIcon } from "@/renderer/icons/SettingsGearIcon"
 import { QuickCommand } from "@/renderer/layout/QuickCommand"
 import { QuickSearchInput } from "@/renderer/layout/QuickSearchInput"
-import { activeTabAtom, isShowAboutAtom } from "@/renderer/store"
+import { activeTabAtom } from "@/renderer/store"
 import { useUpdateEffect } from "etc-hooks"
-import { useAtom, useSetAtom } from "jotai"
+import { useAtom } from "jotai"
 import {
 	AudioWaveform,
 	GalleryVerticalEnd,
@@ -82,7 +83,6 @@ export const _SidebarHeader = () => {
 	const hasRealTradingAccess = useRealTradingRole()
 	const navigate = useNavigate()
 	const [isHovered, setIsHovered] = useState<boolean>(false)
-	const setIsShowAbout = useSetAtom(isShowAboutAtom)
 	const [_, setActiveTab] = useAtom(activeTabAtom)
 
 	const Plates = hasRealTradingAccess
@@ -103,7 +103,7 @@ export const _SidebarHeader = () => {
 		...Object.values(Plates).map((plate, index) =>
 			generateHotkey(plate, index),
 		),
-		["mod+,", () => setIsShowAbout((prev) => !prev)],
+		["mod+,", () => navigate(SETTINGS_PAGE)],
 	]
 
 	useHotkeys(hotKeys)
@@ -129,7 +129,7 @@ export const _SidebarHeader = () => {
 					onMouseLeave={() => setIsHovered(false)}
 				>
 					<SidebarMenuButton
-						onClick={() => setIsShowAbout((prev) => !prev)}
+						onClick={() => navigate(SETTINGS_PAGE)}
 						className="group"
 					>
 						<SettingsGearIcon forceAnimate={isHovered} />
