@@ -1,9 +1,5 @@
 import RebTimeConfigModal from "@/renderer/components/RebTimeConfigModal"
 import {
-	MemberPromoBanner,
-	MemberPromoDialog,
-} from "@/renderer/components/member-promo"
-import {
 	Accordion,
 	AccordionContent,
 	AccordionItem,
@@ -33,8 +29,6 @@ import type {
 } from "@/renderer/page/strategy/types"
 import { SelectStgFormSchema } from "@/renderer/schemas/strategy"
 import { rebTimeConfigAtom } from "@/renderer/store/storage"
-import { userAtom } from "@/renderer/store/user"
-import { checkPermission } from "@/shared/lib/permission"
 import { Input } from "@heroui/input"
 import { Select, SelectItem, SelectSection } from "@heroui/select"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -89,16 +83,7 @@ export function SelectStgForm({
 	const [saving, setSaving] = useState(false)
 	const [tabValue, setTabValue] = useState("开仓") //开仓 离场  --择时
 	const [rebTimeConfigModalOpen, setRebTimeConfigModalOpen] = useState(false)
-	const [memberPromoOpen, setMemberPromoOpen] = useState(false)
-	const [memberPromoFeature, setMemberPromoFeature] = useState("分享会专享功能")
-
-	function openMemberPromo(featureName: string) {
-		setMemberPromoFeature(featureName)
-		setMemberPromoOpen(true)
-	}
 	const rebTimeConfig = useAtomValue(rebTimeConfigAtom)
-	const { permissions } = useAtomValue(userAtom)
-	const isMember = checkPermission(permissions, "isMember")
 	const rebalanceTime = form.watch("rebalance_time") ?? "close-open"
 
 	// 初始化 signalTime 状态
@@ -246,26 +231,24 @@ export function SelectStgForm({
 						className="flex flex-col gap-4 overflow-auto min-h-[250px] max-h-[550px] p-4"
 						style={{ height: "calc(100vh * 0.6)" }}
 					>
-						{isMember && (
-							<FormField
-								control={form.control}
-								name="remark_name"
-								render={({ field }) => (
-									<FormItem>
-										<FormControl>
-											<Input
-												{...field}
-												value={field.value ?? ""}
-												label="策略标识"
-												variant="bordered"
-												placeholder="输入策略唯一标识"
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-						)}
+						<FormField
+							control={form.control}
+							name="remark_name"
+							render={({ field }) => (
+								<FormItem>
+									<FormControl>
+										<Input
+											{...field}
+											value={field.value ?? ""}
+											label="策略标识"
+											variant="bordered"
+											placeholder="输入策略唯一标识"
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
 						<FormField
 							control={form.control}
 							name="select_num"
@@ -301,9 +284,7 @@ export function SelectStgForm({
 											const new_value = e.target.value
 											if (!new_value) return
 
-											if (isMember) {
-												form.setValue("offset_list", "0")
-											}
+											form.setValue("offset_list", "0")
 											field.onChange(e)
 										}}
 										label="持仓周期"
@@ -329,10 +310,9 @@ export function SelectStgForm({
 								</FormItem>
 							)}
 						/>
-						{isMember && (
-							<FormField
-								control={form.control}
-								name="offset_list"
+						<FormField
+							control={form.control}
+							name="offset_list"
 								render={({ field, formState }) => (
 									<FormItem>
 										<FormControl>
@@ -355,11 +335,9 @@ export function SelectStgForm({
 									</FormItem>
 								)}
 							/>
-						)}
-						{isMember && (
-							<FormField
-								control={form.control}
-								name="scalein_targets"
+						<FormField
+							control={form.control}
+							name="scalein_targets"
 								render={({ field }) => (
 									<FormItem className="border-2 rounded-md px-3 py-2">
 										<div className="space-y-1 ">
@@ -377,7 +355,6 @@ export function SelectStgForm({
 									</FormItem>
 								)}
 							/>
-						)}
 						<FormField
 							control={form.control}
 							name="rebalance_time"
@@ -587,10 +564,9 @@ export function SelectStgForm({
 								</FormItem>
 							)}
 						/>
-						{isMember && (
-							<FormField
-								control={form.control}
-								name="filter_list_post"
+						<FormField
+							control={form.control}
+							name="filter_list_post"
 								render={({ field }) => (
 									<FormItem className={cn("flex flex-col px-1")}>
 										<FormLabel className="flex items-center gap-1">
@@ -660,11 +636,9 @@ export function SelectStgForm({
 									</FormItem>
 								)}
 							/>
-						)}
-						{isMember ? (
-							<>
-								<hr />
-								<div className="border-1 border-primary p-2 rounded-lg flex flex-col gap-2">
+						<>
+							<hr />
+							<div className="border-1 border-primary p-2 rounded-lg flex flex-col gap-2">
 									<Tabs
 										value={tabValue}
 										onValueChange={(value) => setTabValue(value)}
@@ -861,19 +835,9 @@ export function SelectStgForm({
 									)}
 								</div>
 							</>
-						) : (
-							<>
-								<hr />
-								<MemberPromoBanner
-									featureName="盘中择时"
-									onLearnMore={() => openMemberPromo("盘中择时")}
-								/>
-							</>
-						)}
-						{isMember ? (
-							<FormField
-								control={form.control}
-								name="cross_sections"
+						<FormField
+							control={form.control}
+							name="cross_sections"
 								render={({ field }) => (
 									<FormItem className={cn("flex flex-col")}>
 										<div className="rounded-lg border  ">
@@ -1056,19 +1020,9 @@ export function SelectStgForm({
 									</FormItem>
 								)}
 							/>
-						) : (
-							<>
-								<hr />
-								<MemberPromoBanner
-									featureName="截面因子"
-									onLearnMore={() => openMemberPromo("截面因子")}
-								/>
-							</>
-						)}
-						{isMember ? (
-							<FormField
-								control={form.control}
-								name="stock_timing_list"
+						<FormField
+							control={form.control}
+							name="stock_timing_list"
 								render={({ field }) => (
 									<FormItem className={cn("flex flex-col")}>
 										<div className="rounded-lg border  ">
@@ -1324,12 +1278,6 @@ export function SelectStgForm({
 									</FormItem>
 								)}
 							/>
-						) : (
-							<MemberPromoBanner
-								featureName="个股择时"
-								onLearnMore={() => openMemberPromo("个股择时")}
-							/>
-						)}
 						<div className="flex flex-col gap-3 bg-gray-100 border p-2 rounded-lg dark:bg-black">
 							<h3 className="text-sm text-warning-600 dark:text-warning flex items-center gap-1">
 								<Biohazard className="size-4 mr-1 font-bold" />
@@ -1453,11 +1401,6 @@ export function SelectStgForm({
 					</Button>
 				</CardFooter>
 			</form>
-			<MemberPromoDialog
-				open={memberPromoOpen}
-				onOpenChange={setMemberPromoOpen}
-				featureName={memberPromoFeature}
-			/>
 			<RebTimeConfigModal
 				open={rebTimeConfigModalOpen}
 				onOpenChange={setRebTimeConfigModalOpen}
