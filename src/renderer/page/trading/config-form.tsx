@@ -890,11 +890,11 @@ export function TradingConfigForm({ onGoToQmt }: TradingConfigFormProps) {
 													<div className="space-y-1.5">
 														<p>
 															1.
-															miniQMT：一直在用的稳定模式。如果目前没有问题，可以继续使用，不必迁移。
+															miniQMT：qmt量化常用模式，如果券商没停，就没必要切换到其它模式。
 														</p>
 														<p>
-															2. 大QMT：mini
-															用不了时的备选方案。拉取实时数据可能会偏慢。
+															2.
+															大QMT：基于论坛websocket方案，提供的【大QMT版】交易模式。
 														</p>
 													</div>
 												}
