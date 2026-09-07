@@ -24,6 +24,7 @@ export type RealMarketConfigType = {
 	qmt_path: string // QMT 安装路径
 	account_id: string // 账户号
 	qmt_port: string // QMT 端口号
+	qmt_mode: "mini_qmt" | "qmt" // QMT 模式：mini_qmt 默认，qmt 大 QMT
 	message_robot_url: string // 消息机器人 URL
 
 	// -- 选股相关

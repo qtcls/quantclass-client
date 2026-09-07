@@ -154,6 +154,7 @@ export const realMarketConfigSchemaAtom = atomWithStorage<
 		qmt_path: "",
 		account_id: "",
 		qmt_port: "58610",
+		qmt_mode: "mini_qmt",
 		message_robot_url: "",
 		filter_kcb: "1",
 		filter_cyb: "1",
