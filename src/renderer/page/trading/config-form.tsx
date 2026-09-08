@@ -173,10 +173,6 @@ export function TradingConfigForm({ onGoToQmt }: TradingConfigFormProps) {
 	const [showCiccNotice, setShowCiccNotice] = useState(false)
 	const [factorCacheConfirmOpen, setFactorCacheConfirmOpen] = useState(false)
 	const [bigQmtConfirmOpen, setBigQmtConfirmOpen] = useState(false)
-	const [hasConfirmedBigQmtAgreement, setHasConfirmedBigQmtAgreement] =
-		useState(() =>
-			hasBigQmtWsConfig(realMarketConfig.ws_host, realMarketConfig.ws_port),
-		)
 
 	const isCiccBroker =
 		getBrokerNameByAccountId(realMarketConfig.account_id ?? "") === "中金"
@@ -229,7 +225,6 @@ export function TradingConfigForm({ onGoToQmt }: TradingConfigFormProps) {
 	const wsPort = qmtForm.watch("ws_port")
 	const isBigQmtMode = qmtMode === "qmt"
 	const hasConfiguredBigQmtWs = hasBigQmtWsConfig(wsHost, wsPort)
-	const canEditWsFields = hasConfiguredBigQmtWs || hasConfirmedBigQmtAgreement
 	const isQmtCiccBroker =
 		getBrokerNameByAccountId(qmtAccountId ?? "") === "中金"
 
@@ -241,12 +236,6 @@ export function TradingConfigForm({ onGoToQmt }: TradingConfigFormProps) {
 		qmtForm.clearErrors(["ws_host", "ws_port"])
 		void qmtForm.trigger("qmt_path")
 	}, [isBigQmtMode, qmtForm])
-
-	useEffect(() => {
-		if (hasBigQmtWsConfig(realMarketConfig.ws_host, realMarketConfig.ws_port)) {
-			setHasConfirmedBigQmtAgreement(true)
-		}
-	}, [realMarketConfig.ws_host, realMarketConfig.ws_port])
 
 	useEffect(() => {
 		if (isCiccBroker) {
@@ -997,60 +986,47 @@ export function TradingConfigForm({ onGoToQmt }: TradingConfigFormProps) {
 								)}
 							/>
 
-							<FormField
-								name="qmt_path"
-								control={qmtForm.control}
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel className="flex items-center gap-2 flex-wrap">
-											<span>QMT 安装路径</span>
-											{!isBigQmtMode && (
+							{!isBigQmtMode && (
+								<FormField
+									name="qmt_path"
+									control={qmtForm.control}
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel className="flex items-center gap-2 flex-wrap">
+												<span>QMT 安装路径</span>
 												<span className="text-destructive">*</span>
-											)}
-											{!isBigQmtMode && (
 												<Badge className="font-semibold">
 													{"<QMT 路径>/userdata_mini"}
 												</Badge>
-											)}
-											{isBigQmtMode && (
-												<Badge className="font-semibold">
-													大 QMT 方案无需配置
-												</Badge>
-											)}
-										</FormLabel>
-										<div className="flex w-full gap-2">
-											<FormControl className="flex-grow">
-												<Input
-													{...field}
-													readOnly
-													disabled={!user?.isMember || isBigQmtMode}
-													onClick={() => {
-														if (!isBigQmtMode) handleFolderSelect.run()
+											</FormLabel>
+											<div className="flex w-full gap-2">
+												<FormControl className="flex-grow">
+													<Input
+														{...field}
+														readOnly
+														disabled={!user?.isMember}
+														onClick={() => handleFolderSelect.run()}
+														placeholder="请填写 qmt 安装路径..."
+													/>
+												</FormControl>
+												<Button
+													size="sm"
+													variant="outline"
+													disabled={!user?.isMember}
+													onClick={(e) => {
+														e.preventDefault()
+														handleFolderSelect.run()
 													}}
-													placeholder={
-														isBigQmtMode
-															? "大 QMT 模式无需填写安装路径"
-															: "请填写 qmt 安装路径..."
-													}
-												/>
-											</FormControl>
-											<Button
-												size="sm"
-												variant="outline"
-												disabled={!user?.isMember || isBigQmtMode}
-												onClick={(e) => {
-													e.preventDefault()
-													if (!isBigQmtMode) handleFolderSelect.run()
-												}}
-											>
-												<Folder className="mr-2 h-4 w-4" />
-												<span>选择文件夹</span>
-											</Button>
-										</div>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+												>
+													<Folder className="mr-2 h-4 w-4" />
+													<span>选择文件夹</span>
+												</Button>
+											</div>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							)}
 
 							<FormField
 								name="account_id"
@@ -1078,23 +1054,6 @@ export function TradingConfigForm({ onGoToQmt }: TradingConfigFormProps) {
 
 							{isBigQmtMode && (
 								<>
-									{!canEditWsFields && (
-										<div className="col-span-2 flex flex-wrap items-center justify-between gap-2 rounded-md border bg-muted/30 px-3 py-2">
-											<p className="text-sm text-muted-foreground">
-												请先阅读大 QMT 切换说明后，再编辑 websocket 配置
-											</p>
-											<Button
-												type="button"
-												size="sm"
-												variant="outline"
-												disabled={!user?.isMember}
-												onClick={() => setBigQmtConfirmOpen(true)}
-											>
-												阅读切换说明
-											</Button>
-										</div>
-									)}
-
 									<FormField
 										name="ws_host"
 										control={qmtForm.control}
@@ -1104,7 +1063,7 @@ export function TradingConfigForm({ onGoToQmt }: TradingConfigFormProps) {
 												<FormControl>
 													<Input
 														{...field}
-														disabled={!user?.isMember || !canEditWsFields}
+														disabled={!user?.isMember}
 														className="w-full"
 														placeholder="127.0.0.1"
 													/>
@@ -1123,7 +1082,7 @@ export function TradingConfigForm({ onGoToQmt }: TradingConfigFormProps) {
 												<FormControl>
 													<Input
 														{...field}
-														disabled={!user?.isMember || !canEditWsFields}
+														disabled={!user?.isMember}
 														className="w-full"
 														placeholder="16666"
 													/>
@@ -1190,7 +1149,6 @@ export function TradingConfigForm({ onGoToQmt }: TradingConfigFormProps) {
 				open={bigQmtConfirmOpen}
 				onOpenChange={setBigQmtConfirmOpen}
 				onConfirm={() => {
-					setHasConfirmedBigQmtAgreement(true)
 					qmtForm.setValue("qmt_mode", "qmt")
 					setBigQmtConfirmOpen(false)
 				}}
