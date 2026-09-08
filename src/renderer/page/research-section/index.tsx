@@ -1,25 +1,58 @@
 import { MemberPromoGate } from "@/renderer/components/member-promo"
-import { SectionPage } from "@/renderer/components/section-tabs"
+import {
+	SectionPage,
+	type SectionTabItem,
+} from "@/renderer/components/section-tabs"
 import ResearchFrameworkSourcePage from "@/renderer/page/research/basic-code"
+import ResearchBasicCourseFrameworkPage from "@/renderer/page/research/basic-course-code"
 import ResearchStrategyLibraryPage from "@/renderer/page/research/strategies"
-import type { FC } from "react"
+import { userAtom } from "@/renderer/store/user"
+import { checkPermission } from "@/shared/lib/permission"
+import { useAtomValue } from "jotai"
+import { type FC, useMemo } from "react"
 
-const TABS = [
+const MEMBER_TABS = [
 	{ key: "strategy_library", label: "精心随机策略库" },
 	{ key: "framework_source", label: "框架源码" },
 ] as const
 
-type TabKey = (typeof TABS)[number]["key"]
+const BASIC_COURSE_TAB = {
+	key: "basic_course_framework",
+	label: "基础课程框架源码",
+} as const
+
+type TabKey =
+	| (typeof MEMBER_TABS)[number]["key"]
+	| typeof BASIC_COURSE_TAB.key
 
 const ResearchSectionPage: FC = () => {
+	const { permissions } = useAtomValue(userAtom)
+	const isMember = checkPermission(permissions, "isMember")
+
+	const tabs: readonly SectionTabItem<TabKey>[] = useMemo(
+		() => (isMember ? MEMBER_TABS : [BASIC_COURSE_TAB, ...MEMBER_TABS]),
+		[isMember],
+	)
+
 	return (
-		<SectionPage tabs={TABS} defaultTab="strategy_library">
-			{(activeTab: TabKey) => (
-				<MemberPromoGate featureName="投研中心" className="h-full">
-					{activeTab === "strategy_library" && <ResearchStrategyLibraryPage />}
-					{activeTab === "framework_source" && <ResearchFrameworkSourcePage />}
-				</MemberPromoGate>
-			)}
+		<SectionPage
+			tabs={tabs}
+			defaultTab={isMember ? "strategy_library" : BASIC_COURSE_TAB.key}
+		>
+			{(activeTab: TabKey) =>
+				activeTab === "basic_course_framework" ? (
+					<ResearchBasicCourseFrameworkPage />
+				) : (
+					<MemberPromoGate featureName="投研中心" className="h-full">
+						{activeTab === "strategy_library" && (
+							<ResearchStrategyLibraryPage />
+						)}
+						{activeTab === "framework_source" && (
+							<ResearchFrameworkSourcePage />
+						)}
+					</MemberPromoGate>
+				)
+			}
 		</SectionPage>
 	)
 }

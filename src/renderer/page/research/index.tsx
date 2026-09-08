@@ -89,6 +89,8 @@ export interface ResearchCenterPageProps {
 	title: string
 	description?: string
 	downloadActionLabel?: string
+	/** 限定拉取/展示的课程，默认分享会年份。基础课程传 `["stock"]` */
+	courseNames?: readonly string[]
 	directDownloadConfig?: ResearchCenterDirectDownloadConfig
 	className?: string
 	extraActions?: (context: {
@@ -104,11 +106,19 @@ export interface ResearchCenterPageProps {
 const YEAR_OPTIONS = ["fen-2026", "fen-2025", "fen-2024", "fen-2023"] as const
 type YearOption = (typeof YEAR_OPTIONS)[number]
 
+export const BASIC_COURSE_NAME = "stock"
+export const BASIC_COURSE_NAMES = [BASIC_COURSE_NAME] as const
+
 const YEAR_LABEL_MAP: Record<YearOption, string> = {
 	"fen-2026": "2026 分享会",
 	"fen-2025": "2025 分享会",
 	"fen-2024": "2024 分享会",
 	"fen-2023": "2023 分享会",
+}
+
+const COURSE_LABEL_MAP: Record<string, string> = {
+	...YEAR_LABEL_MAP,
+	[BASIC_COURSE_NAME]: "基础课程",
 }
 
 const API_FN_MAP: Record<
@@ -179,7 +189,13 @@ function hasDownloadPermission(
 }
 
 function getCourseLabel(courseName: string): string {
-	return YEAR_LABEL_MAP[courseName as YearOption] ?? courseName
+	return COURSE_LABEL_MAP[courseName] ?? courseName
+}
+
+function getCourseColumnLabel(courseNames: readonly string[]): string {
+	return courseNames.length === 1 && courseNames[0] === BASIC_COURSE_NAME
+		? "课程"
+		: "分享会"
 }
 
 function formatDownloadTime(timestamp: number): string {
@@ -220,6 +236,7 @@ export function ResearchCenterPage({
 	title,
 	description,
 	downloadActionLabel: customDownloadActionLabel,
+	courseNames = YEAR_OPTIONS,
 	directDownloadConfig,
 	className,
 	extraActions,
@@ -255,9 +272,15 @@ export function ResearchCenterPage({
 	const localRecords = useMemo(
 		() =>
 			(repoRecords ?? [])
-				.filter((r) => r.success && r.apiType === apiType && r.folderName)
+				.filter(
+					(r) =>
+						r.success &&
+						r.apiType === apiType &&
+						r.folderName &&
+						courseNames.includes(r.courseName),
+				)
 				.sort((a, b) => b.updatedAt - a.updatedAt),
-		[repoRecords, apiType],
+		[repoRecords, apiType, courseNames],
 	)
 
 	const handleOpenDownloadFolder = async () => {
@@ -400,6 +423,7 @@ export function ResearchCenterPage({
 				) : (
 					<LocalRecordsTable
 						apiType={apiType}
+						courseNames={courseNames}
 						records={localRecords}
 						repoRecords={repoRecords}
 						onOpenFolder={handleOpenRecordFolder}
@@ -413,6 +437,7 @@ export function ResearchCenterPage({
 					open={downloadOpen}
 					onOpenChange={setDownloadOpen}
 					apiType={apiType}
+					courseNames={courseNames}
 					dialogTitle={downloadActionLabel}
 					repoRecords={repoRecords}
 					userPermissions={permissions}
@@ -424,6 +449,7 @@ export function ResearchCenterPage({
 
 interface LocalRecordsTableProps {
 	apiType: RepoApiType
+	courseNames: readonly string[]
 	records: RepoDownloadRecord[]
 	repoRecords: RepoDownloadRecord[] | undefined
 	onOpenFolder: (record: RepoDownloadRecord) => void
@@ -435,11 +461,13 @@ interface LocalRecordsTableProps {
 
 function LocalRecordsTable({
 	apiType,
+	courseNames,
 	records,
 	repoRecords,
 	onOpenFolder,
 	recordActions,
 }: LocalRecordsTableProps) {
+	const courseColumnLabel = getCourseColumnLabel(courseNames)
 	const queryClient = useQueryClient()
 	const [deleteRecord, setDeleteRecord] = useState<RepoDownloadRecord | null>(
 		null,
@@ -450,10 +478,8 @@ function LocalRecordsTable({
 		const years = [
 			...new Set(records.map((record) => record.courseName).filter(Boolean)),
 		]
-		return years.filter((year): year is YearOption =>
-			YEAR_OPTIONS.includes(year as YearOption),
-		)
-	}, [records])
+		return years.filter((year) => courseNames.includes(year))
+	}, [records, courseNames])
 
 	const remoteQueries = useQueries({
 		queries: courseYears.map((year) => ({
@@ -500,7 +526,7 @@ function LocalRecordsTable({
 							<TableHead className="pl-4 h-11 min-w-[12rem]">版本</TableHead>
 							<TableHead className="h-11 min-w-[10rem]">名称</TableHead>
 							<TableHead className="h-11 whitespace-nowrap w-[7.5rem]">
-								分享会
+								{courseColumnLabel}
 							</TableHead>
 							<TableHead className="h-11 whitespace-nowrap w-[11rem]">
 								更新时间
@@ -662,6 +688,7 @@ interface DownloadVersionsDialogProps {
 	open: boolean
 	onOpenChange: (open: boolean) => void
 	apiType: RepoApiType
+	courseNames: readonly string[]
 	dialogTitle: string
 	repoRecords: RepoDownloadRecord[] | undefined
 	userPermissions: string[]
@@ -671,12 +698,14 @@ function DownloadVersionsDialog({
 	open,
 	onOpenChange,
 	apiType,
+	courseNames,
 	dialogTitle,
 	repoRecords,
 	userPermissions,
 }: DownloadVersionsDialogProps) {
-	const [activeYear, setActiveYear] = useState<YearOption>(YEAR_OPTIONS[0])
+	const [activeYear, setActiveYear] = useState(courseNames[0] ?? YEAR_OPTIONS[0])
 	const [selectedItemId, setSelectedItemId] = useState<string | null>(null)
+	const showCourseTabs = courseNames.length > 1
 
 	const { data, isLoading, isFetching, isError, error } = useQuery({
 		queryKey: ["research-center", apiType, activeYear],
@@ -718,23 +747,29 @@ function DownloadVersionsDialog({
 					</DialogDescription>
 				</DialogHeader>
 
-				<div className="px-6 pb-3 shrink-0 flex items-center justify-between gap-3">
-					<Tabs
-						value={activeYear}
-						onValueChange={(v) => setActiveYear(v as YearOption)}
-					>
-						<TabsList>
-							{YEAR_OPTIONS.map((y) => (
-								<TabsTrigger key={y} value={y}>
-									{YEAR_LABEL_MAP[y]}
-								</TabsTrigger>
-							))}
-						</TabsList>
-					</Tabs>
-					{isFetching && !isLoading ? (
-						<span className="text-xs text-muted-foreground">刷新中...</span>
-					) : null}
-				</div>
+				{(showCourseTabs || (isFetching && !isLoading)) && (
+					<div className="px-6 pb-3 shrink-0 flex items-center justify-between gap-3">
+						{showCourseTabs ? (
+							<Tabs
+								value={activeYear}
+								onValueChange={(v) => setActiveYear(v)}
+							>
+								<TabsList>
+									{courseNames.map((y) => (
+										<TabsTrigger key={y} value={y}>
+											{getCourseLabel(y)}
+										</TabsTrigger>
+									))}
+								</TabsList>
+							</Tabs>
+						) : (
+							<div />
+						)}
+						{isFetching && !isLoading ? (
+							<span className="text-xs text-muted-foreground">刷新中...</span>
+						) : null}
+					</div>
+				)}
 
 				<div className="flex flex-1 min-h-0 border-t">
 					<ScrollArea className="w-56 shrink-0 border-r">
