@@ -216,7 +216,7 @@ const StgImportButton = forwardRef<StgImportHandle>((_props, ref) => {
 								<span className="mr-1">✅</span>
 								{isMember
 									? "选股策略回测框架𝓟𝓻𝓸（select-stock-pro）"
-									: "选股策略回测框架（select-stock）"}
+									: "选股策略回测框架（stock-quant）"}
 							</li>
 							{isMember ? (
 								<li className="list-item">
@@ -228,11 +228,11 @@ const StgImportButton = forwardRef<StgImportHandle>((_props, ref) => {
 							) : (
 								<li className="list-item">
 									<span className="mr-1">✅</span>
-									基础课程策略库下载的
+									回测网站QuantPal导出的
 									<span className="font-bold text-warning">选股类</span>、
 									<span className="font-bold text-warning">择时类</span>、
 									<span className="font-bold text-warning">轮动类</span>
-									精心随机策略
+									策略
 								</li>
 							)}
 							{isMember && (
