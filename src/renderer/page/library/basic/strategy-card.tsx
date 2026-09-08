@@ -281,9 +281,7 @@ function SelectExclusiveGrid({
 					className="size-3.5 shrink-0 text-violet-500"
 					strokeWidth={2}
 				/>
-				<span
-					className={cn("text-[11px] font-medium", MEMBER_RAINBOW_TEXT)}
-				>
+				<span className={cn("text-[11px] font-medium", MEMBER_RAINBOW_TEXT)}>
 					分享会专属功能
 				</span>
 				<span className="ml-auto inline-flex items-center gap-1 text-[10px] font-medium text-blue-900/80 dark:text-blue-200/80">
@@ -297,10 +295,7 @@ function SelectExclusiveGrid({
 						key={field.featureName}
 						className="flex flex-col items-start gap-2 min-w-0"
 					>
-						<field.icon
-							className="size-5 text-violet-500"
-							strokeWidth={1.6}
-						/>
+						<field.icon className="size-5 text-violet-500" strokeWidth={1.6} />
 						<span
 							className={cn(
 								"text-xs font-semibold leading-snug",
@@ -513,9 +508,7 @@ export function StrategyCard({
 					</div>
 					<p className="text-xs text-muted-foreground">{subtitle}</p>
 					<span className="mt-0.5 inline-flex items-center gap-1.5 rounded-full bg-black/[0.04] px-2.5 py-[3px] text-xs font-medium text-foreground/70 dark:bg-white/10 dark:text-foreground/80">
-						<span
-							className={cn("size-2 rounded-full", TYPE_DOT_CLASS[type])}
-						/>
+						<span className={cn("size-2 rounded-full", TYPE_DOT_CLASS[type])} />
 						{typeLabel}
 					</span>
 				</div>
@@ -572,12 +565,7 @@ export function StrategyCard({
 				{/* 区域二：核心配置 */}
 				<div>
 					{type === "select" ? (
-						<SelectExclusiveGrid
-							onSelect={(featureName) => {
-								setPromoFeature(featureName)
-								setPromoOpen(true)
-							}}
-						/>
+						<SelectFooter strategy={basicStrategy} />
 					) : type === "timing" ? (
 						<TimingSpecGrid timing={basicStrategy.timing} />
 					) : (
@@ -591,7 +579,12 @@ export function StrategyCard({
 						{/* 区域三：补充详情 */}
 						<div>
 							{type === "select" ? (
-								<SelectFooter strategy={basicStrategy} />
+								<SelectExclusiveGrid
+									onSelect={(featureName) => {
+										setPromoFeature(featureName)
+										setPromoOpen(true)
+									}}
+								/>
 							) : type === "timing" ? (
 								<TimingFooter strategy={basicStrategy} />
 							) : (

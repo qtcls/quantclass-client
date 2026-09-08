@@ -68,11 +68,8 @@ const StgImportButton = forwardRef<StgImportHandle>((_props, ref) => {
 	const setBacktestConfig = useSetAtom(backtestConfigAtom)
 	const setReTiming = useSetAtom(reTimingAtom)
 	const { isAutoRocket, handleToggleAutoRocket } = useToggleAutoRealTrading()
-	const {
-		resetSelectStgList,
-		addSelectStgList,
-		selectStgList,
-	} = useStrategyManager()
+	const { resetSelectStgList, addSelectStgList, selectStgList } =
+		useStrategyManager()
 	const { permissions } = useAtomValue(userAtom)
 	const isMember = checkPermission(permissions, "isMember")
 	const isAtStrategyLimit =
@@ -209,7 +206,7 @@ const StgImportButton = forwardRef<StgImportHandle>((_props, ref) => {
 				<DialogContent className="p-4">
 					<DialogHeader>
 						<DialogTitle className="flex items-center">
-							导入策略到策略库（选股）
+							{isMember ? "导入策略到策略库（选股）" : "导入策略到策略库"}
 						</DialogTitle>
 					</DialogHeader>
 					<div className="space-y-1">
@@ -217,22 +214,39 @@ const StgImportButton = forwardRef<StgImportHandle>((_props, ref) => {
 						<ul className="space-y-2">
 							<li className="list-item">
 								<span className="mr-1">✅</span>
-								选股策略回测框架𝓟𝓻𝓸（select-stock-pro）
+								{isMember
+									? "选股策略回测框架𝓟𝓻𝓸（select-stock-pro）"
+									: "选股策略回测框架（select-stock）"}
 							</li>
-							<li className="list-item">
-								<span className="mr-1">⚠️</span>
-								分享会策略库下载的
-								<span className="font-bold text-warning">选股类</span>
-								精心随机策略
-							</li>
-							<li className="list-item">
-								<span className="mr-1">🚫</span>
-								仓位管理策略回测框架（stock-position-mgmt）
-							</li>
-							<li className="list-item">
-								<span className="mr-1">🚫</span>
-								大A实盘选股框架𝓕𝓾𝓼𝓲𝓸𝓷（stock-position-mgmt-fusion）
-							</li>
+							{isMember ? (
+								<li className="list-item">
+									<span className="mr-1">⚠️</span>
+									分享会策略库下载的
+									<span className="font-bold text-warning">选股类</span>
+									精心随机策略
+								</li>
+							) : (
+								<li className="list-item">
+									<span className="mr-1">✅</span>
+									基础课程策略库下载的
+									<span className="font-bold text-warning">选股类</span>、
+									<span className="font-bold text-warning">择时类</span>、
+									<span className="font-bold text-warning">轮动类</span>
+									精心随机策略
+								</li>
+							)}
+							{isMember && (
+								<>
+									<li className="list-item">
+										<span className="mr-1">🚫</span>
+										仓位管理策略回测框架（stock-position-mgmt）
+									</li>
+									<li className="list-item">
+										<span className="mr-1">🚫</span>
+										大A实盘选股框架𝓕𝓾𝓼𝓲𝓸𝓷（stock-position-mgmt-fusion）
+									</li>
+								</>
+							)}
 						</ul>
 					</div>
 					<hr />

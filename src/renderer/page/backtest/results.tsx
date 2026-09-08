@@ -8,6 +8,7 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
+import BasicStrategyStatusChecklist from "@/renderer/components/BasicStrategyStatusChecklist"
 import StockTimingView from "@/renderer/components/StockTimingView"
 import StrategyStatusTimeline from "@/renderer/components/StrategyStatusTimeLine"
 import { Button } from "@/renderer/components/ui/button"
@@ -22,11 +23,13 @@ import {
 } from "@/renderer/page/backtest/context"
 import { csvFileNameAtom } from "@/renderer/store"
 import { backtestExecTimeAtom } from "@/renderer/store/backtest"
+import { userAtom } from "@/renderer/store/user"
 import type { LatestResultType, RunResultType } from "@/renderer/types/backtest"
 import {
 	openBacktestResultFolder,
 	openRealResultFolder,
 } from "@/renderer/utils"
+import { checkPermission } from "@/shared/lib/permission"
 import { Tab, Tabs } from "@heroui/tabs"
 import type { ColumnDef } from "@tanstack/react-table"
 import { useAtom, useAtomValue } from "jotai"
@@ -47,6 +50,8 @@ export function RunResultTable({ mode }: ResultTableProps) {
 	const [csvFileName, setCsvFileName] = useAtom(csvFileNameAtom)
 	const columns = useColumns(csvFileName, mode)
 	const execTime = useAtomValue(backtestExecTimeAtom)
+	const { permissions } = useAtomValue(userAtom)
+	const isMember = checkPermission(permissions, "isMember")
 
 	useEffect(() => {
 		if (mode === "backtest") {
@@ -65,12 +70,20 @@ export function RunResultTable({ mode }: ResultTableProps) {
 			{csvFileName === "策略实盘状态" ? (
 				<>
 					<ToolBar mode={mode} />
-					<div className="mt-2">
-						<StrategyStatusTimeline />
-					</div>
-					<div className="mt-2">
-						<StockTimingView />
-					</div>
+					{isMember ? (
+						<>
+							<div className="mt-2">
+								<StrategyStatusTimeline />
+							</div>
+							<div className="mt-2">
+								<StockTimingView />
+							</div>
+						</>
+					) : (
+						<div className="mt-2">
+							<BasicStrategyStatusChecklist />
+						</div>
+					)}
 				</>
 			) : (
 				<DataTable<RunResultType, unknown>
