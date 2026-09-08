@@ -8,6 +8,7 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
+import { BigQmtConfirmDialog } from "@/renderer/components/BigQmtConfirmDialog"
 import { CiccBseNoticeDialog } from "@/renderer/components/CiccBseNoticeDialog"
 import { ClearFactorCacheConfirmDialog } from "@/renderer/components/ClearFactorCacheConfirmDialog"
 import { PerformanceModeSelectTabs } from "@/renderer/components/select-tabs"
@@ -72,7 +73,13 @@ const QmtConfigFieldsSchema = z.object({
 	account_id: z.string().min(1, { message: "账户号未填写" }),
 	qmt_port: z.string().min(1, { message: "QMT 端口号未填写" }),
 	qmt_mode: z.enum(["mini_qmt", "qmt"]),
+	ws_host: z.string(),
+	ws_port: z.string(),
 })
+
+function hasBigQmtWsConfig(wsHost?: string, wsPort?: string) {
+	return !!wsHost?.trim() || !!wsPort?.trim()
+}
 
 function refineQmtPathRequired(
 	data: z.infer<typeof QmtConfigFieldsSchema>,
@@ -87,9 +94,34 @@ function refineQmtPathRequired(
 	}
 }
 
-export const QmtConfigSchema = QmtConfigFieldsSchema.superRefine(
-	refineQmtPathRequired,
-)
+function refineBigQmtWsOptional(
+	data: z.infer<typeof QmtConfigFieldsSchema>,
+	ctx: z.RefinementCtx,
+) {
+	if (data.qmt_mode !== "qmt") return
+
+	const wsPort = data.ws_port.trim()
+	if (!wsPort) return
+
+	const port = Number(wsPort)
+	if (!Number.isInteger(port) || port < 1 || port > 65535) {
+		ctx.addIssue({
+			code: z.ZodIssueCode.custom,
+			message: "websocket 端口号不合法",
+			path: ["ws_port"],
+		})
+	}
+}
+
+function refineQmtConfig(
+	data: z.infer<typeof QmtConfigFieldsSchema>,
+	ctx: z.RefinementCtx,
+) {
+	refineQmtPathRequired(data, ctx)
+	refineBigQmtWsOptional(data, ctx)
+}
+
+export const QmtConfigSchema = QmtConfigFieldsSchema.superRefine(refineQmtConfig)
 
 const RealMarketFormSchema = z.object({
 	date_start: z.date().optional(),
@@ -113,7 +145,7 @@ const RealMarketFormSchema = z.object({
 
 export const RealMarketConfigSchema = RealMarketFormSchema.merge(
 	QmtConfigFieldsSchema,
-).superRefine(refineQmtPathRequired)
+).superRefine(refineQmtConfig)
 
 type FormData = z.infer<typeof RealMarketFormSchema>
 type QmtFormData = z.infer<typeof QmtConfigSchema>
@@ -140,6 +172,11 @@ export function TradingConfigForm({ onGoToQmt }: TradingConfigFormProps) {
 	const [ciccDismissed, setCiccDismissed] = useAtom(ciccBseNoticeDismissedAtom)
 	const [showCiccNotice, setShowCiccNotice] = useState(false)
 	const [factorCacheConfirmOpen, setFactorCacheConfirmOpen] = useState(false)
+	const [bigQmtConfirmOpen, setBigQmtConfirmOpen] = useState(false)
+	const [hasConfirmedBigQmtAgreement, setHasConfirmedBigQmtAgreement] =
+		useState(() =>
+			hasBigQmtWsConfig(realMarketConfig.ws_host, realMarketConfig.ws_port),
+		)
 
 	const isCiccBroker =
 		getBrokerNameByAccountId(realMarketConfig.account_id ?? "") === "中金"
@@ -168,6 +205,8 @@ export function TradingConfigForm({ onGoToQmt }: TradingConfigFormProps) {
 			account_id: realMarketConfig.account_id ?? "",
 			qmt_port: realMarketConfig.qmt_port ?? "58610",
 			qmt_mode: realMarketConfig.qmt_mode ?? "mini_qmt",
+			ws_host: realMarketConfig.ws_host ?? "",
+			ws_port: realMarketConfig.ws_port ?? "",
 		}),
 		[realMarketConfig],
 	)
@@ -186,7 +225,11 @@ export function TradingConfigForm({ onGoToQmt }: TradingConfigFormProps) {
 
 	const qmtAccountId = qmtForm.watch("account_id")
 	const qmtMode = qmtForm.watch("qmt_mode")
+	const wsHost = qmtForm.watch("ws_host")
+	const wsPort = qmtForm.watch("ws_port")
 	const isBigQmtMode = qmtMode === "qmt"
+	const hasConfiguredBigQmtWs = hasBigQmtWsConfig(wsHost, wsPort)
+	const canEditWsFields = hasConfiguredBigQmtWs || hasConfirmedBigQmtAgreement
 	const isQmtCiccBroker =
 		getBrokerNameByAccountId(qmtAccountId ?? "") === "中金"
 
@@ -195,8 +238,15 @@ export function TradingConfigForm({ onGoToQmt }: TradingConfigFormProps) {
 			qmtForm.clearErrors("qmt_path")
 			return
 		}
+		qmtForm.clearErrors(["ws_host", "ws_port"])
 		void qmtForm.trigger("qmt_path")
 	}, [isBigQmtMode, qmtForm])
+
+	useEffect(() => {
+		if (hasBigQmtWsConfig(realMarketConfig.ws_host, realMarketConfig.ws_port)) {
+			setHasConfirmedBigQmtAgreement(true)
+		}
+	}, [realMarketConfig.ws_host, realMarketConfig.ws_port])
 
 	useEffect(() => {
 		if (isCiccBroker) {
@@ -232,6 +282,8 @@ export function TradingConfigForm({ onGoToQmt }: TradingConfigFormProps) {
 			account_id: values.account_id,
 			qmt_port: values.qmt_port,
 			qmt_mode: values.qmt_mode,
+			ws_host: values.ws_host,
+			ws_port: values.ws_port,
 			...(isQmtCiccBroker ? { filter_bj: true } : {}),
 		}
 
@@ -909,7 +961,13 @@ export function TradingConfigForm({ onGoToQmt }: TradingConfigFormProps) {
 											<RadioGroup
 												disabled={!user?.isMember}
 												value={field.value}
-												onValueChange={field.onChange}
+												onValueChange={(value) => {
+													if (value === "qmt" && !hasConfiguredBigQmtWs) {
+														setBigQmtConfirmOpen(true)
+														return
+													}
+													field.onChange(value)
+												}}
 												className="flex space-x-4"
 											>
 												<FormItem className="flex items-center space-x-1 space-y-0">
@@ -1018,6 +1076,65 @@ export function TradingConfigForm({ onGoToQmt }: TradingConfigFormProps) {
 								)}
 							/>
 
+							{isBigQmtMode && (
+								<>
+									{!canEditWsFields && (
+										<div className="col-span-2 flex flex-wrap items-center justify-between gap-2 rounded-md border bg-muted/30 px-3 py-2">
+											<p className="text-sm text-muted-foreground">
+												请先阅读大 QMT 切换说明后，再编辑 websocket 配置
+											</p>
+											<Button
+												type="button"
+												size="sm"
+												variant="outline"
+												disabled={!user?.isMember}
+												onClick={() => setBigQmtConfirmOpen(true)}
+											>
+												阅读切换说明
+											</Button>
+										</div>
+									)}
+
+									<FormField
+										name="ws_host"
+										control={qmtForm.control}
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>websocket主机地址</FormLabel>
+												<FormControl>
+													<Input
+														{...field}
+														disabled={!user?.isMember || !canEditWsFields}
+														className="w-full"
+														placeholder="127.0.0.1"
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+
+									<FormField
+										name="ws_port"
+										control={qmtForm.control}
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>websocket端口号</FormLabel>
+												<FormControl>
+													<Input
+														{...field}
+														disabled={!user?.isMember || !canEditWsFields}
+														className="w-full"
+														placeholder="16666"
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								</>
+							)}
+
 							<FormField
 								name="qmt_port"
 								control={qmtForm.control}
@@ -1068,6 +1185,15 @@ export function TradingConfigForm({ onGoToQmt }: TradingConfigFormProps) {
 				open={showCiccNotice}
 				onOpenChange={setShowCiccNotice}
 				onConfirm={() => setCiccDismissed(true)}
+			/>
+			<BigQmtConfirmDialog
+				open={bigQmtConfirmOpen}
+				onOpenChange={setBigQmtConfirmOpen}
+				onConfirm={() => {
+					setHasConfirmedBigQmtAgreement(true)
+					qmtForm.setValue("qmt_mode", "qmt")
+					setBigQmtConfirmOpen(false)
+				}}
 			/>
 		</>
 		// 		</ScrollArea>
