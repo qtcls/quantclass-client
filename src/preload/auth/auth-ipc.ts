@@ -8,8 +8,13 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
+import windowManager from "@/main/lib/WindowManager.js"
 import { tokenStore } from "@/main/lib/tokenStore.js"
-import { ipcMain } from "electron"
+import logger from "@/main/utils/wiston.js"
+import { PAYMENT_GATEWAY_URL } from "@/main/vars.js"
+import { ipcMain, shell } from "electron"
+
+const PAYMENT_CLIENT_WINDOW_ID = "payment-client"
 
 // -- 渲染端登录成功后把 access/refresh token 交给主进程统一管理
 function setTokensHandler(): void {
@@ -42,10 +47,65 @@ function logoutHandler(): void {
 	})
 }
 
+// -- 在内嵌 BrowserWindow 中打开支付平台页面
+function openPaymentClientPortalHandler(): void {
+	ipcMain.handle("auth:open-payment-client-portal", async () => {
+		const accessToken = await tokenStore.getAccessToken()
+		if (!accessToken) {
+			return { success: false, message: "请先登录" }
+		}
+
+		const url = `${PAYMENT_GATEWAY_URL.replace(/\/$/, "")}/client`
+		const extraHeaders = `Authorization: Bearer ${accessToken}\r\n`
+
+		try {
+			let win = windowManager.getWindowById(PAYMENT_CLIENT_WINDOW_ID)
+			if (win && !win.isDestroyed()) {
+				await win.loadURL(url, { extraHeaders })
+				if (win.isMinimized()) win.restore()
+				win.show()
+				win.focus()
+				return { success: true }
+			}
+
+			win = windowManager.createChildWindow(PAYMENT_CLIENT_WINDOW_ID, {
+				width: 960,
+				height: 720,
+				title: "支付中心",
+				webPreferences: {
+					preload: undefined,
+					nodeIntegration: false,
+					contextIsolation: true,
+					sandbox: true,
+					webSecurity: true,
+				},
+			})
+
+			win.webContents.setWindowOpenHandler(({ url: targetUrl }) => {
+				shell.openExternal(targetUrl)
+				return { action: "deny" }
+			})
+
+			await win.loadURL(url, { extraHeaders })
+			return { success: true }
+		} catch (error) {
+			logger.error(
+				`[auth-ipc] 打开支付客户端失败: ${error instanceof Error ? error.message : String(error)}`,
+			)
+			windowManager.closeWindow(PAYMENT_CLIENT_WINDOW_ID)
+			return {
+				success: false,
+				message: "打开支付页面失败，请稍后重试",
+			}
+		}
+	})
+}
+
 export const regAuthIPC = () => {
 	setTokensHandler()
 	getAccessTokenHandler()
 	forceRefreshHandler()
 	logoutHandler()
+	openPaymentClientPortalHandler()
 	console.log("[reg] auth-ipc")
 }

@@ -46,6 +46,8 @@ export const BACKTEST_PAGE = "/backtest"
 export const FAQ_PAGE = "/faq"
 // 设置
 export const SETTINGS_PAGE = "/settings"
+// 我的积分
+export const CREDIT_PAGE = "/credit"
 
 // 板块容器路由
 export const DATA_SECTION_ROUTE = "/data-section"

@@ -14,6 +14,11 @@ import { DataTableFilterOptions } from "@/renderer/components/ui/data-table-filt
 import { Dialog, DialogContent } from "@/renderer/components/ui/dialog"
 import { DialogHeader } from "@/renderer/components/ui/dialog"
 import { DialogTitle } from "@/renderer/components/ui/dialog"
+import { CREDIT_PAGE } from "@/renderer/constant"
+import {
+	formatCreditBalance,
+	useCreditBalance,
+} from "@/renderer/hooks/useCreditBalance"
 import DataSubscriptionTable from "@/renderer/page/data/subscription"
 import { isUpdatingAtom } from "@/renderer/store"
 import { showDataSubModalAtom } from "@/renderer/store/storage"
@@ -29,8 +34,10 @@ import {
 	FileText,
 	PlusCircle,
 	RefreshCw,
+	Zap,
 } from "lucide-react"
 import { useState } from "react"
+import { useNavigate } from "react-router"
 import { toast } from "sonner"
 
 const {
@@ -58,11 +65,14 @@ export function DataTableActionOptions<TData>({
 	const [loading, setLoading] = useState(false)
 	const [isFetching] = useState(false)
 	const [isUpdatingPeriodOffset, setIsUpdatingPeriodOffset] = useState(false)
+	const navigate = useNavigate()
 	const { isLoggedIn, permissions } = useAtomValue(userAtom)
 	const isMember = checkPermission(permissions, "isMember")
 	const isUpdating = useAtomValue(isUpdatingAtom) // 获取是否正在更新的状态
 	const [showDataSubModal, setShowDataSubModal] = useAtom(showDataSubModalAtom)
 	const isFiltered = table.getState().columnFilters.length > 0
+	const { creditBalance, isFetchingCreditBalance, refetchCreditBalance } =
+		useCreditBalance(isLoggedIn)
 
 	const { mutateAsync: updateProduct } = useMutation({
 		mutationKey: ["update-all-product"],
@@ -161,6 +171,35 @@ export function DataTableActionOptions<TData>({
 						更新 period_offset
 					</Button>
 				)}
+
+				<div className="flex items-center gap-1">
+					<Button
+						size="sm"
+						variant="outline"
+						className="h-8 text-foreground"
+						disabled={!isLoggedIn}
+						onClick={() => navigate(CREDIT_PAGE)}
+					>
+						<Zap size={14} className="mr-2" />
+						积分余额 {formatCreditBalance(creditBalance?.credit_balance)}
+					</Button>
+					<Button
+						size="sm"
+						variant="outline"
+						className="h-8 w-8 p-0 text-foreground"
+						disabled={!isLoggedIn || isFetchingCreditBalance}
+						title="刷新余额"
+						onClick={async () => {
+							await refetchCreditBalance()
+							toast.success("余额已刷新")
+						}}
+					>
+						<RefreshCw
+							size={14}
+							className={isFetchingCreditBalance ? "animate-spin" : ""}
+						/>
+					</Button>
+				</div>
 			</div>
 
 			<DataTableFilterOptions<TData>

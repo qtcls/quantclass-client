@@ -14,6 +14,11 @@ import type {
 	ResearchListResponse,
 	ResearchTicketResponse,
 } from "@/renderer/types/research"
+import type {
+	CreditBalanceResponse,
+	CreditRecord,
+	CreditRecordsResponse,
+} from "@/shared/types"
 
 const { rendererLog } = window.electronAPI
 
@@ -79,6 +84,54 @@ export const getStatusExpires = async () => {
 				message: error instanceof Error ? error.message : String(error),
 			}
 		}
+	}
+}
+
+const CRM_BASE_URL = (
+	import.meta.env.VITE_CRM_BASE_URL || "https://xms.quantclass.cn"
+).replace(/\/$/, "")
+
+export const getCreditBalance = async (): Promise<CreditBalanceResponse | null> => {
+	try {
+		return await get<CreditBalanceResponse>(
+			`${CRM_BASE_URL}/api/user/get/credit-balance`,
+		)
+	} catch (error) {
+		if (
+			error instanceof ApiError &&
+			(error.status === 401 || error.status === 403)
+		) {
+			return null
+		}
+		throw error
+	}
+}
+
+export const getCreditRecords = async (params?: {
+	page?: number
+	page_size?: number
+}): Promise<CreditRecordsResponse | null> => {
+	try {
+		const data = await get<
+			| CreditRecord[]
+			| { records?: CreditRecord[]; list?: CreditRecord[]; total?: number }
+		>(`${CRM_BASE_URL}/api/user/get/credit-records`, params)
+		if (Array.isArray(data)) {
+			return { records: data, total: data.length }
+		}
+		const records = data.records ?? data.list ?? []
+		return {
+			records,
+			total: data.total ?? records.length,
+		}
+	} catch (error) {
+		if (
+			error instanceof ApiError &&
+			(error.status === 401 || error.status === 403)
+		) {
+			return null
+		}
+		throw error
 	}
 }
 

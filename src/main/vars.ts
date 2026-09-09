@@ -13,6 +13,13 @@ import pkg from "../../package.json"
 // 在 Electron 主进程中，环境变量应该从 process.env 获取
 export const BASE_URL = process.env.VITE_BASE_URL || "https://api.quantclass.cn"
 
+/** CRM 平台 api 地址 */
+export const CRM_BASE_URL =
+	process.env.VITE_CRM_BASE_URL || "https://xms.quantclass.cn"
+
+/** 支付平台api地址 */
+export const PAYMENT_GATEWAY_URL = "http://localhost:13000"
+
 // 应用版本信息
 export const CLIENT_VERSION = `v${pkg.version}`
 export const PACKAGE_INFO = pkg

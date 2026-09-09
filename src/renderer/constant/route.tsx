@@ -10,6 +10,7 @@
 
 import {
 	BACKTEST_PAGE,
+	CREDIT_PAGE,
 	DATA_PAGE,
 	DATA_SECTION_ROUTE,
 	FAQ_PAGE,
@@ -27,6 +28,7 @@ import {
 	TRADING_PLAN_PAGE,
 	TRADING_SECTION_ROUTE,
 } from "@/renderer/constant"
+import CreditPage from "@/renderer/page/credit"
 import FAQ from "@/renderer/page/FAQ"
 import StrategyRun from "@/renderer/page/backtest"
 import Data from "@/renderer/page/data"
@@ -150,6 +152,12 @@ export const ROUTES = [
 		icon: Code,
 		label: "框架源码",
 		element: ResearchFrameworkSourcePage,
+	},
+	{
+		key: CREDIT_PAGE,
+		icon: HelpCircleIcon,
+		label: "我的积分",
+		element: CreditPage,
 	},
 	{
 		key: FAQ_PAGE,

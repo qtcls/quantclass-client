@@ -11,6 +11,8 @@
 export interface UserAccountInfo {
 	id: string
 	uuid: string
+	openid?: string
+	unionid?: string
 	apiKey: string
 	headimgurl: string
 	isMember: boolean
@@ -40,6 +42,26 @@ export interface UserRoles {
 	coin: RoleInfo
 	stock: RoleInfo
 	block: RoleInfo
+}
+
+export interface CreditBalanceResponse {
+	nickname: string
+	credit_balance: number
+}
+
+export interface CreditRecord {
+	id: number | string
+	amount: number
+	balance?: number
+	remark?: string
+	description?: string
+	type?: string
+	created_at: string
+}
+
+export interface CreditRecordsResponse {
+	records: CreditRecord[]
+	total: number
 }
 
 export interface UserAccount {

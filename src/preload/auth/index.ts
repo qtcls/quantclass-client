@@ -26,6 +26,12 @@ export const authIPC = {
 	// -- 渲染端登出 IPC
 	logoutAuth: (): Promise<void> => ipcRenderer.invoke("auth:logout"),
 
+	// -- 在内嵌窗口打开支付平台页面
+	openPaymentClientPortal: (): Promise<{
+		success: boolean
+		message?: string
+	}> => ipcRenderer.invoke("auth:open-payment-client-portal"),
+
 	// -- 渲染端订阅主进程推送的会话失效事件
 	onSessionInvalid: (cb: () => void): (() => void) => {
 		const listener = () => cb()

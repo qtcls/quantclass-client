@@ -24,11 +24,13 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 } from "@/renderer/components/ui/dropdown-menu"
+import { CREDIT_PAGE } from "@/renderer/constant"
 import { useLogout } from "@/renderer/layout/UserMenu/useLogout"
 import { cn } from "@/renderer/lib/utils"
 import type { UserAccountInfo } from "@/shared/types"
-import { LogOut, Sparkles } from "lucide-react"
+import { LogOut, Sparkles, Zap } from "lucide-react"
 import { useState } from "react"
+import { useNavigate } from "react-router"
 
 interface UserMenuContentProps {
 	user: UserAccountInfo | null
@@ -43,7 +45,9 @@ export const UserMenuContent = ({
 }: UserMenuContentProps) => {
 	const { handleLogout } = useLogout()
 	const [promoOpen, setPromoOpen] = useState(false)
+	const navigate = useNavigate()
 	const { openUrl } = window.electronAPI
+
 	return (
 		<>
 			<DropdownMenuContent
@@ -77,6 +81,10 @@ export const UserMenuContent = ({
 					>
 						<Sparkles />
 						{user?.isMember ? "已开通分享会" : "了解分享会"}
+					</DropdownMenuItem>
+					<DropdownMenuItem onClick={() => navigate(CREDIT_PAGE)}>
+						<Zap />
+						我的积分
 					</DropdownMenuItem>
 				</DropdownMenuGroup>
 				<DropdownMenuSeparator />
