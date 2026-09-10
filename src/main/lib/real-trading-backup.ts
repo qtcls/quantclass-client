@@ -11,9 +11,13 @@
 import fs from "node:fs"
 import { createWriteStream } from "node:fs"
 import path from "node:path"
+import { userStore } from "@/main/lib/userStore.js"
 import store from "@/main/store/index.js"
 import { loadTradingDaysFromPeriodOffsetCsv } from "@/main/utils/common.js"
 import logger from "@/main/utils/wiston.js"
+import { STOCK_QUANT_STRATEGY_CONFIG } from "@/shared/constants.js"
+import { stockQuantToStrategyList } from "@/shared/lib/basic-strategy-import.js"
+import { checkPermission } from "@/shared/lib/permission.js"
 import {
 	getLocalCalendarYmd,
 	getLocalMidnightOfNthTradingDayBefore,
@@ -210,7 +214,22 @@ async function getPosStrategyNames(): Promise<string[]> {
 		: []
 }
 
+async function getStockQuantStrategyNames(): Promise<string[]> {
+	const stockQuant = await store.getValue(STOCK_QUANT_STRATEGY_CONFIG, {})
+	const list = stockQuantToStrategyList(stockQuant) as Array<{ name?: unknown }>
+	return list
+		.map((x) => String(x?.name ?? "").trim())
+		.filter((s) => s.length > 0)
+}
+
 async function getSelectStockStrategyNames(): Promise<string[]> {
+	const userAccount = await userStore.getUserAccount()
+	const isMember = checkPermission(userAccount?.permissions ?? [], "isMember")
+
+	if (!isMember) {
+		return getStockQuantStrategyNames()
+	}
+
 	const list = (await store.getValue(
 		"select_stock.strategy_list",
 		[],

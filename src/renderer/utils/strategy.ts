@@ -15,6 +15,8 @@ import type {
 	StgGroupType,
 } from "@/renderer/types/strategy"
 import { genPosMgmtStrategyDict, genSelectStrategyDict } from "@/renderer/utils"
+import { STOCK_QUANT_STRATEGY_CONFIG } from "@/shared/constants"
+import { buildStockQuantPayload } from "@/shared/lib/basic-strategy-import"
 import {
 	getFusionGroupSubRealMarketStrategyName,
 	getFusionTopRealMarketStrategyName,
@@ -110,16 +112,10 @@ const genSelectStgInfo = (strategy: SelectStgType, includeInfo = true) => {
 	}
 }
 
-export const saveStrategyList = async (
+function buildSelectStrategyPersistPayload(
 	strategies: SelectStgType[],
 	existingRebTimeConfig?: Record<string, RebTimeConfig>,
-) => {
-	/**
-	 * @description 保存策略列表
-	 * @param strategies 策略列表
-	 * @param existingRebTimeConfig 已有的换仓时间配置（可选），如果提供则复用已有的时间
-	 * @returns { strategyDict, rebTimeConfig }
-	 */
+) {
 	const strategiesWithAdjustedWeight = strategies.map((strategy) => ({
 		...strategy,
 		calc_time: strategy.calc_time ?? "08:00:00",
@@ -127,7 +123,6 @@ export const saveStrategyList = async (
 
 	const rebTimeConfig: Record<string, RebTimeConfig> = {}
 
-	// 如果有已有配置，复用时间但清空策略列表
 	if (existingRebTimeConfig) {
 		for (const [rebTime, config] of Object.entries(existingRebTimeConfig)) {
 			rebTimeConfig[rebTime] = {
@@ -154,28 +149,52 @@ export const saveStrategyList = async (
 		)
 	}
 
-	// 清理不再使用的 rebalance_time 配置
 	for (const rebTime of Object.keys(rebTimeConfig)) {
 		if (rebTimeConfig[rebTime].strategies.length === 0) {
 			delete rebTimeConfig[rebTime]
 		}
 	}
 
-	// -- 生成策略配置字典，添加index
-	// const strategyDict = strategiesWithAdjustedWeight.reduce(
-	// 	(acc, item, index) => {
-	// 		acc[`#${index}.${item.name}`] = genSelectStrategyDict(
-	// 			item as SelectStgType,
-	// 		)
-	// 		return acc
-	// 	},
-	// 	{},
-	// )
-	// -- 生成aqua内核策略列表
 	const selectStrategyList = strategiesWithAdjustedWeight.map((stg) =>
 		genSelectStgInfo(stg, false),
 	)
+
+	return { strategyDict, rebTimeConfig, selectStrategyList }
+}
+
+export const saveStrategyList = async (
+	strategies: SelectStgType[],
+	existingRebTimeConfig?: Record<string, RebTimeConfig>,
+) => {
+	/**
+	 * @description 保存策略列表
+	 * @param strategies 策略列表
+	 * @param existingRebTimeConfig 已有的换仓时间配置（可选），如果提供则复用已有的时间
+	 * @returns { strategyDict, rebTimeConfig }
+	 */
+	const { strategyDict, rebTimeConfig, selectStrategyList } =
+		buildSelectStrategyPersistPayload(strategies, existingRebTimeConfig)
 	await setStoreValue("select_stock.strategy_list", selectStrategyList)
+
+	return { strategyDict, rebTimeConfig }
+}
+
+export const saveStockQuantStrategies = async (
+	strategies: SelectStgType[],
+	existingRebTimeConfig?: Record<string, RebTimeConfig>,
+) => {
+	const { strategyDict, rebTimeConfig, selectStrategyList } =
+		buildSelectStrategyPersistPayload(strategies, existingRebTimeConfig)
+
+	if (selectStrategyList.length === 0) {
+		await setStoreValue(STOCK_QUANT_STRATEGY_CONFIG, {})
+		return { strategyDict, rebTimeConfig }
+	}
+
+	const payload = buildStockQuantPayload(selectStrategyList)
+	if (payload) {
+		await setStoreValue(STOCK_QUANT_STRATEGY_CONFIG, payload)
+	}
 
 	return { strategyDict, rebTimeConfig }
 }

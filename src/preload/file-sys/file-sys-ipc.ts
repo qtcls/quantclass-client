@@ -20,7 +20,10 @@ import { killKernalByForce, sendErrorToClient } from "@/main/utils/tools.js"
 import logger from "@/main/utils/wiston.js"
 import { BASE_URL, CLIENT_VERSION } from "@/main/vars.js"
 import { LIBRARY_TYPE } from "@/shared/constants.js"
-import { validateBasicSelectStrategy } from "@/shared/lib/basic-strategy-import.js"
+import {
+	isPresentStrategy,
+	validateBasicStockQuantImport,
+} from "@/shared/lib/basic-strategy-import.js"
 import { checkPermission } from "@/shared/lib/permission.js"
 import type { ManualStockSelectResultItem } from "@/shared/types/manual-stock-select.js"
 import { parse } from "csv-parse/sync"
@@ -246,16 +249,14 @@ async function importSelectStockHandler(): Promise<void> {
 				const result = await parsePythonConfig(configFilePath, [
 					"strategy_list",
 					"strategy",
+					"strategy2",
 					"backtest_name",
 					"re_timing",
 				])
 
 				let strategyList: unknown[]
 				const strategy = result.strategy
-				const isStrategyDict =
-					typeof strategy === "object" &&
-					strategy !== null &&
-					!Array.isArray(strategy)
+				const isStrategyDict = isPresentStrategy(strategy)
 
 				if (isMember) {
 					if (
@@ -282,8 +283,11 @@ async function importSelectStockHandler(): Promise<void> {
 						success: false,
 						error: "导入失败：基础版请使用 strategy 格式，不支持 strategy_list",
 					}
-				} else if (isStrategyDict) {
-					const validation = validateBasicSelectStrategy(strategy)
+				} else {
+					const validation = validateBasicStockQuantImport(
+						strategy,
+						result.strategy2,
+					)
 					if (!validation.ok) {
 						logger.warn(
 							`[import] 基础版策略字段校验失败: ${validation.error}`,
@@ -291,9 +295,9 @@ async function importSelectStockHandler(): Promise<void> {
 						return { success: false, error: validation.error }
 					}
 					strategyList = [strategy]
-				} else {
-					logger.error("[importLibraryDirHandler] 解析 strategy 失败")
-					return { success: false, error: "解析 strategy 失败" }
+					if (isPresentStrategy(result.strategy2)) {
+						strategyList.push(result.strategy2)
+					}
 				}
 
 				configJsonStr = JSON.stringify(strategyList, null, 2)

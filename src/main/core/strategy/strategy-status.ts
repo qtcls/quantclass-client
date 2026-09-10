@@ -13,7 +13,9 @@ import { userStore } from "@/main/lib/userStore.js"
 import store, { rStore } from "@/main/store/index.js"
 import logger from "@/main/utils/wiston.js"
 import { ROCKET_STATS_PATH, SELECT_STATS_PATH } from "@/main/vars.js"
-import { getSelectKernal } from "@/shared/lib/permission.js"
+import { STOCK_QUANT_STRATEGY_CONFIG } from "@/shared/constants.js"
+import { stockQuantToStrategyList } from "@/shared/lib/basic-strategy-import.js"
+import { checkPermission, getSelectKernal } from "@/shared/lib/permission.js"
 import {
 	getFusionGroupSubRealMarketStrategyName,
 	getFusionTopRealMarketStrategyName,
@@ -724,15 +726,24 @@ export async function getStrategyStatusList(
 	}
 }
 
+async function getSelectModeStrategyList(): Promise<any[]> {
+	const userAccount = await userStore.getUserAccount()
+	const isMember = checkPermission(userAccount?.permissions ?? [], "isMember")
+
+	if (!isMember) {
+		const stockQuant = await store.getValue(STOCK_QUANT_STRATEGY_CONFIG, {})
+		return stockQuantToStrategyList(stockQuant) as any[]
+	}
+
+	return (await store.getValue("select_stock.strategy_list", [])) as any[]
+}
+
 // 选股模式状态列表函数
 async function getStrategyStatusListForSelect(
 	date: string,
 ): Promise<StrategyStatus[][]> {
 	try {
-		const strategyList = (await store.getValue(
-			"select_stock.strategy_list",
-			[],
-		)) as any[]
+		const strategyList = await getSelectModeStrategyList()
 
 		if (strategyList.length === 0) {
 			logger.warn("[strategy-status] strategy_list 为空")

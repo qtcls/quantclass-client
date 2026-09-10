@@ -84,6 +84,7 @@ export const TRADING_MAIN_PAGE = TRADING_SECTION_ROUTE
 // -- 选股 config
 export const SELECT_STOCK_STRATEGY_CONFIG = "select_stock"
 export const POS_MGMT_STRATEGY_CONFIG = "pos_mgmt"
+export const STOCK_QUANT_STRATEGY_CONFIG = "stock_quant"
 
 export const DATA_TAB_NAME = "data"
 export const REAL_TRADING_TAB_NAME = "real_trading"

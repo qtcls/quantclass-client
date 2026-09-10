@@ -16,6 +16,7 @@ import {
 	selectStgDictAtom,
 	selectStgListAtom,
 } from "@/renderer/store/storage"
+import { userAtom } from "@/renderer/store/user"
 import type {
 	PosStrategyType,
 	RebTimeConfig,
@@ -23,9 +24,11 @@ import type {
 	StgGroupType,
 } from "@/renderer/types/strategy"
 import {
+	saveStockQuantStrategies,
 	saveStrategyList,
 	saveStrategyListFusion,
 } from "@/renderer/utils/strategy"
+import { checkPermission } from "@/shared/lib/permission"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { RESET, useAtomCallback } from "jotai/utils"
 import {
@@ -68,6 +71,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 	const [selectStgList, setSelectStgList] = useAtom(selectStgListAtom)
 	const [rebTimeConfig, setRebTimeConfig] = useAtom(rebTimeConfigAtom)
 	const libraryType = useAtomValue(libraryTypeAtom)
+	const { permissions } = useAtomValue(userAtom)
+	const isMember = checkPermission(permissions, "isMember")
 	const setSelectStgDict = useSetAtom(selectStgDictAtom)
 	const setReTiming = useSetAtom(reTimingAtom)
 	const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null) // 防抖时间控制器
@@ -142,8 +147,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 	const syncSelectStgList = useAtomCallback(async (get, set) => {
 		const currentSelectStgList = get(selectStgListAtom)
 		const currentRebTimeConfig = get(rebTimeConfigAtom)
-		const { strategyDict, rebTimeConfig: newRebTimeConfig } =
-			await saveStrategyList(currentSelectStgList, currentRebTimeConfig)
+		const { permissions } = get(userAtom)
+		const persist = checkPermission(permissions, "isMember")
+			? saveStrategyList
+			: saveStockQuantStrategies
+		const { strategyDict, rebTimeConfig: newRebTimeConfig } = await persist(
+			currentSelectStgList,
+			currentRebTimeConfig,
+		)
 		set(selectStgDictAtom, strategyDict)
 		set(rebTimeConfigAtom, newRebTimeConfig)
 	})
@@ -171,7 +182,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 						break
 					}
 					case "select": {
-						const result = await saveStrategyList(selectStgList, rebTimeConfig)
+						const persist = isMember
+							? saveStrategyList
+							: saveStockQuantStrategies
+						const result = await persist(selectStgList, rebTimeConfig)
 						selectStgDict = result.strategyDict
 						newRebTimeConfig = result.rebTimeConfig
 						break
@@ -205,7 +219,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 				clearTimeout(saveTimeoutRef.current)
 			}
 		}
-	}, [relevantList, libraryType, setSelectStgDict, setRebTimeConfig])
+	}, [relevantList, libraryType, isMember, setSelectStgDict, setRebTimeConfig])
 
 	const contextValue = useMemo(
 		() => ({
