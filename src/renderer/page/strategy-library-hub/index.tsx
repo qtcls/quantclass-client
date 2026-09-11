@@ -80,8 +80,7 @@ export default function StrategyLibraryHub() {
 				</div>
 				{isFusionLocked ? (
 					<MemberPromoBanner
-						featureName={FUSION_LIBRARY_FEATURE}
-						className="flex-1 min-w-0"
+						learnMoreLabel="分享会有哪些策略？"
 						onLearnMore={() => setPromoOpen(true)}
 					/>
 				) : (

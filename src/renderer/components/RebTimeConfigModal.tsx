@@ -8,11 +8,15 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
-import { FEN_CLASS_URL } from "@/renderer/components/member-promo"
 import {
-	rainbowBorderClassName,
-	rainbowGradientClassName,
-} from "@/renderer/components/ui/animated-rainbow-card"
+	FEN_CLASS_URL,
+	MemberPromoBanner,
+	MemberPromoDialog,
+} from "@/renderer/components/member-promo"
+import {
+	memberPromoBorderClassName,
+	memberPromoGradientClassName,
+} from "@/renderer/components/member-promo/theme"
 import { Button } from "@/renderer/components/ui/button"
 import {
 	Dialog,
@@ -47,7 +51,7 @@ import {
 } from "@/renderer/utils/strategy"
 import { checkPermission } from "@/shared/lib/permission"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
-import { ArrowUpRight, Clock, InfoIcon, Lock, RefreshCw } from "lucide-react"
+import { ArrowUpRight, Clock, InfoIcon, RefreshCw } from "lucide-react"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 
@@ -74,6 +78,7 @@ const formatTimeValue = (
 
 function RebTimeConfigInfoBanner({ isMember }: { isMember: boolean }) {
 	const { openUrl } = window.electronAPI
+	const [promoOpen, setPromoOpen] = useState(false)
 
 	return (
 		<div className="space-y-3">
@@ -86,61 +91,70 @@ function RebTimeConfigInfoBanner({ isMember }: { isMember: boolean }) {
 			</div>
 
 			{!isMember && (
-				<div className="overflow-hidden rounded-lg border bg-card">
-					<div className="flex items-center justify-between gap-3 border-b px-4 py-2.5">
-						<p className="text-sm text-muted-foreground">
-							<span className="font-medium text-foreground">当前为基础版</span>
-							<span className="mx-1.5 text-border">·</span>
-							下方 2 个固定换仓时间
-						</p>
-						<button
-							type="button"
-							className="inline-flex shrink-0 items-center gap-0.5 text-xs font-medium text-blue-800 hover:text-blue-950 dark:text-blue-200 dark:hover:text-blue-100"
-							onClick={() => openUrl(FEN_CLASS_URL)}
-						>
-							了解分享会
-							<ArrowUpRight className="size-3" />
-						</button>
-					</div>
-
-					<div className="grid grid-cols-2">
-						<div className="flex min-h-[88px] flex-col justify-center gap-2 px-4 py-3">
-							<span className="text-xs font-medium text-muted-foreground">
-								基础版
-							</span>
-							<div className="flex flex-wrap items-center gap-1.5">
-								<code className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-[11px] text-foreground">
-									open
-								</code>
-								<code className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-[11px] text-foreground">
-									close-open
-								</code>
-							</div>
-							<span className="text-xs text-muted-foreground">固定 2 种</span>
+				<>
+					<div className="overflow-hidden rounded-lg border bg-card">
+						<div className="flex items-center justify-between gap-3 border-b px-4 py-2.5">
+							<p className="text-sm text-muted-foreground">
+								<span className="font-medium text-foreground">
+									当前为基础版
+								</span>
+								<span className="mx-1.5 text-border">·</span>
+								下方 2 个固定换仓时间
+							</p>
+							<button
+								type="button"
+								className="inline-flex shrink-0 items-center gap-0.5 text-xs font-medium text-blue-800 hover:text-blue-950 dark:text-blue-200 dark:hover:text-blue-100"
+								onClick={() => openUrl(FEN_CLASS_URL)}
+							>
+								了解分享会
+								<ArrowUpRight className="size-3" />
+							</button>
 						</div>
 
-						<div
-							className={cn(
-								"flex min-h-[88px] flex-col justify-center gap-2 border-l px-4 py-3",
-								rainbowGradientClassName,
-								rainbowBorderClassName,
-							)}
-						>
-							<span className="inline-flex items-center gap-1 text-xs font-medium text-blue-900 dark:text-blue-200">
-								分享会
-								<Lock className="size-3" strokeWidth={2.25} />
-							</span>
-							<div className="flex items-baseline gap-1">
-								<span className="text-lg font-semibold leading-none tracking-tight text-blue-900 dark:text-blue-200">
-									50+
+						<div className="grid grid-cols-2">
+							<div className="flex min-h-[88px] flex-col justify-center gap-2 px-4 py-3">
+								<span className="text-xs font-medium text-muted-foreground">
+									基础版
 								</span>
-								<span className="text-xs text-blue-800/80 dark:text-blue-300/80">
-									换仓时间点
-								</span>
+								<div className="flex flex-wrap items-center gap-1.5">
+									<code className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-[11px] text-foreground">
+										open
+									</code>
+									<code className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-[11px] text-foreground">
+										close-open
+									</code>
+								</div>
+								<span className="text-xs text-muted-foreground">固定 2 种</span>
+							</div>
+
+							<div
+								className={cn(
+									"flex min-h-[88px] flex-wrap items-center gap-3 border-l px-4 py-3",
+									memberPromoGradientClassName,
+									memberPromoBorderClassName,
+								)}
+							>
+								<div className="flex items-baseline gap-1">
+									<span className="text-lg font-semibold leading-none tracking-tight text-blue-900 dark:text-blue-200">
+										50+
+									</span>
+									<span className="text-xs text-blue-800/80 dark:text-blue-300/80">
+										换仓时间点
+									</span>
+								</div>
+								<MemberPromoBanner
+									learnMoreLabel="多种换仓时间点的作用？"
+									onLearnMore={() => setPromoOpen(true)}
+								/>
 							</div>
 						</div>
 					</div>
-				</div>
+					<MemberPromoDialog
+						open={promoOpen}
+						onOpenChange={setPromoOpen}
+						featureName="分享会专属功能"
+					/>
+				</>
 			)}
 		</div>
 	)

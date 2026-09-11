@@ -9,13 +9,21 @@
  */
 
 import { ResearchCenterPage } from "@/renderer/page/research"
+import type { ReactNode } from "react"
 
-export default function ResearchStrategyLibraryPage() {
+interface ResearchStrategyLibraryPageProps {
+	headerAddon?: ReactNode
+}
+
+export default function ResearchStrategyLibraryPage({
+	headerAddon,
+}: ResearchStrategyLibraryPageProps) {
 	return (
 		<ResearchCenterPage
 			apiType="strategies"
 			title="精心随机策略库"
 			description="管理本地已下载的精心随机策略，或下载新版本到策略库"
+			headerAddon={headerAddon}
 		/>
 	)
 }

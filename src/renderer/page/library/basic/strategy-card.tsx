@@ -284,9 +284,8 @@ function SelectExclusiveGrid({
 				<span className={cn("text-[11px] font-medium", MEMBER_RAINBOW_TEXT)}>
 					分享会专属功能
 				</span>
-				<span className="ml-auto inline-flex items-center gap-1 text-[10px] font-medium text-blue-900/80 dark:text-blue-200/80">
-					<Lock className="size-2.5" strokeWidth={2} />
-					了解分享会
+				<span className="ml-auto inline-flex items-center gap-1 text-[10px] font-medium text-blue-600 underline underline-offset-2 dark:text-blue-400">
+					这些功能对策略提升有多大？
 				</span>
 			</div>
 			<div className="grid grid-cols-2 gap-x-4 gap-y-5 px-0 pb-1">

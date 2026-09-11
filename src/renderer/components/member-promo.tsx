@@ -8,52 +8,40 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
+import { FEN_CLASS_URL } from "@/renderer/components/member-promo/constants"
+import { MemberPromoDialog } from "@/renderer/components/member-promo/promo-dialog"
 import {
-	rainbowBorderClassName,
-	rainbowGradientClassName,
-} from "@/renderer/components/ui/animated-rainbow-card"
-import { Button } from "@/renderer/components/ui/button"
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogTitle,
-} from "@/renderer/components/ui/dialog"
+	memberPromoBannerClassName,
+	memberPromoBannerLinkClassName,
+	memberPromoIconBadgeClassName,
+	memberPromoShimmerOverlayClassName,
+	memberPromoTextClassName,
+} from "@/renderer/components/member-promo/theme"
 import { cn } from "@/renderer/lib/utils"
 import { userAtom } from "@/renderer/store/user"
 import { checkPermission } from "@/shared/lib/permission"
 import { useAtomValue } from "jotai"
 import { Sparkles } from "lucide-react"
-import type { ReactNode, SyntheticEvent } from "react"
-import { useState } from "react"
+import {
+	type ReactNode,
+	type SyntheticEvent,
+	createContext,
+	useContext,
+	useState,
+} from "react"
 
-export const FEN_CLASS_URL = "https://www.quantclass.cn/fen/class/fen-2025"
+export { FEN_CLASS_URL, MemberPromoDialog }
 
-const DEFAULT_FEATURE = "本功能"
-
-const memberPromoButtonClassName = cn(
-	"shrink-0 bg-white/80 text-blue-900 hover:bg-white hover:text-blue-900",
-	"dark:bg-background/80 dark:text-blue-200 dark:hover:bg-background dark:hover:text-blue-200",
-	rainbowBorderClassName,
-)
-
-function getMemberPromoDescription(featureName?: string, description?: string) {
-	if (description) return description
-
-	const name = featureName ?? DEFAULT_FEATURE
-	return `${name}暂时仅限策略分享会同学使用`
+interface MemberPromoGateContextValue {
+	openPromo: () => void
 }
 
-interface MemberPromoDialogProps {
-	open: boolean
-	onOpenChange: (open: boolean) => void
-	featureName?: string
-	description?: string
-}
+const MemberPromoGateContext =
+	createContext<MemberPromoGateContextValue | null>(null)
 
 interface MemberPromoBannerProps {
-	featureName: string
 	className?: string
+	learnMoreLabel?: string
 	onLearnMore?: () => void
 }
 
@@ -63,99 +51,49 @@ interface MemberPromoGateProps {
 	className?: string
 	showBanner?: boolean
 	bannerClassName?: string
+	learnMoreLabel?: string
 }
 
 const MEMBER_INTERACTIVE_SELECTOR =
 	"button, a, [role='button'], input, select, textarea, [data-member-action]"
 
-export function MemberPromoDialog({
-	open,
-	onOpenChange,
-	featureName,
-	description,
-}: MemberPromoDialogProps) {
-	const { openUrl } = window.electronAPI
-	const promoDescription = getMemberPromoDescription(featureName, description)
-
-	const handleLearnMore = () => {
-		openUrl(FEN_CLASS_URL)
-		onOpenChange(false)
-	}
-
-	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent
-				className={cn(
-					"max-w-sm gap-0 overflow-hidden border p-0 shadow-xl sm:rounded-2xl",
-					rainbowGradientClassName,
-					rainbowBorderClassName,
-				)}
-			>
-				<div className="flex flex-col items-center px-6 pb-6 pt-10 text-center">
-					<div
-						className={cn(
-							"mb-5 flex size-16 items-center justify-center rounded-full border bg-white/90 dark:bg-background/90",
-							rainbowBorderClassName,
-						)}
-					>
-						<Sparkles className="size-8 text-violet-500" strokeWidth={1.75} />
-					</div>
-
-					<DialogTitle className="mb-2 text-xl font-bold text-blue-900 dark:text-blue-200">
-						分享会专享功能
-					</DialogTitle>
-
-					<DialogDescription className="mb-8 text-sm leading-relaxed text-blue-800 dark:text-blue-300">
-						{promoDescription}
-					</DialogDescription>
-
-					<Button
-						variant="outline"
-						className={cn("h-11 w-full rounded-xl", memberPromoButtonClassName)}
-						onClick={handleLearnMore}
-					>
-						了解分享会
-					</Button>
-				</div>
-			</DialogContent>
-		</Dialog>
-	)
-}
-
 export function MemberPromoBanner({
-	featureName,
 	className,
+	learnMoreLabel = "了解分享会",
 	onLearnMore,
 }: MemberPromoBannerProps) {
+	const gate = useContext(MemberPromoGateContext)
+	const handleLearnMore = onLearnMore ?? gate?.openPromo
+
 	return (
 		<div
-			className={cn(
-				"flex h-10 min-w-0 flex-1 items-center justify-between gap-2 rounded-lg border px-3.5",
-				rainbowGradientClassName,
-				rainbowBorderClassName,
-				className,
-			)}
+			data-member-promo-banner
+			className={cn(memberPromoBannerClassName, className)}
 		>
-			<div className="flex min-w-0 items-center gap-2 text-sm text-blue-900 dark:text-blue-200">
-				<div
-					className={cn(
-						"flex size-7 shrink-0 items-center justify-center rounded-full border bg-white/90 dark:bg-background/90",
-						rainbowBorderClassName,
-					)}
-				>
-					<Sparkles className="size-4 text-violet-500" strokeWidth={1.75} />
-				</div>
-				<span className="truncate font-medium">{featureName} · 分享会专享</span>
-			</div>
-
-			<Button
-				variant="outline"
-				size="sm"
-				className={cn("h-8 shrink-0 px-3 text-sm", memberPromoButtonClassName)}
-				onClick={onLearnMore}
+			<div aria-hidden className={memberPromoShimmerOverlayClassName} />
+			<div
+				className={cn(
+					memberPromoIconBadgeClassName,
+					"relative z-10 size-6 bg-white/90",
+				)}
 			>
-				了解分享会
-			</Button>
+				<Sparkles className="size-3 text-violet-500" strokeWidth={1.75} />
+			</div>
+			<span
+				className={cn(
+					"relative z-10 shrink-0 text-sm font-medium",
+					memberPromoTextClassName,
+				)}
+			>
+				分享会专享
+			</span>
+			<button
+				type="button"
+				className={memberPromoBannerLinkClassName}
+				onClick={handleLearnMore}
+			>
+				{learnMoreLabel}
+			</button>
 		</div>
 	)
 }
@@ -167,6 +105,7 @@ export function MemberPromoGate({
 	className,
 	showBanner = true,
 	bannerClassName,
+	learnMoreLabel,
 }: MemberPromoGateProps) {
 	const { permissions } = useAtomValue(userAtom)
 	const isMember = checkPermission(permissions, "isMember")
@@ -174,22 +113,30 @@ export function MemberPromoGate({
 
 	if (isMember) return <>{children}</>
 
+	function openPromo() {
+		setPromoOpen(true)
+	}
+
 	function interceptMemberAction(event: SyntheticEvent) {
 		const target = event.target as HTMLElement
+		if (target.closest("[data-member-promo-banner]")) return
 		if (!target.closest(MEMBER_INTERACTIVE_SELECTOR)) return
 
 		event.preventDefault()
 		event.stopPropagation()
-		setPromoOpen(true)
+		openPromo()
+	}
+
+	const gateContext: MemberPromoGateContextValue = {
+		openPromo,
 	}
 
 	return (
-		<>
+		<MemberPromoGateContext.Provider value={gateContext}>
 			{showBanner && (
 				<MemberPromoBanner
-					featureName={featureName}
 					className={cn("mb-3", bannerClassName)}
-					onLearnMore={() => setPromoOpen(true)}
+					learnMoreLabel={learnMoreLabel}
 				/>
 			)}
 			<div
@@ -203,6 +150,6 @@ export function MemberPromoGate({
 				onOpenChange={setPromoOpen}
 				featureName={featureName}
 			/>
-		</>
+		</MemberPromoGateContext.Provider>
 	)
 }

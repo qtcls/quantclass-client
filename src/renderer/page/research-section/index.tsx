@@ -1,4 +1,7 @@
-import { MemberPromoGate } from "@/renderer/components/member-promo"
+import {
+	MemberPromoBanner,
+	MemberPromoGate,
+} from "@/renderer/components/member-promo"
 import {
 	SectionPage,
 	type SectionTabItem,
@@ -21,9 +24,11 @@ const BASIC_COURSE_TAB = {
 	label: "基础课程框架源码",
 } as const
 
-type TabKey =
-	| (typeof MEMBER_TABS)[number]["key"]
-	| typeof BASIC_COURSE_TAB.key
+type TabKey = (typeof MEMBER_TABS)[number]["key"] | typeof BASIC_COURSE_TAB.key
+
+const TAB_LEARN_MORE_LABEL: Partial<Record<TabKey, string>> = {
+	strategy_library: "为什么需要精心随机？",
+}
 
 const ResearchSectionPage: FC = () => {
 	const { permissions } = useAtomValue(userAtom)
@@ -39,20 +44,33 @@ const ResearchSectionPage: FC = () => {
 			tabs={tabs}
 			defaultTab={isMember ? "strategy_library" : BASIC_COURSE_TAB.key}
 		>
-			{(activeTab: TabKey) =>
-				activeTab === "basic_course_framework" ? (
-					<ResearchBasicCourseFrameworkPage />
-				) : (
-					<MemberPromoGate featureName="投研中心" className="h-full">
-						{activeTab === "strategy_library" && (
-							<ResearchStrategyLibraryPage />
-						)}
-						{activeTab === "framework_source" && (
-							<ResearchFrameworkSourcePage />
-						)}
-					</MemberPromoGate>
-				)
-			}
+			{(activeTab: TabKey) => {
+				if (activeTab === "basic_course_framework") {
+					return <ResearchBasicCourseFrameworkPage />
+				}
+
+				if (activeTab === "strategy_library") {
+					return (
+						<MemberPromoGate
+							featureName="投研中心"
+							className="h-full"
+							showBanner={false}
+						>
+							<ResearchStrategyLibraryPage
+								headerAddon={
+									!isMember ? (
+										<MemberPromoBanner
+											learnMoreLabel={TAB_LEARN_MORE_LABEL.strategy_library}
+										/>
+									) : undefined
+								}
+							/>
+						</MemberPromoGate>
+					)
+				}
+
+				return <ResearchFrameworkSourcePage />
+			}}
 		</SectionPage>
 	)
 }

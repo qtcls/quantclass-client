@@ -93,6 +93,7 @@ export interface ResearchCenterPageProps {
 	courseNames?: readonly string[]
 	directDownloadConfig?: ResearchCenterDirectDownloadConfig
 	className?: string
+	headerAddon?: ReactNode
 	extraActions?: (context: {
 		repoRecords: RepoDownloadRecord[] | undefined
 		localRecords: RepoDownloadRecord[]
@@ -239,6 +240,7 @@ export function ResearchCenterPage({
 	courseNames = YEAR_OPTIONS,
 	directDownloadConfig,
 	className,
+	headerAddon,
 	extraActions,
 	recordActions,
 }: ResearchCenterPageProps) {
@@ -367,7 +369,10 @@ export function ResearchCenterPage({
 		>
 			<div className="w-full space-y-3">
 				<div className="min-w-0">
-					<H2>{title}</H2>
+					<div className="flex items-center gap-3">
+						<H2 className="shrink-0">{title}</H2>
+						{headerAddon}
+					</div>
 					{description ? (
 						<p className="text-muted-foreground mt-1">{description}</p>
 					) : null}
@@ -703,7 +708,9 @@ function DownloadVersionsDialog({
 	repoRecords,
 	userPermissions,
 }: DownloadVersionsDialogProps) {
-	const [activeYear, setActiveYear] = useState(courseNames[0] ?? YEAR_OPTIONS[0])
+	const [activeYear, setActiveYear] = useState(
+		courseNames[0] ?? YEAR_OPTIONS[0],
+	)
 	const [selectedItemId, setSelectedItemId] = useState<string | null>(null)
 	const showCourseTabs = courseNames.length > 1
 
@@ -750,10 +757,7 @@ function DownloadVersionsDialog({
 				{(showCourseTabs || (isFetching && !isLoading)) && (
 					<div className="px-6 pb-3 shrink-0 flex items-center justify-between gap-3">
 						{showCourseTabs ? (
-							<Tabs
-								value={activeYear}
-								onValueChange={(v) => setActiveYear(v)}
-							>
+							<Tabs value={activeYear} onValueChange={(v) => setActiveYear(v)}>
 								<TabsList>
 									{courseNames.map((y) => (
 										<TabsTrigger key={y} value={y}>

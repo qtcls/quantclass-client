@@ -181,3 +181,13 @@
     height: 4px;
   }
 }
+
+/* 分享会主题闪光 */
+@keyframes member-promo-shimmer {
+  0% {
+    transform: translateX(-100%) skewX(-12deg);
+  }
+  100% {
+    transform: translateX(300%) skewX(-12deg);
+  }
+}

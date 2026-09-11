@@ -8,6 +8,7 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
+import { MemberPromoBanner } from "@/renderer/components/member-promo"
 import { Badge } from "@/renderer/components/ui/badge"
 import { Button } from "@/renderer/components/ui/button"
 import {
@@ -29,7 +30,9 @@ import { cn } from "@/renderer/lib/utils"
 import { getKernelStatus } from "@/renderer/page/home/kernel-status"
 import { isUpdatingAtom } from "@/renderer/store"
 import { monitorProcessesQueryAtom } from "@/renderer/store/query"
+import { userAtom } from "@/renderer/store/user"
 import { useLocalVersions, versionsAtom } from "@/renderer/store/versions"
+import { checkPermission } from "@/shared/lib/permission"
 import type { RepoDownloadRecord } from "@/shared/types/repo"
 import { useQuery } from "@tanstack/react-query"
 import { useAtom, useAtomValue } from "jotai"
@@ -334,6 +337,8 @@ function ConfigMasterLaunchDialog({
 export default function ResearchConfigMasterPage({
 	className,
 }: ResearchConfigMasterPageProps) {
+	const { permissions } = useAtomValue(userAtom)
+	const isMember = checkPermission(permissions, "isMember")
 	const versions = useAtomValue(versionsAtom)
 	const { refetchLocalVersions } = useLocalVersions()
 	const invokeUpdateKernal = useInvokeUpdateKernal()
@@ -410,12 +415,18 @@ export default function ResearchConfigMasterPage({
 		>
 			<div className="flex items-start justify-between gap-4">
 				<div className="min-w-0 space-y-1">
-					<div className="flex items-center gap-2">
-						<PackageCheck className="h-5 w-5 text-muted-foreground" />
-						<h2 className="font-semibold text-xl">config 大师</h2>
+					<div className="flex flex-wrap items-center gap-3">
+						<div className="flex items-center gap-2">
+							<PackageCheck className="h-5 w-5 text-muted-foreground" />
+							<h2 className="font-semibold text-xl">config 大师</h2>
+						</div>
+						{!isMember ? (
+							<MemberPromoBanner learnMoreLabel="如何成为Config大师?" />
+						) : null}
 					</div>
 					<p className="text-sm text-muted-foreground">
-						下载并管理 config 大师内核；点击「启动」后选择本地框架源码版本即可运行。
+						下载并管理 config
+						大师内核；点击「启动」后选择本地框架源码版本即可运行。
 					</p>
 				</div>
 				<div className="flex flex-wrap items-center justify-end gap-2 shrink-0">

@@ -104,7 +104,7 @@ export default function BuyBlacklist({
 					</div>
 					{!isMember && (
 						<MemberPromoBanner
-							featureName="条件不买入（涨跌幅限制）"
+							learnMoreLabel="了解条件黑名单？"
 							onLearnMore={() => setPromoOpen(true)}
 						/>
 					)}
@@ -116,7 +116,7 @@ export default function BuyBlacklist({
 					</H4>
 					{!isMember && (
 						<MemberPromoBanner
-							featureName="条件不买入（涨跌幅限制）"
+							learnMoreLabel="了解条件黑名单？"
 							onLearnMore={() => setPromoOpen(true)}
 						/>
 					)}

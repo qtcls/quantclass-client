@@ -18,7 +18,11 @@ const DataSectionPage: FC = () => {
 				<>
 					{activeTab === "history" && <Data />}
 					{activeTab === "realtime" && (
-						<MemberPromoGate featureName="实时数据" className="h-full">
+						<MemberPromoGate
+							featureName="实时数据"
+							className="h-full"
+							learnMoreLabel="了解实时数据？"
+						>
 							<RealtimeData />
 						</MemberPromoGate>
 					)}

@@ -21,6 +21,11 @@ import { userAtom } from "@/renderer/store/user"
 import { checkPermission } from "@/shared/lib/permission"
 import { useAtomValue } from "jotai"
 
+import {
+	memberPromoBorderClassName,
+	memberPromoGradientClassName,
+	memberPromoTextClassName,
+} from "@/renderer/components/member-promo/theme"
 import { ThemeWrapper } from "@/renderer/components/theme-wrapper"
 import {
 	AlertDialog,
@@ -40,10 +45,6 @@ import {
 	PopoverTrigger,
 } from "@/renderer/components/ui/popover"
 import { Skeleton } from "@/renderer/components/ui/skeleton"
-import {
-	rainbowBorderClassName,
-	rainbowGradientClassName,
-} from "@/renderer/components/ui/animated-rainbow-card"
 import { UndoIcon } from "@/renderer/icons/UndoIcon"
 import {
 	type BaseColor,
@@ -250,9 +251,9 @@ export function Customizer() {
 								<span
 									className={cn(
 										"inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-medium",
-										"text-blue-900 dark:text-blue-200",
-										rainbowGradientClassName,
-										rainbowBorderClassName,
+										memberPromoTextClassName,
+										memberPromoGradientClassName,
+										memberPromoBorderClassName,
 									)}
 								>
 									<Sparkles
@@ -290,9 +291,7 @@ export function Customizer() {
 												"mr-1 flex h-5 w-5 shrink-0 -translate-x-1 items-center justify-center rounded-full bg-[--theme-primary]",
 											)}
 										>
-											{isActive && (
-												<CheckIcon className="h-4 w-4 text-white" />
-											)}
+											{isActive && <CheckIcon className="h-4 w-4 text-white" />}
 										</span>
 										{theme.label}
 									</Button>

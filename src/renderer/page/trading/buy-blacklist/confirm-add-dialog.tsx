@@ -8,7 +8,10 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
-import { MemberPromoDialog } from "@/renderer/components/member-promo"
+import {
+	MemberPromoBanner,
+	MemberPromoDialog,
+} from "@/renderer/components/member-promo"
 import { Button } from "@/renderer/components/ui/button"
 import { Input } from "@/renderer/components/ui/input"
 import { userAtom } from "@/renderer/store/user"
@@ -63,6 +66,14 @@ export default function BuyBlacklistAddConfirm({
 	const [thresholdValue, setThresholdValue] = useState("9")
 	const [reasonInput, setReasonInput] = useState("")
 
+	function handleBlacklistTypeChange(value: string) {
+		if (value === "condition" && !isMember) {
+			setPromoOpen(true)
+			return
+		}
+		setBlacklistType(value as "always" | "condition")
+	}
+
 	// 确认拉黑
 	const confirmBlacklist = async () => {
 		if (blacklistType === "condition") {
@@ -81,11 +92,6 @@ export default function BuyBlacklistAddConfirm({
 				toast.error("阈值必须在0-20之间")
 				return
 			}
-		}
-
-		if (!isMember && blacklistType === "condition") {
-			setPromoOpen(true)
-			return
 		}
 
 		const currentTime = new Date()
@@ -130,17 +136,23 @@ export default function BuyBlacklistAddConfirm({
 							<Label>拉黑类型</Label>
 							<RadioGroup
 								value={blacklistType}
-								onValueChange={(value) =>
-									setBlacklistType(value as "always" | "condition")
-								}
+								onValueChange={handleBlacklistTypeChange}
 							>
 								<div className="flex items-center space-x-2">
 									<RadioGroupItem value="always" id="always" />
 									<Label htmlFor="always">始终不买入</Label>
 								</div>
-								<div className="flex items-center space-x-2">
-									<RadioGroupItem value="condition" id="condition" />
-									<Label htmlFor="condition">条件不买入（涨跌幅限制）</Label>
+								<div className="flex flex-wrap items-center gap-2">
+									<div className="flex items-center space-x-2">
+										<RadioGroupItem value="condition" id="condition" />
+										<Label htmlFor="condition">条件不买入（涨跌幅限制）</Label>
+									</div>
+									{!isMember ? (
+										<MemberPromoBanner
+											learnMoreLabel="有哪些条件？"
+											onLearnMore={() => setPromoOpen(true)}
+										/>
+									) : null}
 								</div>
 							</RadioGroup>
 						</div>
